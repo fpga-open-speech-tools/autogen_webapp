@@ -232,6 +232,7 @@
 
     p {
       margin: 0;
+      white-space:nowrap;
     }
   }
 
@@ -449,3 +450,6 @@ td .content {
   margin: 0;
 }
 
+.autogen-effectContainer{
+  //width:100%;
+}

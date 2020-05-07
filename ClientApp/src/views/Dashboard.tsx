@@ -22,7 +22,8 @@ import * as OpenSpeechDataStore from '../store/OpenSpeechToolsData';
 import { ApplicationState } from '../';
 import { Container, Row, Col, Form, Button} from "react-bootstrap";
 import { StatsCard } from "../components/StatsCard/StatsCard.jsx";
-import { EffectDiv } from "../components/Autogen/Containers/EffectDiv.jsx";
+import { EffectPanelDiv } from "../components/Autogen/Containers/EffectPanelDiv.jsx";
+import { EffectPageDiv } from "../components/Autogen/Containers/EffectPageDiv.jsx";
 
 
 // At runtime, Redux will merge together...
@@ -45,14 +46,15 @@ class Dashboard extends React.PureComponent<OpenSpeechProps> {
       <div className="content">
         <Container fluid>
           <Row>
-            {this.props.availableDemos.map((demo) => 
-              <StatsCard
-                bigIcon={<i className="pe-7s-search text-primary" />}
-                statsText="Passthrough"
-                statsValue={demo.name}
-                statsIcon={<i className="fa fa-clock-o" />}
-                statsIconText="DE10-Nano/Passthrough"
-              />
+            {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
+              <React.Fragment key = { d.name }>
+                <StatsCard
+                  statsText={d.name}
+                  statsValue=""
+                  statsIcon={<i className="fa fa-folder-o" />}
+                  statsIconText={d.downloadurl}
+                />
+              </React.Fragment>
             )} 
           </Row>
           <Form>
@@ -73,11 +75,17 @@ class Dashboard extends React.PureComponent<OpenSpeechProps> {
                 <Button variant ="primary" >Auto-gen</Button>
               </Col>
             </Row>
-            <Row>
-              <EffectDiv
-                panel={this.props.testPanel}
-              />
-            </Row>
+              <div className = "autogen autogen-effectContainer">
+                <h1>{this.props.uiConfig.module}</h1>
+              {this.props.uiConfig.pages.map((page) =>
+                <React.Fragment key={page.name}>
+                <div className={page.name}>
+                    <h1>{page.name}</h1>
+                    <EffectPageDiv page={page} /> 
+                  </div>
+                </React.Fragment>)
+                }
+               </div>
           </Form>
         </Container>
       </div>

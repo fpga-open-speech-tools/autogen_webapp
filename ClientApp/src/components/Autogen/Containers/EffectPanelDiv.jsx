@@ -1,13 +1,13 @@
-import React, { Component, useState } from "react";
+import React, { Component} from "react";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import SliderWrapper from '../Inputs/SliderWrapper'
 
-export class EffectDiv extends Component {
+export class EffectPanelDiv extends Component {
 
   
   render() {
     return (
-      <div className={"card" + (this.props.plain ? " card-plain" : "")}>
+      <div className={"autogen + autogen-panel card" + (this.props.plain ? " card-plain" : "")}>
         <div className={"header" + (this.props.hCenter ? " text-center" : "")}>
           <h4 className="title">{this.props.title}</h4>
           <p className="category">{this.props.category}</p>
@@ -18,21 +18,21 @@ export class EffectDiv extends Component {
             (this.props.ctAllIcons ? " all-icons" : "") +
             (this.props.ctTableFullWidth ? " table-full-width" : "") +
             (this.props.ctTableResponsive ? " table-responsive" : "") +
-            (this.props.ctTableUpgrade ? " table-upgrade" : "")
+            (this.props.ctTableUpgrade ? " table-upgrade" : "") +
+            " autogen" + " autogen-panel"
           }
         >
           {this.props.content}
-          <div>
-            <h1>{this.props.panel.name}</h1>
-          </div>
           {this.props.panel.controls.map((control) =>
-            <div>
-              <h2>{control.title}</h2>
-              <SliderWrapper
-                value={control.defaultValue}
-              />
-            </div>)
-          }
+            <React.Fragment key={control.linkerName}>
+              <div className="autogen autogen-control" key={control.linkerName}>
+                <h2>{control.title}</h2>
+                <SliderWrapper
+                  value={control.defaultValue}
+                />
+                </div>
+            </React.Fragment>
+          )}
           <div className="footer">
             {this.props.legend}
             {this.props.stats != null ? <hr /> : ""}
@@ -48,6 +48,6 @@ export class EffectDiv extends Component {
 //onChange={changeEvent => this.setState({ currentValue: changeEvent.target.value })}
 
 
-export default EffectDiv;
+export default EffectPanelDiv;
 
 

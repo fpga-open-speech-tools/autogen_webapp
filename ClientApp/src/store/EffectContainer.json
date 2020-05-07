@@ -1,0 +1,75 @@
+{
+  "pages": [
+    {
+      "panels": [
+        {
+          "name": "Bitcrusher",
+          "controls": [
+            {
+              "style": "enable",
+              "linkerName": "bob",
+              "min": 0,
+              "dataType": "boolean",
+              "max": 1,
+              "title": "OnOff",
+              "defaultValue": 0,
+              "units": "bypass",
+              "type": "toggle"
+            },
+            {
+              "style": "default",
+              "linkerName": "slider1bitcrusher",
+              "min": 0,
+              "dataType": "u6,0",
+              "max": 32,
+              "title": "Bits",
+              "defaultValue": 32,
+              "units": "-bit",
+              "type": "slider"
+            },
+            {
+              "style": "default",
+              "linkerName": "slider2bitcrusher",
+              "min": 0,
+              "dataType": "u8,7",
+              "max": 1,
+              "title": "Wet-Dry",
+              "defaultValue": 0.5,
+              "units": "",
+              "type": "slider"
+            }
+          ]
+        },
+        {
+          "name": "TestExtraPanel :)",
+          "controls": [
+            {
+              "style": "enable",
+              "linkerName": "toggle1thing",
+              "min": 0,
+              "dataType": "boolean",
+              "max": 1,
+              "title": "OnOff",
+              "defaultValue": 0,
+              "units": "bypass",
+              "type": "toggle"
+            },
+            {
+              "style": "default",
+              "linkerName": "slider2bitcrusher",
+              "min": 0,
+              "dataType": "u8,7",
+              "max": 1,
+              "title": "Wet-Dry",
+              "defaultValue": 0.5,
+              "units": "",
+              "type": "slider"
+            }
+          ]
+        }
+      ],
+      "name": "main"
+    }
+  ],
+  "module": "bitcrusher"
+}

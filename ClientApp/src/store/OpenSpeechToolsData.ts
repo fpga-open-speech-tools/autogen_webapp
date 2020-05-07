@@ -1,5 +1,6 @@
 import { Action, Reducer } from 'redux';
 import { AppThunkAction } from '../';
+import * as uicfg from './EffectContainer.json';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -7,7 +8,7 @@ import { AppThunkAction } from '../';
 export interface OpenSpeechToolsState {
   isLoading: boolean;
   //Interface for UI JSON
-  uiConfig?: EffectContainer;
+  uiConfig: EffectContainer;
   //Interface for Demos Array[]
   availableDemos: Demo[];
   testPanel: Panel;
@@ -16,6 +17,7 @@ export interface OpenSpeechToolsState {
   devicePort?: string;
   command?: Command;
 }
+
 
 export interface Command {
   linkerName: string;
@@ -143,9 +145,15 @@ export const openSpeechDataActionCreators = {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
-  availableDemos: [], isLoading: false,
+  availableDemos: [],
+  isLoading: false,
+  uiConfig: {
+    pages: uicfg.pages,
+    module: uicfg.module
+  },
+
   testPanel: {
-    name: "testEffect",
+    name: "ManualTestPanel",
     controls: [
     {
       style: "default",

@@ -35,7 +35,7 @@ var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var StatsCard_jsx_1 = require("../components/StatsCard/StatsCard.jsx");
-var EffectDiv_jsx_1 = require("../components/Autogen/Containers/EffectDiv.jsx");
+var EffectPageDiv_jsx_1 = require("../components/Autogen/Containers/EffectPageDiv.jsx");
 var Dashboard = /** @class */ (function (_super) {
     __extends(Dashboard, _super);
     function Dashboard() {
@@ -47,23 +47,30 @@ var Dashboard = /** @class */ (function (_super) {
     Dashboard.prototype.render = function () {
         return (React.createElement("div", { className: "content" },
             React.createElement(react_bootstrap_1.Container, { fluid: true },
-                React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (demo) {
-                    return React.createElement(StatsCard_jsx_1.StatsCard, { bigIcon: React.createElement("i", { className: "pe-7s-search text-primary" }), statsText: "Passthrough", statsValue: demo.name, statsIcon: React.createElement("i", { className: "fa fa-clock-o" }), statsIconText: "DE10-Nano/Passthrough" });
+                React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
+                    return React.createElement(React.Fragment, { key: d.name },
+                        React.createElement(StatsCard_jsx_1.StatsCard, { statsText: d.name, statsValue: "", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl }));
                 })),
                 React.createElement(react_bootstrap_1.Form, null,
                     React.createElement(react_bootstrap_1.Row, null,
-                        React.createElement(react_bootstrap_1.Col, { lg: 3 },
+                        React.createElement(react_bootstrap_1.Col, { lg: 3, md: 3 },
                             React.createElement(react_bootstrap_1.Form.Group, { controlId: "ipAddress" },
                                 React.createElement(react_bootstrap_1.Form.Label, null, "IP Address"),
                                 React.createElement(react_bootstrap_1.Form.Control, { placeholder: "192.168.0.1" }))),
-                        React.createElement(react_bootstrap_1.Col, { lg: 3 },
+                        React.createElement(react_bootstrap_1.Col, { lg: 3, md: 3 },
                             React.createElement(react_bootstrap_1.Form.Group, { controlId: "port" },
                                 React.createElement(react_bootstrap_1.Form.Label, null, "Port"),
                                 React.createElement(react_bootstrap_1.Form.Control, { placeholder: "5050" }))),
-                        React.createElement(react_bootstrap_1.Col, { lg: 3 },
+                        React.createElement(react_bootstrap_1.Col, { lg: 3, md: 3 },
                             React.createElement(react_bootstrap_1.Button, { variant: "primary" }, "Auto-gen"))),
-                    React.createElement(react_bootstrap_1.Row, null,
-                        React.createElement(EffectDiv_jsx_1.EffectDiv, { panel: this.props.testPanel }))))));
+                    React.createElement("div", { className: "autogen autogen-effectContainer" },
+                        React.createElement("h1", null, this.props.uiConfig.module),
+                        this.props.uiConfig.pages.map(function (page) {
+                            return React.createElement(React.Fragment, { key: page.name },
+                                React.createElement("div", { className: page.name },
+                                    React.createElement("h1", null, page.name),
+                                    React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { page: page })));
+                        }))))));
     };
     return Dashboard;
 }(React.PureComponent));

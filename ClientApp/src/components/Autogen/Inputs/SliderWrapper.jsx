@@ -1,4 +1,4 @@
-import React, { Component, usestate } from "react";
+import React, { Component } from "react";
 import RangeSlider from 'react-bootstrap-range-slider';
 
 
@@ -13,11 +13,12 @@ export class SliderWrapper extends Component {
 
   render() {
     return (
-      <div>
-      <RangeSliqder
+      <div className="autogen autogen-slider">
+      <RangeSlider
           value={this.state.currentValue}
           onChange={
             changeEvent => {
+              
               this.setState({
                 currentValue: changeEvent.target.value
               })

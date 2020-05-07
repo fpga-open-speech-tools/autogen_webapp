@@ -36,7 +36,7 @@ namespace AvailableDemos.Controllers
         Demo newDemo = new Demo()
         {
           name = a,
-          downloadurl = "DE10-Nano " + a + " ",
+          downloadurl = "DE10-Nano/" + a + " ",
           videourl = "a",
           imageurl = "b"
         };
@@ -44,7 +44,7 @@ namespace AvailableDemos.Controllers
         System.Diagnostics.Debug.WriteLine("Demo: " + a);
       }
       System.Diagnostics.Debug.WriteLine("Expected Number of Effects to Send as JSON: " + ret.Count);
-      return Enumerable.Range(0, ret.Count).Select(index => ret[index]).ToArray();
+      return Enumerable.Range(0, ret.Count).Select(index => ret[index]);
     }
 
 

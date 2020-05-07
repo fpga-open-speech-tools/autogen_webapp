@@ -1,13 +1,11 @@
-using System;
-
 namespace AvailableDemos
 {
   public class Demo
   {
-    public string name;
-    public string downloadurl;
-    public string imageurl;
-    public string videourl;
+    public string name { get; set; }
+    public string downloadurl { get; set; }
+    public string imageurl { get; set; }
+    public string videourl { get; set; }
   }
 }
 
