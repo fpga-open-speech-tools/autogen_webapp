@@ -56,7 +56,7 @@
             },
             {
               "style": "default",
-              "linkerName": "slider2bitcrusher",
+              "linkerName": "slider1thing",
               "min": 0,
               "dataType": "u8,7",
               "max": 1,

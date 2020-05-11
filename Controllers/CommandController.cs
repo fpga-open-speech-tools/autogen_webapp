@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace UIConfig.Controllers
 {
@@ -51,18 +52,26 @@ namespace UIConfig.Controllers
     /// <param name="ip">FormatDesired(aaabbbcccdddd, ex: 192.168.0.1 --> 192168000001)</param>
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    [HttpGet("{deviceIP}/{devicePort}/{bucket}")]
-    public AutogenConfig.EffectContainer Get(string deviceIP, string devicePort, string bucket)
+    [HttpGet("{deviceIP}/{devicePort}/{link}/{value}/{module}")]
+    public void Get(string deviceIP, string devicePort, string link, string value, string module)
     {
-      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
+      System.Diagnostics.Debug.WriteLine("Link: " + link + " Value: " + value + " Module: " + module);
 
-      var url = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort 
+      string url = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort 
         + "/sendCmd";
+      string command = 
+        "{" +
+        "\"link\":\"" + link + "\"," +
+        "\"value\":\"" + value + "\"," +
+        "\"module\":\"" + module + "\"" +
+        "}";
 
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
+      byte[] data = Encoding.ASCII.GetBytes(command);
+      using var client = new WebClient();
+      _ = client.UploadData(url, "PUT", data);
 
-      return result;
     }
+
   }
 
 }

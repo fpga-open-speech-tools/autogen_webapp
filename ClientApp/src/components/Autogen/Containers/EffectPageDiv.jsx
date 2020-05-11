@@ -10,7 +10,9 @@ export class EffectPageDiv extends Component {
       <div className="autogen autogen-page row">
         {this.props.page.panels.map((panel) =>
           <React.Fragment key={panel.name}>
-          <EffectPanelDiv
+            <EffectPanelDiv
+              module={this.props.module}
+              callback={this.props.callback}
               title={panel.name}
               panel={panel}
             />

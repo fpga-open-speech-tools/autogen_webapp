@@ -30,6 +30,8 @@ var Dashboard = /** @class */ (function (_super) {
         _this.handleIPChange = _this.handleIPChange.bind(_this);
         _this.handlePortChange = _this.handlePortChange.bind(_this);
         _this.handleRequestUI = _this.handleRequestUI.bind(_this);
+        _this.handleInputCommand = _this.handleInputCommand.bind(_this);
+        _this.handleDownloadDemo = _this.handleDownloadDemo.bind(_this);
         return _this;
     }
     Dashboard.prototype.componentDidMount = function () {
@@ -46,7 +48,18 @@ var Dashboard = /** @class */ (function (_super) {
     Dashboard.prototype.handleRequestUI = function () {
         this.props.requestOpenSpeechUI(this.state.ipAddress, this.state.port);
     };
+    Dashboard.prototype.handleInputCommand = function (module, link, value) {
+        if (!this.props.isLoading) {
+            this.props.requestSendCommand(link, value, module, this.state.ipAddress, this.state.port);
+        }
+    };
+    Dashboard.prototype.handleDownloadDemo = function (downloadurl) {
+        if (!this.props.isLoading) {
+            this.props.requestDownloadS3Demo(downloadurl, this.state.ipAddress, this.state.port);
+        }
+    };
     Dashboard.prototype.render = function () {
+        var _this = this;
         return (React.createElement("div", { className: "content" },
             React.createElement(react_bootstrap_1.Container, { fluid: true },
                 React.createElement(react_bootstrap_1.Row, null,
@@ -63,7 +76,7 @@ var Dashboard = /** @class */ (function (_super) {
                 React.createElement("h1", null, "Available Demos"),
                 React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
                     return React.createElement(React.Fragment, { key: d.name },
-                        React.createElement(StatsCard_jsx_1.StatsCard, { statsText: d.name, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl }));
+                        React.createElement(StatsCard_jsx_1.StatsCard, { downloadurl: d.downloadurl, callback: _this.handleDownloadDemo, statsText: d.name, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl }));
                 })),
                 React.createElement("div", null,
                     React.createElement("h1", null, "Auto-gen"),
@@ -78,7 +91,7 @@ var Dashboard = /** @class */ (function (_super) {
                         return React.createElement(React.Fragment, { key: page.name },
                             React.createElement("div", { className: page.name },
                                 React.createElement("h1", null, "Page: " + page.name),
-                                React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { page: page })));
+                                React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: _this.handleInputCommand, module: _this.props.uiConfig.module, page: page })));
                     })))));
     };
     return Dashboard;

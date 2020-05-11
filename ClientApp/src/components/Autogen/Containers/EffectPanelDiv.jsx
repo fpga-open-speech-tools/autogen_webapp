@@ -28,7 +28,12 @@ export class EffectPanelDiv extends Component {
             <React.Fragment key={control.linkerName}>
               <div className="autogen autogen-control" key={control.linkerName}>
                 <h2>{control.title}</h2>
-                <InputComponent type={control.type} />
+                <InputComponent
+                  callback={this.props.callback}
+                  module={this.props.module}
+                  link={control.linkerName}
+                  type={control.type}
+                />
                 </div>
             </React.Fragment>
           )}
@@ -49,15 +54,24 @@ export class EffectPanelDiv extends Component {
 function InputComponent(props) {
   const whatComponent = props.type;
   const defaultValue = props.defaultValue;
+  const module = props.module;
+  const link = props.link;
+  const callback = props.callback;
   if (whatComponent == "slider") {
     return (
       <SliderWrapper
-      value={defaultValue}
+        callback={callback}
+        module={module}
+        link={link}
+        value={defaultValue}
       />
     );
   } else if (whatComponent == "toggle") {
     return (
       <ToggleWrapper
+        module={module}
+        link={link}
+        callback={callback}
         value={defaultValue}
       />
     );

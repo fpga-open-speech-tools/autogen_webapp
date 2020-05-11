@@ -33,7 +33,8 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     this.handleIPChange = this.handleIPChange.bind(this);
     this.handlePortChange = this.handlePortChange.bind(this);
     this.handleRequestUI = this.handleRequestUI.bind(this);
-
+    this.handleInputCommand = this.handleInputCommand.bind(this);
+    this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
   }
 
 
@@ -55,6 +56,18 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
   handleRequestUI() {
     this.props.requestOpenSpeechUI(this.state.ipAddress, this.state.port);
+  }
+
+  handleInputCommand(module: string, link: string, value: string) {
+    if (!this.props.isLoading) {
+      this.props.requestSendCommand(link, value, module, this.state.ipAddress, this.state.port)
+    }
+  }
+
+  handleDownloadDemo(downloadurl:string) {
+    if (!this.props.isLoading) {
+      this.props.requestDownloadS3Demo(downloadurl, this.state.ipAddress, this.state.port)
+    }
   }
 
   render() {
@@ -96,6 +109,8 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <StatsCard
+                  downloadurl={d.downloadurl}
+                  callback={this.handleDownloadDemo}
                   statsText={d.name}
                   statsValue={(d.filesize/1000000).toFixed(2) + "MB"}
                   statsIcon={<i className="fa fa-folder-o" />}
@@ -118,7 +133,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                 <React.Fragment key={page.name}>
                 <div className={page.name}>
                     <h1>{"Page: " + page.name}</h1>
-                    <EffectPageDiv page={page} /> 
+                    <EffectPageDiv
+                      callback={this.handleInputCommand}
+                      module={this.props.uiConfig.module}
+                      page={page} /> 
                   </div>
                 </React.Fragment>)
                 }

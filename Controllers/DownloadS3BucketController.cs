@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace UIConfig.Controllers
 {
@@ -51,15 +52,31 @@ namespace UIConfig.Controllers
     /// <param name="ip">FormatDesired(aaabbbcccdddd, ex: 192.168.0.1 --> 192168000001)</param>
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    [HttpGet("{deviceIP}/{devicePort}/{bucket}")]
-    public AutogenConfig.EffectContainer Get(string deviceIP, string devicePort, string bucket)
+    [HttpGet("{deviceIP}/{devicePort}/{downloadurl}")]
+    public AutogenConfig.EffectContainer Get(string deviceIP, string devicePort, string downloadurl)
     {
+      System.Diagnostics.Debug.WriteLine("IP: " + deviceIP + " Port: " + devicePort + " downloadURL: " + downloadurl);
+
       AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
 
-      var url = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort 
-        + "/UI";
+      string baseURL = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort;
 
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
+      string command =
+        "{" +
+        "\"downloadurl\":\"" + downloadurl.Replace('_','/') + "\"" +
+        "}";
+
+      try
+      {
+        byte[] data = Encoding.ASCII.GetBytes(command);
+        using var client = new WebClient();
+        _ = client.UploadData(baseURL + "/download", "PUT", data);
+      }
+      catch(Exception e)
+      {
+
+      }
+      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(baseURL+"/ui");
 
       return result;
     }

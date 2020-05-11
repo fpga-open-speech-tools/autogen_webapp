@@ -13,6 +13,7 @@ export interface OpenSpeechToolsState {
   availableDemos: Demo[];
   testPanel: Panel;
 
+  downloadURL?: string;
   deviceIP?: string;
   devicePort?: string;
   command?: Command;
@@ -20,8 +21,9 @@ export interface OpenSpeechToolsState {
 
 
 export interface Command {
-  linkerName: string;
+  link: string;
   value: string;
+  module: string;
 }
 
 export interface Demo {
@@ -75,6 +77,18 @@ interface ReceiveOpenSpeechS3DemosAction {
   availableDemos: Demo[];
 }
 
+interface RequestOpenSpeechS3DownloadAction {
+  type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO';
+  deviceIP: string;
+  devicePort: string;
+  downloadURL: string;
+}
+
+interface ReceiveOpenSpeechS3DownloadAction {
+  type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO';
+  uiConfig: EffectContainer;
+}
+
 interface RequestOpenSpeechUIConfig {
   type: 'REQUEST_OPENSPEECH_UI';
   deviceIP: string;
@@ -90,12 +104,11 @@ interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   deviceIP: string;
   devicePort: string;
-  command: string;
+  command: Command;
 }
 
 interface ReceiveSendCommandResponse {
   type: 'RECEIVE_SEND_COMMAND_RESPONSE';
-  uiConfig: EffectContainer;
 }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
@@ -103,7 +116,8 @@ interface ReceiveSendCommandResponse {
 type KnownAction =
   RequestOpenSpeechUIConfig | ReceiveOpenSpeechUIConfig |
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
-  RequestSendCommand | ReceiveSendCommandResponse;
+  RequestSendCommand | ReceiveSendCommandResponse | 
+  RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -130,15 +144,24 @@ export const openSpeechDataActionCreators = {
       });
     dispatch({ type: 'REQUEST_OPENSPEECH_UI', deviceIP: deviceIPRequested, devicePort: devicePortRequested});
   },
-  requestSendCommand: (command: Command, deviceIPRequested: string, devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
-    fetch(`command/${deviceIPRequested}/${devicePortRequested}`)
+  requestSendCommand: (link:string, value:string, module:string, deviceIPRequested: string, devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    fetch(`command/${deviceIPRequested}/${devicePortRequested}/${link}/${value}/${module}`)
+      .then(() => {
+        dispatch({
+          type: 'RECEIVE_SEND_COMMAND_RESPONSE'
+        });
+      });
+    dispatch({ type: 'REQUEST_SEND_COMMAND', deviceIP: deviceIPRequested, devicePort: devicePortRequested, command: {link:link,value:value,module:module}});
+  },
+  requestDownloadS3Demo: (downloadurl:string, deviceIPRequested: string, devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    fetch(`downloads3bucket/${deviceIPRequested}/${devicePortRequested}/${downloadurl}`)
       .then(response => response.json() as Promise<EffectContainer>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',uiConfig:data
         });
       });
-    dispatch({ type: 'REQUEST_OPENSPEECH_UI', deviceIP: deviceIPRequested, devicePort: devicePortRequested });
+    dispatch({ type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO', deviceIP: deviceIPRequested, devicePort: devicePortRequested, downloadURL: downloadurl });
   }
 };
 
@@ -214,7 +237,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       return {
         testPanel: state.testPanel,
         availableDemos: state.availableDemos,
-        uiConfig: action.uiConfig,
+        uiConfig: state.uiConfig,
         isLoading: false
       };
     case 'REQUEST_OPENSPEECH_DEMOS':
@@ -222,13 +245,28 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         testPanel: state.testPanel,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
-        isLoading: false
+        isLoading: true
       };
     case 'RECEIVE_OPENSPEECH_DEMOS':
       return {
         testPanel: state.testPanel,
         availableDemos: action.availableDemos,
         uiConfig: state.uiConfig,
+        isLoading: false
+      };
+    case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
+      return {
+        downloadURL: action.downloadURL,
+        testPanel: state.testPanel,
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isLoading: true
+      };
+    case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
+      return {
+        testPanel: state.testPanel,
+        availableDemos: state.availableDemos,
+        uiConfig: action.uiConfig,
         isLoading: false
       };
     default:

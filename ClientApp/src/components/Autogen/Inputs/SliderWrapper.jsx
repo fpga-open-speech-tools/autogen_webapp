@@ -14,11 +14,11 @@ export class SliderWrapper extends Component {
   render() {
     return (
       <div className="autogen autogen-slider">
-      <RangeSlider
+        <RangeSlider
           value={this.state.currentValue}
           onChange={
             changeEvent => {
-              
+              {this.props.callback(this.props.module,this.props.link,this.state.currentValue) }
               this.setState({
                 currentValue: changeEvent.target.value
               })

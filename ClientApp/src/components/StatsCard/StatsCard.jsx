@@ -9,7 +9,12 @@ export class StatsCard extends Component {
         <div className="content">
           <Row>
             <Col>
-              <Button variant="primary" size="md" block>
+              <Button
+                onClick={
+                  () => this.props.callback(this.props.downloadurl)
+                }
+                variant="primary"
+                size="md" block>
                 {this.props.statsText}
               </Button>
               <div className="numbers">

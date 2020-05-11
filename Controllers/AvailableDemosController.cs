@@ -37,7 +37,7 @@ namespace AvailableDemos.Controllers
         Demo newDemo = new Demo()
         {
           name = a,
-          downloadurl = "audiomini/" + a + " ",
+          downloadurl = "audiomini_" + a + " ",
           videourl = "a",
           imageurl = "b",
           filesize = S3Sizes[i]
