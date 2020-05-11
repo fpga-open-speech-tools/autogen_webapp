@@ -1,26 +1,10 @@
-/*!
 
-=========================================================
-* Light Bootstrap Dashboard React - v1.3.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/light-bootstrap-dashboard-react
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/light-bootstrap-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../store/OpenSpeechToolsData';
 import { ApplicationState } from '../';
-import { Container, Row, Col, Form, Button} from "react-bootstrap";
+import { Container, Row, Col, InputGroup, FormControl, Button} from "react-bootstrap";
 import { StatsCard } from "../components/StatsCard/StatsCard.jsx";
 import { EffectPanelDiv } from "../components/Autogen/Containers/EffectPanelDiv.jsx";
 import { EffectPageDiv } from "../components/Autogen/Containers/EffectPageDiv.jsx";
@@ -32,61 +16,114 @@ type OpenSpeechProps =
   & typeof OpenSpeechDataStore.openSpeechDataActionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
+interface IState {
+  ipAddress: string,
+  port:string
+}
 
-class Dashboard extends React.PureComponent<OpenSpeechProps> {
-  
+class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
+
+  constructor(props: OpenSpeechProps) {
+    super(props);
+
+    this.state = {
+      ipAddress: '192168001002',
+      port: '3355'
+    };
+    this.handleIPChange = this.handleIPChange.bind(this);
+    this.handlePortChange = this.handlePortChange.bind(this);
+    this.handleRequestUI = this.handleRequestUI.bind(this);
+
+  }
+
+
   componentDidMount() {
 
     this.props.requestOpenSpeechS3Demos();
 
   }
 
+  handleIPChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // No longer need to cast to any - hooray for react!
+    this.setState({ ipAddress: e.target.value });
+  }
+
+  handlePortChange(e: React.ChangeEvent<HTMLInputElement>) {
+    // No longer need to cast to any - hooray for react!
+    this.setState({ port: e.target.value });
+  }
+
+  handleRequestUI() {
+    this.props.requestOpenSpeechUI(this.state.ipAddress, this.state.port);
+  }
+
   render() {
     return (
       <div className="content">
         <Container fluid>
+            <Row>
+              <Col lg={4} md={4}>
+              <InputGroup className="mb-3">
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="inputGroup-sizing-default">IP</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl
+                  name="ip"
+                  defaultValue={this.state.ipAddress}
+                  onChange={this.handleIPChange}
+                  aria-label="IP"
+                  aria-describedby="inputGroup-sizing-default"
+                />
+              </InputGroup>
+              </Col>
+            <Col lg={2} md={2}>
+              <InputGroup className="mb-3">
+                <InputGroup.Prepend>
+                  <InputGroup.Text id="inputGroup-sizing-default">Port</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl
+                  name="port"
+                  defaultValue={this.state.port}
+                  onChange={this.handlePortChange}
+                  aria-label="Port"
+                  aria-describedby="inputGroup-sizing-default"
+                />
+              </InputGroup>
+              </Col>
+            </Row>
+          <h1>Available Demos</h1>
           <Row>
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <StatsCard
                   statsText={d.name}
-                  statsValue=""
+                  statsValue={(d.filesize/1000000).toFixed(2) + "MB"}
                   statsIcon={<i className="fa fa-folder-o" />}
                   statsIconText={d.downloadurl}
                 />
               </React.Fragment>
             )} 
           </Row>
-          <Form>
-            <Row>
-              <Col lg={3} md={3}>
-                <Form.Group controlId="ipAddress">
-                  <Form.Label>IP Address</Form.Label>
-                  <Form.Control placeholder="192.168.0.1" />
-                </Form.Group>
-              </Col>
-              <Col lg={3} md={3}>
-                <Form.Group controlId="port">
-                  <Form.Label>Port</Form.Label>
-                  <Form.Control placeholder="5050" />
-                </Form.Group>
-              </Col>
-              <Col lg={3} md={3}>
-                <Button variant ="primary" >Auto-gen</Button>
-              </Col>
-            </Row>
-              <div className = "autogen autogen-effectContainer">
-                <h1>{this.props.uiConfig.module}</h1>
+            <div><h1>Auto-gen</h1>
+              <Button
+              variant="primary"
+              onClick={this.handleRequestUI}
+              >
+              Auto-gen from {this.state.ipAddress}:{this.state.port}
+              </Button>
+            </div>
+             <div className = "autogen autogen-effectContainer">
+                <h1>{"Autogen Effect: " + this.props.uiConfig.module}</h1>
               {this.props.uiConfig.pages.map((page) =>
                 <React.Fragment key={page.name}>
                 <div className={page.name}>
-                    <h1>{page.name}</h1>
+                    <h1>{"Page: " + page.name}</h1>
                     <EffectPageDiv page={page} /> 
                   </div>
                 </React.Fragment>)
                 }
                </div>
-          </Form>
+
         </Container>
       </div>
     );

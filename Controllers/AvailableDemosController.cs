@@ -31,27 +31,24 @@ namespace AvailableDemos.Controllers
       System.Diagnostics.Debug.WriteLine("Entering Demo URL");
       ListingObjectsAsync().Wait();
       System.Diagnostics.Debug.WriteLine("S3 Returns:");
+      int i = 0;
       foreach (var a in S3Returns)
       {
         Demo newDemo = new Demo()
         {
           name = a,
-          downloadurl = "DE10-Nano/" + a + " ",
+          downloadurl = "audiomini/" + a + " ",
           videourl = "a",
-          imageurl = "b"
+          imageurl = "b",
+          filesize = S3Sizes[i]
         };
+        i++;
         ret.Add(newDemo);
         System.Diagnostics.Debug.WriteLine("Demo: " + a);
       }
       System.Diagnostics.Debug.WriteLine("Expected Number of Effects to Send as JSON: " + ret.Count);
       return Enumerable.Range(0, ret.Count).Select(index => ret[index]);
     }
-
-
-
-
-
-
 
 
 
@@ -62,11 +59,13 @@ namespace AvailableDemos.Controllers
     private static IAmazonS3 S3Client;
     private const string bucketName = "nih-demos";
     private static List<string> S3Returns;
+    private static List<long> S3Sizes;
     static async Task ListingObjectsAsync()
     {
       try
       {
         S3Returns = new List<string>();
+        S3Sizes = new List<long>();
         ListObjectsV2Request request = new ListObjectsV2Request
         {
           BucketName = bucketName,
@@ -93,12 +92,18 @@ namespace AvailableDemos.Controllers
               if (S3Returns.Count < 1)
               {
                 S3Returns.Add(demoName);
+                S3Sizes.Add(entry.Size);
               }
               else
               {
                 if (!S3Returns.Contains(demoName))
                 {
                   S3Returns.Add(demoName);
+                  S3Sizes.Add(entry.Size);
+                }
+                else
+                {
+                  S3Sizes[S3Returns.IndexOf(demoName)] = S3Sizes[S3Returns.IndexOf(demoName)] + entry.Size;
                 }
               }
             }

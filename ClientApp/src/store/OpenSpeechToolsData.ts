@@ -29,6 +29,7 @@ export interface Demo {
   downloadurl: string;
   imageurl: string;
   videourl: string;
+  filesize: number;
 }
 
 export interface EffectContainer {

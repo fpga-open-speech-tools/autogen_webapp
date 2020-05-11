@@ -6,6 +6,7 @@ namespace AvailableDemos
     public string downloadurl { get; set; }
     public string imageurl { get; set; }
     public string videourl { get; set; }
+    public long filesize { get; set; }
   }
 }
 

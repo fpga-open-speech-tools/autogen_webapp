@@ -1,6 +1,7 @@
 import React, { Component} from "react";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
-import SliderWrapper from '../Inputs/SliderWrapper'
+import SliderWrapper from '../Inputs/SliderWrapper';
+import ToggleWrapper from '../Inputs/ToggleWrapper';
 
 export class EffectPanelDiv extends Component {
 
@@ -27,9 +28,7 @@ export class EffectPanelDiv extends Component {
             <React.Fragment key={control.linkerName}>
               <div className="autogen autogen-control" key={control.linkerName}>
                 <h2>{control.title}</h2>
-                <SliderWrapper
-                  value={control.defaultValue}
-                />
+                <InputComponent type={control.type} />
                 </div>
             </React.Fragment>
           )}
@@ -47,6 +46,23 @@ export class EffectPanelDiv extends Component {
 }
 //onChange={changeEvent => this.setState({ currentValue: changeEvent.target.value })}
 
+function InputComponent(props) {
+  const whatComponent = props.type;
+  const defaultValue = props.defaultValue;
+  if (whatComponent == "slider") {
+    return (
+      <SliderWrapper
+      value={defaultValue}
+      />
+    );
+  } else if (whatComponent == "toggle") {
+    return (
+      <ToggleWrapper
+        value={defaultValue}
+      />
+    );
+  }
+}
 
 export default EffectPanelDiv;
 

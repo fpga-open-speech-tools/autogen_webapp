@@ -7,36 +7,36 @@ namespace UIConfig
     [Serializable]
     public class EffectContainer
     {
-      public string module;
-      public Page[] pages;
+      public string module { get; set; }
+      public Page[] pages { get; set; }
     }
 
     [Serializable]
     public class Page
     {
-      public string name;
-      public Panel[] panels;
+      public string name { get; set; }
+      public Panel[] panels { get; set; }
     }
 
     [Serializable]
     public class Panel
     {
-      public string name;
-      public Control[] controls;
+      public string name { get; set; }
+      public Control[] controls { get; set; }
     }
 
     [Serializable]
     public class Control
     {
-      public string style;
-      public string linkerName;
-      public float min;
-      public float max;
-      public string title;
-      public string dataType;
-      public float defaultValue;
-      public string units;
-      public string type;
+      public string style { get; set; }
+      public string linkerName { get; set; }
+      public float min { get; set; }
+      public float max { get; set; }
+      public string title { get; set; }
+      public string dataType { get; set; }
+      public float defaultValue { get; set; }
+      public string units { get; set; }
+      public string type { get; set; }
     }
 
   }

@@ -52,11 +52,11 @@ namespace UIConfig.Controllers
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
     [HttpGet("{ip}/{port}")]
-    public AutogenConfig.EffectContainer Get(string deviceIP, string devicePort)
+    public AutogenConfig.EffectContainer Get(string ip, string port)
     {
       AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
 
-      var url = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort + "/UI";
+      var url = "http://" + ParseDeviceIPString(ip) + ":" + port + "/ui";
       result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
 
       return result;
