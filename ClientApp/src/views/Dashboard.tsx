@@ -17,7 +17,10 @@ type OpenSpeechProps =
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 interface IState {
-  ipAddress: string,
+  ipFragment1: string,
+  ipFragment2: string,
+  ipFragment3: string,
+  ipFragment4: string,
   port:string
 }
 
@@ -27,11 +30,18 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     super(props);
 
     this.state = {
-      ipAddress: '192168001002',
+      ipFragment1: '192',
+      ipFragment2: '168',
+      ipFragment3: '0',
+      ipFragment4: '1',
       port: '3355'
     };
-    this.handleIPChange = this.handleIPChange.bind(this);
+    this.handleIP1Change = this.handleIP1Change.bind(this);
+    this.handleIP2Change = this.handleIP2Change.bind(this);
+    this.handleIP3Change = this.handleIP3Change.bind(this);
+    this.handleIP4Change = this.handleIP4Change.bind(this);
     this.handlePortChange = this.handlePortChange.bind(this);
+
     this.handleRequestUI = this.handleRequestUI.bind(this);
     this.handleInputCommand = this.handleInputCommand.bind(this);
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
@@ -44,9 +54,24 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
   }
 
-  handleIPChange(e: React.ChangeEvent<HTMLInputElement>) {
+  handleIP1Change(e: React.ChangeEvent<HTMLInputElement>) {
     // No longer need to cast to any - hooray for react!
-    this.setState({ ipAddress: e.target.value });
+    this.setState({ ipFragment1: e.target.value });
+  }
+
+  handleIP2Change(e: React.ChangeEvent<HTMLInputElement>) {
+    // No longer need to cast to any - hooray for react!
+    this.setState({ ipFragment2: e.target.value });
+  }
+
+  handleIP3Change(e: React.ChangeEvent<HTMLInputElement>) {
+    // No longer need to cast to any - hooray for react!
+    this.setState({ ipFragment3: e.target.value });
+  }
+
+  handleIP4Change(e: React.ChangeEvent<HTMLInputElement>) {
+    // No longer need to cast to any - hooray for react!
+    this.setState({ ipFragment4: e.target.value });
   }
 
   handlePortChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -55,36 +80,89 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
   }
 
   handleRequestUI() {
-    this.props.requestOpenSpeechUI(this.state.ipAddress, this.state.port);
+    this.props.requestOpenSpeechUI(
+      this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+      this.state.port);
   }
 
   handleInputCommand(module: string, link: string, value: string) {
     if (!this.props.isLoading) {
-      this.props.requestSendCommand(link, value, module, this.state.ipAddress, this.state.port)
+      this.props.requestSendCommand(link, value, module,
+        this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+        this.state.port)
     }
   }
 
-  handleDownloadDemo(downloadurl:string) {
+  handleDownloadDemo(device:string,project:string) {
     if (!this.props.isLoading) {
-      this.props.requestDownloadS3Demo(downloadurl, this.state.ipAddress, this.state.port)
+      
+      this.props.requestDownloadS3Demo(device, project,
+        this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+        this.state.port)
     }
   }
 
   render() {
+
+    function getAutogen(board: Dashboard, props: OpenSpeechProps) {
+      if (props.uiConfig.pages) {
+        return (
+          <div className="autogen autogen-effectContainer">
+            <h1>{"Autogen Effect: " + props.uiConfig.module}</h1>
+            {props.uiConfig.pages.map((page) =>
+              <React.Fragment key={page.name}>
+                <div className={page.name}>
+                  <h1>{"Page: " + page.name}</h1>
+                  <EffectPageDiv
+                    callback={board.handleInputCommand}
+                    module={props.uiConfig.module}
+                    page={page} />
+                </div>
+              </React.Fragment>)
+            }
+          </div>);
+      }
+      else if(props.uiConfig.module){
+        return (<div className="autogen autogen-effectContainer">
+          <h1>{props.uiConfig.module}</h1></div>);
+      }
+    }
+
     return (
       <div className="content">
         <Container fluid>
             <Row>
-              <Col lg={4} md={4}>
-              <InputGroup className="mb-3">
+              <Col lg={3} md={5}>
+              <InputGroup className="mb-2">
                 <InputGroup.Prepend>
-                  <InputGroup.Text id="inputGroup-sizing-default">IP</InputGroup.Text>
+                <InputGroup.Text id="inputGroup-sizing-default">IP</InputGroup.Text>
                 </InputGroup.Prepend>
                 <FormControl
-                  name="ip"
-                  defaultValue={this.state.ipAddress}
-                  onChange={this.handleIPChange}
-                  aria-label="IP"
+                  name="ip1"
+                  defaultValue={this.state.ipFragment1}
+                  onChange={this.handleIP1Change}
+                  aria-label="IP1"
+                  aria-describedby="inputGroup-sizing-default"
+                />
+                <FormControl
+                  name="ip2"
+                  defaultValue={this.state.ipFragment2}
+                  onChange={this.handleIP2Change}
+                  aria-label="IP2"
+                  aria-describedby="inputGroup-sizing-default"
+                />
+                <FormControl
+                  name="ip3"
+                  defaultValue={this.state.ipFragment3}
+                  onChange={this.handleIP3Change}
+                  aria-label="IP3"
+                  aria-describedby="inputGroup-sizing-default"
+                />
+                <FormControl
+                  name="ip4"
+                  defaultValue={this.state.ipFragment4}
+                  onChange={this.handleIP4Change}
+                  aria-label="IP4"
                   aria-describedby="inputGroup-sizing-default"
                 />
               </InputGroup>
@@ -109,12 +187,13 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <StatsCard
-                  downloadurl={d.downloadurl}
+                  downloadDevice={d.downloadurl.devicename}
+                  downloadProject={d.downloadurl.projectname}
                   callback={this.handleDownloadDemo}
                   statsText={d.name}
                   statsValue={(d.filesize/1000000).toFixed(2) + "MB"}
                   statsIcon={<i className="fa fa-folder-o" />}
-                  statsIconText={d.downloadurl}
+                  statsIconText={d.downloadurl.devicename + "/" + d.downloadurl.projectname}
                 />
               </React.Fragment>
             )} 
@@ -124,24 +203,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
               variant="primary"
               onClick={this.handleRequestUI}
               >
-              Auto-gen from {this.state.ipAddress}:{this.state.port}
+              Auto-gen from {this.state.ipFragment1}.{this.state.ipFragment2}.{this.state.ipFragment3}.{this.state.ipFragment4}:{this.state.port}
               </Button>
             </div>
-             <div className = "autogen autogen-effectContainer">
-                <h1>{"Autogen Effect: " + this.props.uiConfig.module}</h1>
-              {this.props.uiConfig.pages.map((page) =>
-                <React.Fragment key={page.name}>
-                <div className={page.name}>
-                    <h1>{"Page: " + page.name}</h1>
-                    <EffectPageDiv
-                      callback={this.handleInputCommand}
-                      module={this.props.uiConfig.module}
-                      page={page} /> 
-                  </div>
-                </React.Fragment>)
-                }
-               </div>
-
+            {getAutogen(this,this.props)}
         </Container>
       </div>
     );

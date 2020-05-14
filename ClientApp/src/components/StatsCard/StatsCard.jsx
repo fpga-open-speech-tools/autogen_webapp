@@ -11,7 +11,7 @@ export class StatsCard extends Component {
             <Col>
               <Button
                 onClick={
-                  () => this.props.callback(this.props.downloadurl)
+                  () => this.props.callback(this.props.downloadDevice,this.props.downloadProject)
                 }
                 variant="primary"
                 size="md" block>

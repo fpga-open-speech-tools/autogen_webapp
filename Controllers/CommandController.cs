@@ -35,15 +35,74 @@ namespace UIConfig.Controllers
       }
     }
 
-    public string ParseDeviceIPString(string deviceIP)
-    {
-      var result = "";
-      result += deviceIP.Substring(0, 3) + "."
-        + deviceIP.Substring(3, 3) + "."
-        + deviceIP.Substring(6, 3) + "."
-        + deviceIP.Substring(9, 3);
 
-      return result;
+    //JsonResultModel class
+    public class JsonResultModel
+    {
+      public string ErrorMessage { get; set; }
+      public bool IsSuccess { get; set; }
+      public string Results { get; set; }
+    }
+
+    public static JsonResultModel HTTP_PUT(string Url, string Data)
+    {
+      JsonResultModel model = new JsonResultModel();
+      string Out = String.Empty;
+      string Error = String.Empty;
+      System.Net.WebRequest req = System.Net.WebRequest.Create(Url);
+
+      try
+      {
+        req.Method = "PUT";
+        req.Timeout = 1000;
+        req.ContentType = "application/json";
+        byte[] sentData = Encoding.UTF8.GetBytes(Data);
+        req.ContentLength = sentData.Length;
+
+        using (Stream sendStream = req.GetRequestStream())
+        {
+          sendStream.Write(sentData, 0, sentData.Length);
+          sendStream.Close();
+
+        }
+
+        System.Net.WebResponse res = req.GetResponse();
+        System.IO.Stream ReceiveStream = res.GetResponseStream();
+        using (System.IO.StreamReader sr = new
+        System.IO.StreamReader(ReceiveStream, Encoding.UTF8))
+        {
+
+          Char[] read = new Char[256];
+          int count = sr.Read(read, 0, 256);
+
+          while (count > 0)
+          {
+            String str = new String(read, 0, count);
+            Out += str;
+            count = sr.Read(read, 0, 256);
+          }
+        }
+      }
+      catch (ArgumentException ex)
+      {
+        Error = string.Format("HTTP_ERROR :: The second HttpWebRequest object has raised an Argument Exception as 'Connection' Property is set to 'Close' :: {0}", ex.Message);
+      }
+      catch (WebException ex)
+      {
+        Error = string.Format("HTTP_ERROR :: WebException raised! :: {0}", ex.Message);
+      }
+      catch (Exception ex)
+      {
+        Error = string.Format("HTTP_ERROR :: Exception raised! :: {0}", ex.Message);
+      }
+
+      model.Results = Out;
+      model.ErrorMessage = Error;
+      if (!string.IsNullOrWhiteSpace(Out))
+      {
+        model.IsSuccess = true;
+      }
+      return model;
     }
 
     /// <summary>
@@ -52,12 +111,14 @@ namespace UIConfig.Controllers
     /// <param name="ip">FormatDesired(aaabbbcccdddd, ex: 192.168.0.1 --> 192168000001)</param>
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    [HttpGet("{deviceIP}/{devicePort}/{link}/{value}/{module}")]
-    public void Get(string deviceIP, string devicePort, string link, string value, string module)
+    [HttpGet("{ip1}/{ip2}/{ip3}/{ip4}/{devicePort}/{link}/{value}/{module}")]
+    public void Get(
+      string ip1, string ip2, string ip3, string ip4, string devicePort, 
+      string link, string value, string module)
     {
       System.Diagnostics.Debug.WriteLine("Link: " + link + " Value: " + value + " Module: " + module);
-
-      string url = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort 
+      var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+      string url = "http://" + deviceIP + ":" + devicePort 
         + "/sendCmd";
       string command = 
         "{" +
@@ -65,11 +126,7 @@ namespace UIConfig.Controllers
         "\"value\":\"" + value + "\"," +
         "\"module\":\"" + module + "\"" +
         "}";
-
-      byte[] data = Encoding.ASCII.GetBytes(command);
-      using var client = new WebClient();
-      _ = client.UploadData(url, "PUT", data);
-
+      HTTP_PUT(url, command);
     }
 
   }

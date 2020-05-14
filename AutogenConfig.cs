@@ -37,6 +37,7 @@ namespace UIConfig
       public float defaultValue { get; set; }
       public string units { get; set; }
       public string type { get; set; }
+      public string module { get; set; }
     }
 
   }

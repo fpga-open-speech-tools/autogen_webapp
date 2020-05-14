@@ -49,34 +49,46 @@ namespace UIConfig.Controllers
     /// <summary>
     /// Requests the given IP/Port UI Config over HTTP.
     /// </summary>
-    /// <param name="ip">FormatDesired(aaabbbcccdddd, ex: 192.168.0.1 --> 192168000001)</param>
+    /// <param name="ip1">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip2">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip3">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip4">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
+    /// <param name="devicename">Name of deviceFammily. ex, "DE-10"</param>
+    /// <param name="projectname">Name of Project. ex, "passthrough"</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    [HttpGet("{deviceIP}/{devicePort}/{downloadurl}")]
-    public AutogenConfig.EffectContainer Get(string deviceIP, string devicePort, string downloadurl)
+    [HttpGet("{ip1}/{ip2}/{ip3}/{ip4}/{devicePort}/{devicename}/{projectname}")]
+    public AutogenConfig.EffectContainer 
+      Get(string ip1,string ip2, string ip3, string ip4, string devicePort, string devicename, string projectname)
     {
-      System.Diagnostics.Debug.WriteLine("IP: " + deviceIP + " Port: " + devicePort + " downloadURL: " + downloadurl);
+      var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
+      System.Diagnostics.Debug.WriteLine
+        ("IP: " + deviceIP  + " Port: " + devicePort + " downloadURL: " + devicename + "/" + projectname);
 
       AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
 
-      string baseURL = "http://" + ParseDeviceIPString(deviceIP) + ":" + devicePort;
+      string baseURL = "http://" + deviceIP + ":" + devicePort;
 
       string command =
         "{" +
-        "\"downloadurl\":\"" + downloadurl.Replace('_','/') + "\"" +
+        "\"downloadurl\":\"" + devicename + "/" + projectname + "\"" +
         "}";
-
+      System.Diagnostics.Debug.WriteLine("URL: " + devicename + "/" + projectname);
       try
       {
         byte[] data = Encoding.ASCII.GetBytes(command);
         using var client = new WebClient();
         _ = client.UploadData(baseURL + "/download", "PUT", data);
+        result = _download_serialized_json_data<AutogenConfig.EffectContainer>(baseURL + "/ui");
       }
       catch(Exception e)
       {
-
+        result = new AutogenConfig.EffectContainer()
+        {
+          module = "Demo Upload Failed"
+        };
       }
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(baseURL+"/ui");
+      
 
       return result;
     }

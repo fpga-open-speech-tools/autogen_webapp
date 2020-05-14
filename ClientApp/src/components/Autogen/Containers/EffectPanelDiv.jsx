@@ -29,8 +29,11 @@ export class EffectPanelDiv extends Component {
               <div className="autogen autogen-control" key={control.linkerName}>
                 <h2>{control.title}</h2>
                 <InputComponent
+                  min={control.min}
+                  max={control.max}
+                  step={0.1}
                   callback={this.props.callback}
-                  module={this.props.module}
+                  module={control.module}
                   link={control.linkerName}
                   type={control.type}
                 />
@@ -52,14 +55,22 @@ export class EffectPanelDiv extends Component {
 //onChange={changeEvent => this.setState({ currentValue: changeEvent.target.value })}
 
 function InputComponent(props) {
+
   const whatComponent = props.type;
   const defaultValue = props.defaultValue;
   const module = props.module;
   const link = props.link;
   const callback = props.callback;
+  const min = props.min;
+  const max = props.max;
+  const step = props.step;
+
   if (whatComponent == "slider") {
     return (
       <SliderWrapper
+        step={step}
+        min={min}
+        max={max}
         callback={callback}
         module={module}
         link={link}
