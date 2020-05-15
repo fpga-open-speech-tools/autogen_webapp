@@ -49,10 +49,10 @@ namespace UIConfig.Controllers
     /// <summary>
     /// Requests the given IP/Port UI Config over HTTP.
     /// </summary>
-    /// <param name="ip1">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
-    /// <param name="ip2">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
-    /// <param name="ip3">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
-    /// <param name="ip4">FormatDesired(aaa/bbb/ccc/dddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip1">FormatDesired(aaa/bbb/ccc/ddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip2">FormatDesired(aaa/bbb/ccc/ddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip3">FormatDesired(aaa/bbb/ccc/ddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
+    /// <param name="ip4">FormatDesired(aaa/bbb/ccc/ddd, ex: 192/168/0/1 --> 192.168.0.1)</param>
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <param name="devicename">Name of deviceFammily. ex, "DE-10"</param>
     /// <param name="projectname">Name of Project. ex, "passthrough"</param>
@@ -71,7 +71,9 @@ namespace UIConfig.Controllers
 
       string command =
         "{" +
-        "\"downloadurl\":\"" + devicename + "/" + projectname + "\"" +
+        "\"downloadurl\":\"" + devicename + "/" + projectname + "\"," +
+        "\"devicename\":\"" + devicename + "\"," +
+        "\"projectname\":\"" + projectname + "\"" +
         "}";
       System.Diagnostics.Debug.WriteLine("URL: " + devicename + "/" + projectname);
       try

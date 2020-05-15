@@ -23,7 +23,8 @@
         font-weight: $font-weight-normal;
         margin: $navbar-margin-brand;
         padding: $navbar-padding-brand;
-        font-size: $font-size-large-navbar;
+       // font-size: $font-size-large-navbar;
+       font-size: 1.1em;
     }
     .navbar-nav{
          > li > a {
@@ -95,6 +96,7 @@
             background-color: transparent;
             @include opacity(1);
         }
+
     }
 
     .navbar-nav{

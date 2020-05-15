@@ -28,8 +28,6 @@ export class EffectPageDiv extends Component {
     );
   }
 }
-//onChange={changeEvent => this.setState({ currentValue: changeEvent.target.value })}
-
 
 export default EffectPageDiv;
 

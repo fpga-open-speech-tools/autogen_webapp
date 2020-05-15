@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../store/OpenSpeechToolsData';
 import { ApplicationState } from '../';
-import { Container, Row, Col, InputGroup, FormControl, Button} from "react-bootstrap";
+import { Container, Row, Col, InputGroup, FormControl, Button, ProgressBar} from "react-bootstrap";
 import { StatsCard } from "../components/StatsCard/StatsCard.jsx";
 import { EffectPanelDiv } from "../components/Autogen/Containers/EffectPanelDiv.jsx";
 import { EffectPageDiv } from "../components/Autogen/Containers/EffectPageDiv.jsx";
@@ -21,7 +21,8 @@ interface IState {
   ipFragment2: string,
   ipFragment3: string,
   ipFragment4: string,
-  port:string
+  port: string,
+  lastDownloadProgressRequestTime: number
 }
 
 class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
@@ -34,17 +35,20 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       ipFragment2: '168',
       ipFragment3: '0',
       ipFragment4: '1',
-      port: '3355'
+      port: '3355',
+      lastDownloadProgressRequestTime: 0
     };
     this.handleIP1Change = this.handleIP1Change.bind(this);
     this.handleIP2Change = this.handleIP2Change.bind(this);
     this.handleIP3Change = this.handleIP3Change.bind(this);
     this.handleIP4Change = this.handleIP4Change.bind(this);
     this.handlePortChange = this.handlePortChange.bind(this);
+    this.handlelastDownloadProgressRequestTimeChange = this.handlelastDownloadProgressRequestTimeChange.bind(this);
 
     this.handleRequestUI = this.handleRequestUI.bind(this);
     this.handleInputCommand = this.handleInputCommand.bind(this);
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
+    this.handleRequestDownloadProgress = this.handleRequestDownloadProgress.bind(this);
   }
 
 
@@ -54,6 +58,20 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
   }
 
+  componentDidUpdate() {
+    if (this.props.isDeviceDownloading) {
+      var date = new Date();
+      var currentDateInMS = date.getTime();
+      var requestRateInMS = 200;
+
+      //if the current datetime in milliseconds is greater the last request log plus the request rate,
+      //Then set the new request datetime in milliseconds, and request the download progress.
+      if (currentDateInMS > (this.state.lastDownloadProgressRequestTime + requestRateInMS)) {
+        this.handlelastDownloadProgressRequestTimeChange(currentDateInMS);
+        this.handleRequestDownloadProgress();
+      }
+    }
+  }
   handleIP1Change(e: React.ChangeEvent<HTMLInputElement>) {
     // No longer need to cast to any - hooray for react!
     this.setState({ ipFragment1: e.target.value });
@@ -79,6 +97,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     this.setState({ port: e.target.value });
   }
 
+  handlelastDownloadProgressRequestTimeChange(n: number) {
+    this.setState({ lastDownloadProgressRequestTime: n });
+  }
+
   handleRequestUI() {
     this.props.requestOpenSpeechUI(
       this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
@@ -100,6 +122,13 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
         this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
         this.state.port)
     }
+  }
+
+  handleRequestDownloadProgress() {
+    this.props.requestS3DownloadProgress(
+      this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+      this.state.port);
+
   }
 
   render() {
@@ -125,6 +154,27 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       else if(props.uiConfig.module){
         return (<div className="autogen autogen-effectContainer">
           <h1>{props.uiConfig.module}</h1></div>);
+      }
+    }
+
+    function updateDownloadProgress(board: Dashboard, props: OpenSpeechProps) {
+      if (props.isDeviceDownloading) {
+        if (props.downloadProgress) {
+
+          var progress = 0;
+
+          if (props.downloadProgress.progress) {
+            progress = props.downloadProgress.progress;
+          }
+
+          return (
+            <ProgressBar animated variant="info" now={progress} />
+          );
+
+        }//End if downloadProgress property exists
+      }
+      else {
+        return (<div className="NoProgress"></div>);
       }
     }
 
@@ -183,6 +233,9 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
               </Col>
             </Row>
           <h1>Available Demos</h1>
+          <Row>
+            {updateDownloadProgress(this, this.props)}
+          </Row>
           <Row>
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>

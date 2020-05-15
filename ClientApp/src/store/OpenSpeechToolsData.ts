@@ -7,10 +7,14 @@ import * as uicfg from './EffectContainer.json';
 
 export interface OpenSpeechToolsState {
   isLoading: boolean;
+  isDeviceDownloading?: boolean;
   //Interface for UI JSON
   uiConfig: EffectContainer;
   //Interface for Demos Array[]
   availableDemos: Demo[];
+
+  //For Downloading Demos
+  downloadProgress?: S3DownloadProgress;
 
   //S3Bucket Download info
   deviceFamily?: string;
@@ -22,9 +26,16 @@ export interface OpenSpeechToolsState {
   ip3?: string;
   ip4?: string;
   devicePort?: string;
+
   command?: Command;
 }
 
+
+export interface S3DownloadProgress {
+  name: string;
+  progress: number;
+  status: string;
+}
 
 export interface Command {
   link: string;
@@ -99,11 +110,28 @@ interface RequestOpenSpeechS3DownloadAction {
   devicePort: string;
   deviceFamily: string;
   projectName: string;
+  isDeviceDownloading: boolean;
 }
 
 interface ReceiveOpenSpeechS3DownloadAction {
   type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO';
   uiConfig: EffectContainer;
+  isDeviceDownloading: boolean;
+}
+
+interface RequestS3DownloadProgressAction {
+  type: 'REQUEST_S3_DOWNLOAD_PROGRESS';
+  ip1: string;
+  ip2: string;
+  ip3: string;
+  ip4: string;
+  devicePort: string;
+}
+
+interface ReceiveS3DownloadProgressAction {
+  type: 'RECEIVE_S3_DOWNLOAD_PROGRESS';
+  isDeviceDownloading: boolean;
+  downloadProgress: S3DownloadProgress;
 }
 
 interface RequestOpenSpeechUIConfig {
@@ -140,7 +168,8 @@ type KnownAction =
   RequestOpenSpeechUIConfig | ReceiveOpenSpeechUIConfig |
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
-  RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction;
+  RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
+  RequestS3DownloadProgressAction | ReceiveS3DownloadProgressAction;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -157,6 +186,23 @@ export const openSpeechDataActionCreators = {
         });
       });
     dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
+  },
+
+  requestS3DownloadProgress: (
+    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
+    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch) => {
+    fetch(`downloadprogress/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
+      .then(response => response.json() as Promise<S3DownloadProgress>)
+      .then(data => {
+        dispatch({
+          type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data, isDeviceDownloading: (data.progress<100)
+        });
+      });
+    dispatch({
+      type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
+      ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+      devicePort: devicePortRequested
+    });
   },
 
   requestOpenSpeechUI: (
@@ -200,13 +246,13 @@ export const openSpeechDataActionCreators = {
       .then(response => response.json() as Promise<EffectContainer>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',uiConfig:data
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',uiConfig:data, isDeviceDownloading: false
         });
       });
       dispatch({
         type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-        devicePort: devicePortRequested, deviceFamily: devicename, projectName: projectname
+        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested, devicePort: devicePortRequested,
+        deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true
       });
   }
 };
@@ -255,7 +301,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         uiConfig: state.uiConfig,
         isLoading: false
       };
-    case 'REQUEST_OPENSPEECH_DEMOS':
+    case 'REQUEST_OPENSPEECH_DEMOS':  
       return {
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
@@ -271,6 +317,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       return {
         deviceFamily: action.deviceFamily,
         availableDemos: state.availableDemos,
+        isDeviceDownloading: action.isDeviceDownloading,
         uiConfig: state.uiConfig,
         isLoading: true
       };
@@ -278,6 +325,22 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       return {
         availableDemos: state.availableDemos,
         uiConfig: action.uiConfig,
+        isDeviceDownloading: action.isDeviceDownloading,
+        isLoading: false
+      };
+    case 'REQUEST_S3_DOWNLOAD_PROGRESS':
+      return {
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: false
+      };
+    case 'RECEIVE_S3_DOWNLOAD_PROGRESS':  
+      return {
+        downloadProgress: action.downloadProgress,
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isDeviceDownloading: action.isDeviceDownloading,
         isLoading: false
       };
     default:

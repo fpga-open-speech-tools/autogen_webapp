@@ -65,7 +65,7 @@ function InputComponent(props) {
   const max = props.max;
   const step = props.step;
 
-  if (whatComponent == "slider") {
+  if (whatComponent === "slider") {
     return (
       <SliderWrapper
         step={step}
@@ -77,7 +77,7 @@ function InputComponent(props) {
         value={defaultValue}
       />
     );
-  } else if (whatComponent == "toggle") {
+  } else if (whatComponent === "toggle") {
     return (
       <ToggleWrapper
         module={module}

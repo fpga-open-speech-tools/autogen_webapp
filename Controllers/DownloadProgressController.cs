@@ -6,15 +6,15 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace UIConfig.Controllers
+namespace DownloadProgress.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class UIConfigController : ControllerBase
+  public class DownloadProgressController : ControllerBase
   {
-    private readonly ILogger<UIConfigController> _logger;
+    private readonly ILogger<DownloadProgressController> _logger;
 
-    public UIConfigController(ILogger<UIConfigController> logger)
+    public DownloadProgressController(ILogger<DownloadProgressController> logger)
     {
       _logger = logger;
     }
@@ -102,14 +102,14 @@ namespace UIConfig.Controllers
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
     [HttpGet("{ip1}/{ip2}/{ip3}/{ip4}/{port}")]
-    public AutogenConfig.EffectContainer Get(string ip1, string ip2, string ip3, string ip4, string port)
+    public S3DownloadProgress Get(string ip1, string ip2, string ip3, string ip4, string port)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
+      S3DownloadProgress result = new S3DownloadProgress();
 
-      var url = "http://" + deviceIP + ":" + port + "/ui";
-      System.Diagnostics.Debug.WriteLine("Attempting to Get UI @: " + url);
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
+      var url = "http://" + deviceIP + ":" + port + "/get-download-progress";
+      System.Diagnostics.Debug.WriteLine("Attempting to Get DownloadProgress @: " + url);
+      result = _download_serialized_json_data<S3DownloadProgress>(url);
 
       return result;
     }
