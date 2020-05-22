@@ -29,7 +29,8 @@ var Dashboard = /** @class */ (function (_super) {
             ipFragment3: '0',
             ipFragment4: '1',
             port: '3355',
-            lastDownloadProgressRequestTime: 0
+            lastDownloadProgressRequestTime: 0,
+            lastDownloadProgress: 0
         };
         _this.handleIP1Change = _this.handleIP1Change.bind(_this);
         _this.handleIP2Change = _this.handleIP2Change.bind(_this);
@@ -45,12 +46,22 @@ var Dashboard = /** @class */ (function (_super) {
     }
     Dashboard.prototype.componentDidMount = function () {
         this.props.requestOpenSpeechS3Demos();
+        if (this.props.downloadProgress) {
+            if (this.state.lastDownloadProgress != this.props.downloadProgress.progress) {
+                this.setState({
+                    lastDownloadProgress: this.props.downloadProgress.progress
+                });
+                this.forceUpdate();
+            }
+        }
     };
     Dashboard.prototype.componentDidUpdate = function () {
+    };
+    Dashboard.prototype.handlePollDownloadProgress = function () {
         if (this.props.isDeviceDownloading) {
             var date = new Date();
             var currentDateInMS = date.getTime();
-            var requestRateInMS = 200;
+            var requestRateInMS = 100;
             //if the current datetime in milliseconds is greater the last request log plus the request rate,
             //Then set the new request datetime in milliseconds, and request the download progress.
             if (currentDateInMS > (this.state.lastDownloadProgressRequestTime + requestRateInMS)) {
@@ -60,23 +71,18 @@ var Dashboard = /** @class */ (function (_super) {
         }
     };
     Dashboard.prototype.handleIP1Change = function (e) {
-        // No longer need to cast to any - hooray for react!
         this.setState({ ipFragment1: e.target.value });
     };
     Dashboard.prototype.handleIP2Change = function (e) {
-        // No longer need to cast to any - hooray for react!
         this.setState({ ipFragment2: e.target.value });
     };
     Dashboard.prototype.handleIP3Change = function (e) {
-        // No longer need to cast to any - hooray for react!
         this.setState({ ipFragment3: e.target.value });
     };
     Dashboard.prototype.handleIP4Change = function (e) {
-        // No longer need to cast to any - hooray for react!
         this.setState({ ipFragment4: e.target.value });
     };
     Dashboard.prototype.handlePortChange = function (e) {
-        // No longer need to cast to any - hooray for react!
         this.setState({ port: e.target.value });
     };
     Dashboard.prototype.handlelastDownloadProgressRequestTimeChange = function (n) {
@@ -117,17 +123,19 @@ var Dashboard = /** @class */ (function (_super) {
             }
         }
         function updateDownloadProgress(board, props) {
-            if (props.isDeviceDownloading) {
-                if (props.downloadProgress) {
-                    var progress = 0;
-                    if (props.downloadProgress.progress) {
-                        progress = props.downloadProgress.progress;
-                    }
-                    return (React.createElement(react_bootstrap_1.ProgressBar, { animated: true, variant: "info", now: progress }));
-                } //End if downloadProgress property exists
+            var downloadingState = "";
+            if (props.isDeviceDownloading == true) {
+                downloadingState = "Downloading";
+                return (React.createElement("div", null,
+                    React.createElement("h1", null, downloadingState),
+                    React.createElement(react_bootstrap_1.Spinner, { animation: "border", variant: "primary" })));
             }
             else {
-                return (React.createElement("div", { className: "NoProgress" }));
+                if (props.uiConfig.module) {
+                    downloadingState = props.uiConfig.module + " Loaded";
+                }
+                return (React.createElement("div", null,
+                    React.createElement("h1", null, downloadingState)));
             }
         }
         return (React.createElement("div", { className: "content" },
@@ -147,7 +155,8 @@ var Dashboard = /** @class */ (function (_super) {
                                 React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "Port")),
                             React.createElement(react_bootstrap_1.FormControl, { name: "port", defaultValue: this.state.port, onChange: this.handlePortChange, "aria-label": "Port", "aria-describedby": "inputGroup-sizing-default" })))),
                 React.createElement("h1", null, "Available Demos"),
-                React.createElement(react_bootstrap_1.Row, null, updateDownloadProgress(this, this.props)),
+                React.createElement(react_bootstrap_1.Row, null,
+                    React.createElement("div", { className: "mb-2" }, updateDownloadProgress(this, this.props))),
                 React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
                     return React.createElement(React.Fragment, { key: d.name },
                         React.createElement(StatsCard_jsx_1.StatsCard, { downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, callback: _this.handleDownloadDemo, statsText: d.name, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));

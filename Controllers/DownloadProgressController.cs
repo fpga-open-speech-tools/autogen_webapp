@@ -105,12 +105,11 @@ namespace DownloadProgress.Controllers
     public S3DownloadProgress Get(string ip1, string ip2, string ip3, string ip4, string port)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-      S3DownloadProgress result = new S3DownloadProgress();
+      S3DownloadProgress result;
 
       var url = "http://" + deviceIP + ":" + port + "/get-download-progress";
       System.Diagnostics.Debug.WriteLine("Attempting to Get DownloadProgress @: " + url);
       result = _download_serialized_json_data<S3DownloadProgress>(url);
-
       return result;
     }
   }

@@ -7,7 +7,7 @@ import * as uicfg from './EffectContainer.json';
 
 export interface OpenSpeechToolsState {
   isLoading: boolean;
-  isDeviceDownloading?: boolean;
+  isDeviceDownloading: boolean;
   //Interface for UI JSON
   uiConfig: EffectContainer;
   //Interface for Demos Array[]
@@ -107,9 +107,9 @@ interface RequestOpenSpeechS3DownloadAction {
   ip2: string;
   ip3: string;
   ip4: string;
-  devicePort: string;
+  devicePort:   string;
   deviceFamily: string;
-  projectName: string;
+  projectName:  string;
   isDeviceDownloading: boolean;
 }
 
@@ -130,7 +130,6 @@ interface RequestS3DownloadProgressAction {
 
 interface ReceiveS3DownloadProgressAction {
   type: 'RECEIVE_S3_DOWNLOAD_PROGRESS';
-  isDeviceDownloading: boolean;
   downloadProgress: S3DownloadProgress;
 }
 
@@ -195,7 +194,7 @@ export const openSpeechDataActionCreators = {
       .then(response => response.json() as Promise<S3DownloadProgress>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data, isDeviceDownloading: (data.progress<100)
+          type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data
         });
       });
     dispatch({
@@ -263,6 +262,7 @@ export const openSpeechDataActionCreators = {
 const unloadedState: OpenSpeechToolsState = {
   availableDemos: [],
   isLoading: false,
+  isDeviceDownloading: false,
   uiConfig: {
     pages: uicfg.pages,
     module: uicfg.module
@@ -280,12 +280,14 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       return {
         uiConfig: state.uiConfig,
         availableDemos: state.availableDemos,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
       };
     case 'RECEIVE_OPENSPEECH_UI':
       return {
         availableDemos: state.availableDemos,
         uiConfig: action.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
     case 'REQUEST_SEND_COMMAND':
@@ -293,31 +295,35 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         uiConfig: state.uiConfig,
         availableDemos: state.availableDemos,
         command: state.command,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
       };
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
       return {
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
     case 'REQUEST_OPENSPEECH_DEMOS':  
       return {
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
       };
     case 'RECEIVE_OPENSPEECH_DEMOS':
       return {
         availableDemos: action.availableDemos,
         uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
     case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
       return {
         deviceFamily: action.deviceFamily,
         availableDemos: state.availableDemos,
-        isDeviceDownloading: action.isDeviceDownloading,
+        isDeviceDownloading: true,
         uiConfig: state.uiConfig,
         isLoading: true
       };
@@ -325,7 +331,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       return {
         availableDemos: state.availableDemos,
         uiConfig: action.uiConfig,
-        isDeviceDownloading: action.isDeviceDownloading,
+        isDeviceDownloading: false,
         isLoading: false
       };
     case 'REQUEST_S3_DOWNLOAD_PROGRESS':
@@ -340,7 +346,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         downloadProgress: action.downloadProgress,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
-        isDeviceDownloading: action.isDeviceDownloading,
+        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
     default:
