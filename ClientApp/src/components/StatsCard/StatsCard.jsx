@@ -1,35 +1,46 @@
 
 import React, { Component } from "react";
-import { Row, Col, Dropdown, DropdownButton, Button } from "react-bootstrap";
+import { Row, Col, Button, Accordion, Card } from "react-bootstrap";
 
 export class StatsCard extends Component {
   render() {
     return (
       <div className="card card-stats" key={this.props.key}>
+        <Row>
+
+          <div className="open-speech-header open-speech-header-std open-speech-accent-color">
+          <Col lg={9} md={9} sm={9}>
+            <h1 className="open-speech-accent-font">{this.props.headerTitle}</h1>
+            </Col>
+            {this.props.isDownloading}
+          </div>
+        </Row>
         <div className="content">
-          <Row>
+          <Row className = "centered-row fullwidth-row">
+              <div className="numbers">
+                <Row className = "centered-row">
+                  <Col className="text-column-left"><div id="filesize">{this.props.statsValue}</div></Col>
+                </Row>
+              </div>
             <Col>
               <Button
+                className="btn-icon"
                 onClick={
                   () => this.props.callback(this.props.downloadDevice,this.props.downloadProject)
                 }
                 variant="primary"
                 size="md" block>
-                {this.props.statsText}
+                <i className="fa fa-cloud-download large-icon"/>
               </Button>
-              <div className="numbers">
-                <Row>
-                  <Col>Size:</Col>
-                  <Col><div id="filesize">{this.props.statsValue}</div></Col>
-                </Row>
-              </div>
-              </Col>
+            </Col>
           </Row>
-          <div className="footer">
-            <hr />
-            <div className="stats">
-              {this.props.statsIcon} {this.props.statsIconText}
-            </div>
+          <Row className="paragraph-row">
+           </Row>
+        </div>
+        <div className="footer">
+          <hr />
+          <div className="stats">
+            {this.props.statsIcon} {this.props.statsIconText}
           </div>
         </div>
       </div>

@@ -86,7 +86,9 @@
         color: #333;
     }
     .footer{
+        bottom:0;
         padding: 0;
+        padding-left:5px;
         background-color: $transparent-bg;
         line-height: 30px;
 
@@ -216,6 +218,7 @@
 
   .content{
     overflow:hidden;
+    height:auto;
   }
 
   .icon-big {
@@ -252,10 +255,35 @@
     overflow: auto;
   }
 
-  height: 153px;
+  height: auto;
+  width:200px;
 
   .text-center {
     text-align: left !important;
+  }
+
+  .btn{
+    border-width:0px;
+    width:27px;
+    height:27px;
+    padding:1px;
+    padding-bottom:0px;
+    float:right;
+    //height:100%;
+    //width:100%;
+
+    .fa{
+      font-size:25px;
+    }
+  }
+  .centered-row{
+    align-items:center!important;
+  }
+  .fullwidth-row{
+    width:100%;
+  }
+  .text-column-left{
+    text-align:left;
   }
 }
 
@@ -321,11 +349,11 @@
   }
 
   .btn {
-    line-height: normal !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    border-width: 1px;
+    //line-height: normal !important;
+    //overflow: hidden !important;
+    //text-overflow: ellipsis !important;
+    //white-space: nowrap !important;
+    //border-width: 1px;
   }
 
   .hide {
@@ -459,4 +487,59 @@ td .content {
 .progress{
   height:10px!important;
   width:100px!important;
+}
+
+.open-speech-accent-color {
+  background-color: #0062cc;
+}
+
+.open-speech-accent-font{
+  color:aliceblue;
+  font-size: 2em;
+  margin-top:7px;
+  margin-left:5px;
+  margin-bottom:3px;
+  text-align:left;
+  height:100%;
+}
+
+.open-speech-header-std {
+  width: 100%;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 3px;
+  box-shadow: 0px 3px 8px grey;
+  align-content:center;
+  padding-top:2px;
+
+  .fa{
+    padding-top:2px;
+    font-size:22px;
+    float:right;
+    padding-right:8px;
+    height:auto;
+    width:auto;
+  }
+}
+
+.large-icon{
+  font-size:25px;
+}
+
+.btn-icon{
+  padding:3px;
+  padding-bottom:2px;
+}
+
+.fa{
+  width:auto!important;
+}
+
+.open-speech-loading-anim{
+  float:right;
+  padding-right:8px;
+  padding-top:2px;
+  margin-right:5px;
+  margin-top:8px;
+
 }

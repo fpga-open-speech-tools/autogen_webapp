@@ -11,6 +11,7 @@ export class EffectPageDiv extends Component {
         {this.props.page.panels.map((panel) =>
           <React.Fragment key={panel.name}>
             <EffectPanelDiv
+              headerTitle={panel.name}
               callback={this.props.callback}
               title={panel.name}
               panel={panel}

@@ -8,11 +8,10 @@ export class EffectPanelDiv extends Component {
   
   render() {
     return (
-      <div className={"autogen + autogen-panel card" + (this.props.plain ? " card-plain" : "")}>
-        <div className={"header" + (this.props.hCenter ? " text-center" : "")}>
-          <h4 className="title">{this.props.title}</h4>
-          <p className="category">{this.props.category}</p>
-        </div>
+        <div className={"autogen + autogen-panel card" + (this.props.plain ? " card-plain" : "")}>
+          <div className="open-speech-header open-speech-header-std open-speech-accent-color">
+            <h1 className="open-speech-accent-font">{this.props.headerTitle}</h1>
+          </div>
         <div
           className={
             "content" +

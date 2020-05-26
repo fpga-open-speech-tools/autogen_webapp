@@ -30,7 +30,8 @@ var Dashboard = /** @class */ (function (_super) {
             ipFragment4: '1',
             port: '3355',
             lastDownloadProgressRequestTime: 0,
-            lastDownloadProgress: 0
+            lastDownloadProgress: 0,
+            projectID: "Example"
         };
         _this.handleIP1Change = _this.handleIP1Change.bind(_this);
         _this.handleIP2Change = _this.handleIP2Change.bind(_this);
@@ -98,6 +99,7 @@ var Dashboard = /** @class */ (function (_super) {
     };
     Dashboard.prototype.handleDownloadDemo = function (device, project) {
         if (!this.props.isLoading) {
+            this.setState({ projectID: project });
             this.props.requestDownloadS3Demo(device, project, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
         }
     };
@@ -109,17 +111,17 @@ var Dashboard = /** @class */ (function (_super) {
         function getAutogen(board, props) {
             if (props.uiConfig.pages) {
                 return (React.createElement("div", { className: "autogen autogen-effectContainer" },
-                    React.createElement("h1", null, "Autogen Effect: " + props.uiConfig.module),
+                    React.createElement("h4", null, "Autogen Effect: " + props.uiConfig.module),
                     props.uiConfig.pages.map(function (page) {
                         return React.createElement(React.Fragment, { key: page.name },
                             React.createElement("div", { className: page.name },
-                                React.createElement("h1", null, "Page: " + page.name),
+                                React.createElement("h4", null, "Page: " + page.name),
                                 React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: board.handleInputCommand, module: props.uiConfig.module, page: page })));
                     })));
             }
             else if (props.uiConfig.module) {
                 return (React.createElement("div", { className: "autogen autogen-effectContainer" },
-                    React.createElement("h1", null, props.uiConfig.module)));
+                    React.createElement("h4", null, props.uiConfig.module)));
             }
         }
         function updateDownloadProgress(board, props) {
@@ -138,6 +140,19 @@ var Dashboard = /** @class */ (function (_super) {
                     React.createElement("h1", null, downloadingState)));
             }
         }
+        function animateDownloadStatus(state, props, projectID) {
+            if (props.isDeviceDownloading == true) {
+                if (state.projectID == projectID) {
+                    return (React.createElement(react_bootstrap_1.Spinner, { animation: "border", variant: "light", className: "open-speech-loading-anim" }));
+                }
+                else {
+                    return (React.createElement("i", { className: "fa fa-info large-icon open-speech-accent-font" }));
+                }
+            }
+            else {
+                return (React.createElement("i", { className: "fa fa-info large-icon open-speech-accent-font" }));
+            }
+        }
         return (React.createElement("div", { className: "content" },
             React.createElement(react_bootstrap_1.Container, { fluid: true },
                 React.createElement(react_bootstrap_1.Row, null,
@@ -154,26 +169,15 @@ var Dashboard = /** @class */ (function (_super) {
                             React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
                                 React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "Port")),
                             React.createElement(react_bootstrap_1.FormControl, { name: "port", defaultValue: this.state.port, onChange: this.handlePortChange, "aria-label": "Port", "aria-describedby": "inputGroup-sizing-default" })))),
-                React.createElement("h1", null, "Available Demos"),
-                React.createElement(react_bootstrap_1.Row, null,
-                    React.createElement("div", { className: "mb-2" }, updateDownloadProgress(this, this.props))),
+                React.createElement("h4", null, "Available Demos"),
                 React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
                     return React.createElement(React.Fragment, { key: d.name },
-                        React.createElement(StatsCard_jsx_1.StatsCard, { downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, callback: _this.handleDownloadDemo, statsText: d.name, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
+                        React.createElement(StatsCard_jsx_1.StatsCard, { isDownloading: animateDownloadStatus(_this.state, _this.props, d.name), downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, headerTitle: d.name, callback: _this.handleDownloadDemo, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
                 })),
                 React.createElement("div", null,
-                    React.createElement("h1", null, "Auto-gen"),
-                    React.createElement(react_bootstrap_1.Button, { variant: "primary", onClick: this.handleRequestUI },
-                        "Auto-gen from ",
-                        this.state.ipFragment1,
-                        ".",
-                        this.state.ipFragment2,
-                        ".",
-                        this.state.ipFragment3,
-                        ".",
-                        this.state.ipFragment4,
-                        ":",
-                        this.state.port)),
+                    React.createElement("h4", null, "Auto-gen"),
+                    React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
+                        React.createElement("i", { className: "fa fa-refresh large-icon" }))),
                 getAutogen(this, this.props))));
     };
     return Dashboard;

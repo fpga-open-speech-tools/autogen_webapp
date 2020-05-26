@@ -2,9 +2,9 @@ namespace TargetDevice
 {
   public class TargetDevice
   {
-    public string name { get; set; }
-    public int progress { get; set; }
-    public string status { get; set; }
+    public string devicename { get; set; }
+    public int currentproject { get; set; }
+    public string lastupdated { get; set; }
   }
 }
 

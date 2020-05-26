@@ -178,7 +178,7 @@ input:focus {
   transition: all 100ms ease-in; }
 
 .fa {
-  width: 18px;
+  width: inherit;
   text-align: center; }
 
 .margin-top {

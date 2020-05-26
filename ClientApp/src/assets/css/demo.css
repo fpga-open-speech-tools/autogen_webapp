@@ -384,7 +384,7 @@
   padding: 8px 9px;
 }
 .btn-social .fa {
-  font-size: 18px;
+  font-size: inherit;
   vertical-align: middle;
   display: inline-block;
 }

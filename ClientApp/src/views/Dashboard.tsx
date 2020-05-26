@@ -22,7 +22,8 @@ interface IState {
   ipFragment4: string,
   port: string,
   lastDownloadProgressRequestTime: number,
-  lastDownloadProgress: number
+  lastDownloadProgress: number,
+  projectID: string
 }
 
 class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
@@ -37,7 +38,8 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       ipFragment4: '1',
       port: '3355',
       lastDownloadProgressRequestTime: 0,
-      lastDownloadProgress: 0
+      lastDownloadProgress: 0,
+      projectID: "Example"
     };
     this.handleIP1Change = this.handleIP1Change.bind(this);
     this.handleIP2Change = this.handleIP2Change.bind(this);
@@ -125,7 +127,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
   handleDownloadDemo(device:string,project:string) {
     if (!this.props.isLoading) {
-      
+      this.setState({ projectID: project });
       this.props.requestDownloadS3Demo(device, project,
         this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
         this.state.port)
@@ -145,11 +147,11 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       if (props.uiConfig.pages) {
         return (
           <div className="autogen autogen-effectContainer">
-            <h1>{"Autogen Effect: " + props.uiConfig.module}</h1>
+            <h4>{"Autogen Effect: " + props.uiConfig.module}</h4>
             {props.uiConfig.pages.map((page) =>
               <React.Fragment key={page.name}>
                 <div className={page.name}>
-                  <h1>{"Page: " + page.name}</h1>
+                  <h4>{"Page: " + page.name}</h4>
                   <EffectPageDiv
                     callback={board.handleInputCommand}
                     module={props.uiConfig.module}
@@ -161,7 +163,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       }
       else if(props.uiConfig.module){
         return (<div className="autogen autogen-effectContainer">
-          <h1>{props.uiConfig.module}</h1></div>);
+          <h4>{props.uiConfig.module}</h4></div>);
       }
     }
 
@@ -186,7 +188,23 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
           </div>
         );
       }
+    }
 
+    function animateDownloadStatus(state: IState, props:OpenSpeechProps, projectID: string) {
+      if (props.isDeviceDownloading == true) {
+        if (state.projectID == projectID) {
+          return (
+            <Spinner animation="border" variant="light" className="open-speech-loading-anim"/>
+            );
+        }
+        else {
+          return (
+            <i className="fa fa-info large-icon open-speech-accent-font" />);
+        }
+      }
+      else {
+        return (<i className="fa fa-info large-icon open-speech-accent-font" />);
+      }
     }
 
     return (
@@ -243,20 +261,16 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
               </InputGroup>
               </Col>
             </Row>
-          <h1>Available Demos</h1>
-          <Row>
-              <div className = "mb-2">
-              {updateDownloadProgress(this, this.props)}
-              </div>
-          </Row>
+          <h4>Available Demos</h4>
           <Row>
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <StatsCard
+                  isDownloading={animateDownloadStatus(this.state,this.props,d.name)}
                   downloadDevice={d.downloadurl.devicename}
                   downloadProject={d.downloadurl.projectname}
+                  headerTitle={d.name}
                   callback={this.handleDownloadDemo}
-                  statsText={d.name}
                   statsValue={(d.filesize/1000000).toFixed(2) + "MB"}
                   statsIcon={<i className="fa fa-folder-o" />}
                   statsIconText={d.downloadurl.devicename + "/" + d.downloadurl.projectname}
@@ -264,12 +278,13 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
               </React.Fragment>
             )} 
           </Row>
-            <div><h1>Auto-gen</h1>
+            <div><h4>Auto-gen</h4>
               <Button
               variant="primary"
+              className="btn-simple btn-icon"
               onClick={this.handleRequestUI}
-              >
-              Auto-gen from {this.state.ipFragment1}.{this.state.ipFragment2}.{this.state.ipFragment3}.{this.state.ipFragment4}:{this.state.port}
+            >
+              <i className="fa fa-refresh large-icon" />
               </Button>
             </div>
             {getAutogen(this,this.props)}
