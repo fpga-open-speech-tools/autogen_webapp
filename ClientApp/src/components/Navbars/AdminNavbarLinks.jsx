@@ -21,7 +21,7 @@ import {Navbar } from "react-bootstrap";
 class AdminNavbarLinks extends Component {
   render() {
     return (
-      <Navbar bg="light">
+      <Navbar bg="dark">
           <Navbar.Brand href="https://fpga-open-speech-tools.github.io/docs/landing_page/index.html">
             FPGA Open Speech Tools
           </Navbar.Brand>

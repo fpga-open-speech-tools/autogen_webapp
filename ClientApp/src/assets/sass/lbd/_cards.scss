@@ -543,3 +543,59 @@ td .content {
   margin-top:8px;
 
 }
+.modal-dialog{
+  //display:inline-block;
+  .jumbotron{
+    border-radius:0;
+    font-size:medium;
+    padding-left: 10px;
+    padding:1rem 1rem;
+  }
+}
+
+.modal-dialog {
+
+  background-color: rgba(203, 203, 210, 0.15);
+  max-width: 1920px;
+}
+
+.modal-title{
+  margin:auto;
+  .float-left{
+    float:left;
+    margin:auto;
+  }
+  .float-right{
+    float:right;
+    margin:auto;
+  }
+}
+
+.modal-content {
+
+  border-left: hidden;
+  border-right: hidden;
+  box-shadow: 0px 3px 8px grey;
+}
+
+
+.modal-body{
+
+}
+
+.navbar-brand {
+  font-family: Roboto;
+  color: #EEEEEE!important; 
+  font-weight: 700;
+  border-bottom: 2px;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-style: solid;
+  border-color: #0062cc;
+}
+
+.navbar {
+  background-color: #0062cc!important;
+  text-align:center!important;
+}

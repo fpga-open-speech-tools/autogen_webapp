@@ -111,13 +111,13 @@ var Dashboard = /** @class */ (function (_super) {
         function getAutogen(board, props) {
             if (props.uiConfig.pages) {
                 return (React.createElement("div", { className: "autogen autogen-effectContainer" },
-                    React.createElement("h4", null, "Autogen Effect: " + props.uiConfig.module),
-                    props.uiConfig.pages.map(function (page) {
+                    React.createElement(react_bootstrap_1.Jumbotron, null, props.uiConfig.module),
+                    React.createElement(react_bootstrap_1.Card, null, props.uiConfig.pages.map(function (page) {
                         return React.createElement(React.Fragment, { key: page.name },
                             React.createElement("div", { className: page.name },
-                                React.createElement("h4", null, "Page: " + page.name),
+                                React.createElement(react_bootstrap_1.Jumbotron, null, page.name),
                                 React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: board.handleInputCommand, module: props.uiConfig.module, page: page })));
-                    })));
+                    }))));
             }
             else if (props.uiConfig.module) {
                 return (React.createElement("div", { className: "autogen autogen-effectContainer" },
@@ -156,29 +156,39 @@ var Dashboard = /** @class */ (function (_super) {
         return (React.createElement("div", { className: "content" },
             React.createElement(react_bootstrap_1.Container, { fluid: true },
                 React.createElement(react_bootstrap_1.Row, null,
-                    React.createElement(react_bootstrap_1.Col, { lg: 3, md: 5 },
-                        React.createElement(react_bootstrap_1.InputGroup, { className: "mb-2" },
-                            React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
-                                React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "IP")),
-                            React.createElement(react_bootstrap_1.FormControl, { name: "ip1", defaultValue: this.state.ipFragment1, onChange: this.handleIP1Change, "aria-label": "IP1", "aria-describedby": "inputGroup-sizing-default" }),
-                            React.createElement(react_bootstrap_1.FormControl, { name: "ip2", defaultValue: this.state.ipFragment2, onChange: this.handleIP2Change, "aria-label": "IP2", "aria-describedby": "inputGroup-sizing-default" }),
-                            React.createElement(react_bootstrap_1.FormControl, { name: "ip3", defaultValue: this.state.ipFragment3, onChange: this.handleIP3Change, "aria-label": "IP3", "aria-describedby": "inputGroup-sizing-default" }),
-                            React.createElement(react_bootstrap_1.FormControl, { name: "ip4", defaultValue: this.state.ipFragment4, onChange: this.handleIP4Change, "aria-label": "IP4", "aria-describedby": "inputGroup-sizing-default" }))),
-                    React.createElement(react_bootstrap_1.Col, { lg: 2, md: 2 },
-                        React.createElement(react_bootstrap_1.InputGroup, { className: "mb-3" },
-                            React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
-                                React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "Port")),
-                            React.createElement(react_bootstrap_1.FormControl, { name: "port", defaultValue: this.state.port, onChange: this.handlePortChange, "aria-label": "Port", "aria-describedby": "inputGroup-sizing-default" })))),
-                React.createElement("h4", null, "Available Demos"),
-                React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
-                    return React.createElement(React.Fragment, { key: d.name },
-                        React.createElement(StatsCard_jsx_1.StatsCard, { isDownloading: animateDownloadStatus(_this.state, _this.props, d.name), downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, headerTitle: d.name, callback: _this.handleDownloadDemo, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
-                })),
-                React.createElement("div", null,
-                    React.createElement("h4", null, "Auto-gen"),
-                    React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
-                        React.createElement("i", { className: "fa fa-refresh large-icon" }))),
-                getAutogen(this, this.props))));
+                    React.createElement(react_bootstrap_1.Modal.Dialog, null,
+                        React.createElement(react_bootstrap_1.Modal.Header, null,
+                            React.createElement(react_bootstrap_1.Modal.Title, null, "Connection")),
+                        React.createElement(react_bootstrap_1.Col, { lg: 12, md: 12, sm: 12 },
+                            React.createElement(react_bootstrap_1.InputGroup, { className: "mb-2" },
+                                React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
+                                    React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "IP")),
+                                React.createElement(react_bootstrap_1.FormControl, { name: "ip1", defaultValue: this.state.ipFragment1, onChange: this.handleIP1Change, "aria-label": "IP1", "aria-describedby": "inputGroup-sizing-default" }),
+                                React.createElement(react_bootstrap_1.FormControl, { name: "ip2", defaultValue: this.state.ipFragment2, onChange: this.handleIP2Change, "aria-label": "IP2", "aria-describedby": "inputGroup-sizing-default" }),
+                                React.createElement(react_bootstrap_1.FormControl, { name: "ip3", defaultValue: this.state.ipFragment3, onChange: this.handleIP3Change, "aria-label": "IP3", "aria-describedby": "inputGroup-sizing-default" }),
+                                React.createElement(react_bootstrap_1.FormControl, { name: "ip4", defaultValue: this.state.ipFragment4, onChange: this.handleIP4Change, "aria-label": "IP4", "aria-describedby": "inputGroup-sizing-default" }))),
+                        React.createElement(react_bootstrap_1.Col, { lg: 12, md: 12, sm: 12 },
+                            React.createElement(react_bootstrap_1.InputGroup, { className: "mb-3" },
+                                React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
+                                    React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "Port")),
+                                React.createElement(react_bootstrap_1.FormControl, { name: "port", defaultValue: this.state.port, onChange: this.handlePortChange, "aria-label": "Port", "aria-describedby": "inputGroup-sizing-default" }))))),
+                React.createElement(react_bootstrap_1.Row, null,
+                    React.createElement(react_bootstrap_1.Modal.Dialog, null,
+                        React.createElement(react_bootstrap_1.Modal.Header, null,
+                            React.createElement(react_bootstrap_1.Modal.Title, null, "Available Demos")),
+                        React.createElement(react_bootstrap_1.Modal.Body, null,
+                            React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
+                                return React.createElement(React.Fragment, { key: d.name },
+                                    React.createElement(StatsCard_jsx_1.StatsCard, { isDownloading: animateDownloadStatus(_this.state, _this.props, d.name), downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, headerTitle: d.name, callback: _this.handleDownloadDemo, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
+                            }))))),
+                React.createElement(react_bootstrap_1.Row, null,
+                    React.createElement(react_bootstrap_1.Modal.Dialog, null,
+                        React.createElement(react_bootstrap_1.Modal.Header, null,
+                            React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" }, "Controls"),
+                            React.createElement("div", { className: "float-right" },
+                                React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
+                                    React.createElement("i", { className: "fa fa-refresh large-icon" })))),
+                        getAutogen(this, this.props))))));
     };
     return Dashboard;
 }(React.PureComponent));

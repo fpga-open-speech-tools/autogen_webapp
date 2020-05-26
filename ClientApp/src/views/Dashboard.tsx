@@ -4,7 +4,11 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../store/OpenSpeechToolsData';
 import { ApplicationState } from '../';
-import { Container, Row, Col, InputGroup, FormControl, Button, Spinner} from "react-bootstrap";
+import {
+  Container, Row, Col, InputGroup,
+  FormControl, Button, Spinner,
+  Card, Jumbotron, Modal
+} from "react-bootstrap";
 import { StatsCard } from "../components/StatsCard/StatsCard.jsx";
 import { EffectPageDiv } from "../components/Autogen/Containers/EffectPageDiv.jsx";
 
@@ -147,18 +151,20 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       if (props.uiConfig.pages) {
         return (
           <div className="autogen autogen-effectContainer">
-            <h4>{"Autogen Effect: " + props.uiConfig.module}</h4>
+            <Jumbotron>{props.uiConfig.module}</Jumbotron>
+            <Card>
             {props.uiConfig.pages.map((page) =>
               <React.Fragment key={page.name}>
                 <div className={page.name}>
-                  <h4>{"Page: " + page.name}</h4>
+                  <Jumbotron>{page.name}</Jumbotron>
                   <EffectPageDiv
                     callback={board.handleInputCommand}
                     module={props.uiConfig.module}
                     page={page} />
-                </div>
+                  </div>
               </React.Fragment>)
-            }
+              }
+              </Card>
           </div>);
       }
       else if(props.uiConfig.module){
@@ -210,8 +216,9 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     return (
       <div className="content">
         <Container fluid>
-            <Row>
-              <Col lg={3} md={5}>
+          <Row>
+            <Modal.Dialog><Modal.Header><Modal.Title>Connection</Modal.Title></Modal.Header>
+              <Col lg={12} md={12} sm={12}>
               <InputGroup className="mb-2">
                 <InputGroup.Prepend>
                 <InputGroup.Text id="inputGroup-sizing-default">IP</InputGroup.Text>
@@ -246,7 +253,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                 />
               </InputGroup>
               </Col>
-            <Col lg={2} md={2}>
+              <Col lg={12} md={12} sm={12}>
               <InputGroup className="mb-3">
                 <InputGroup.Prepend>
                   <InputGroup.Text id="inputGroup-sizing-default">Port</InputGroup.Text>
@@ -260,9 +267,13 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                 />
               </InputGroup>
               </Col>
-            </Row>
-          <h4>Available Demos</h4>
+              </Modal.Dialog>
+          </Row>
           <Row>
+          <Modal.Dialog>
+              <Modal.Header><Modal.Title>Available Demos</Modal.Title></Modal.Header>
+              <Modal.Body>
+                <Row>
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <StatsCard
@@ -278,16 +289,25 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
               </React.Fragment>
             )} 
           </Row>
-            <div><h4>Auto-gen</h4>
-              <Button
-              variant="primary"
-              className="btn-simple btn-icon"
-              onClick={this.handleRequestUI}
-            >
-              <i className="fa fa-refresh large-icon" />
-              </Button>
-            </div>
-            {getAutogen(this,this.props)}
+                </Modal.Body>
+            </Modal.Dialog>
+          </Row>
+          <Row>
+            <Modal.Dialog>
+              <Modal.Header><Modal.Title className="float-left">Controls</Modal.Title>
+                <div className="float-right">
+                <Button
+                  variant="primary"
+                  className="btn-simple btn-icon"
+                  onClick={this.handleRequestUI}
+                >
+                  <i className="fa fa-refresh large-icon" />
+                </Button>
+              </div></Modal.Header>
+
+            {getAutogen(this, this.props)}
+            </Modal.Dialog>
+            </Row>
         </Container>
       </div>
     );
