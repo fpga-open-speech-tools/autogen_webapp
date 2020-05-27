@@ -5,7 +5,7 @@ import ToggleWrapper from '../Inputs/ToggleWrapper';
 
 export class EffectPanelDiv extends Component {
 
-  
+  //<h2 className="autogen-control-name">{control.title}</h2>
   render() {
     return (
         <div className={"autogen + autogen-panel card" + (this.props.plain ? " card-plain" : "")}>
@@ -26,15 +26,17 @@ export class EffectPanelDiv extends Component {
           {this.props.panel.controls.map((control) =>
             <React.Fragment key={control.linkerName}>
               <div className="autogen autogen-control" key={control.linkerName}>
-                <h2>{control.title}</h2>
                 <InputComponent
                   min={control.min}
                   max={control.max}
+                  defaultValue={control.defaultValue}
                   step={0.1}
                   callback={this.props.callback}
                   module={control.module}
+                  controlTitle={control.title}
                   link={control.linkerName}
                   type={control.type}
+                  units={control.units}
                 />
                 </div>
             </React.Fragment>
@@ -63,6 +65,8 @@ function InputComponent(props) {
   const min = props.min;
   const max = props.max;
   const step = props.step;
+  const controlTitle = props.controlTitle;
+  const units = props.units;
 
   if (whatComponent === "slider") {
     return (
@@ -73,7 +77,9 @@ function InputComponent(props) {
         callback={callback}
         module={module}
         link={link}
-        value={defaultValue}
+        defaultValue={defaultValue}
+        controlTitle={controlTitle}
+        units={units}
       />
     );
   } else if (whatComponent === "toggle") {

@@ -8,6 +8,7 @@ import * as uicfg from './EffectContainer.json';
 export interface OpenSpeechToolsState {
   isLoading: boolean;
   isDeviceDownloading: boolean;
+  currentDemo?: string;
   //Interface for UI JSON
   uiConfig: EffectContainer;
   //Interface for Demos Array[]
@@ -111,11 +112,13 @@ interface RequestOpenSpeechS3DownloadAction {
   deviceFamily: string;
   projectName:  string;
   isDeviceDownloading: boolean;
+  currentDemo: string;
 }
 
 interface ReceiveOpenSpeechS3DownloadAction {
   type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO';
   uiConfig: EffectContainer;
+  currentDemo: string;
   isDeviceDownloading: boolean;
 }
 
@@ -245,13 +248,13 @@ export const openSpeechDataActionCreators = {
       .then(response => response.json() as Promise<EffectContainer>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',uiConfig:data, isDeviceDownloading: false
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',uiConfig:data, isDeviceDownloading: false,currentDemo:projectname
         });
       });
       dispatch({
         type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO',
         ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested, devicePort: devicePortRequested,
-        deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true
+        deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo:projectname
       });
   }
 };
@@ -325,11 +328,13 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         isDeviceDownloading: true,
         uiConfig: state.uiConfig,
+        currentDemo: action.currentDemo,
         isLoading: true
       };
     case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
       return {
         availableDemos: state.availableDemos,
+        currentDemo: action.currentDemo,
         uiConfig: action.uiConfig,
         isDeviceDownloading: false,
         isLoading: false

@@ -36,8 +36,8 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     super(props);
 
     this.state = {
-      ipFragment1: '192',
-      ipFragment2: '168',
+      ipFragment1: '127',
+      ipFragment2: '0',
       ipFragment3: '0',
       ipFragment4: '1',
       port: '3355',
@@ -61,9 +61,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
   componentDidMount() {
     this.props.requestOpenSpeechS3Demos();
+    this.handleRequestUI();
 
     if (this.props.downloadProgress) {
-      if (this.state.lastDownloadProgress != this.props.downloadProgress.progress) {
+      if (this.state.lastDownloadProgress !== this.props.downloadProgress.progress) {
         this.setState({
           lastDownloadProgress: this.props.downloadProgress.progress
         });
@@ -123,7 +124,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
   handleInputCommand(module: string, link: string, value: string) {
     if (!this.props.isLoading) {
-      this.props.requestSendCommand(link, value, module,
+        this.props.requestSendCommand(link, value, module,
         this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
         this.state.port)
     }
@@ -173,32 +174,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       }
     }
 
-    function updateDownloadProgress(board: Dashboard, props: OpenSpeechProps) {
-      var downloadingState = "";
-      if (props.isDeviceDownloading == true) {
-        downloadingState = "Downloading";       
-        return (
-          <div>
-            <h1>{downloadingState}</h1>
-            <Spinner animation="border" variant="primary" />
-          </div>
-        );
-      }
-      else {
-        if (props.uiConfig.module) {
-          downloadingState = props.uiConfig.module + " Loaded";
-        }
-        return (
-          <div>
-            <h1>{downloadingState}</h1>
-          </div>
-        );
-      }
-    }
 
     function animateDownloadStatus(state: IState, props:OpenSpeechProps, projectID: string) {
-      if (props.isDeviceDownloading == true) {
-        if (state.projectID == projectID) {
+      if (props.isDeviceDownloading === true) {
+        if (state.projectID === projectID) {
           return (
             <Spinner animation="border" variant="light" className="open-speech-loading-anim"/>
             );
@@ -208,10 +187,63 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
             <i className="fa fa-info large-icon open-speech-accent-font" />);
         }
       }
+      if (props.uiConfig && props.currentDemo) {
+        if (props.uiConfig.module === "Demo Upload Failed" && props.currentDemo === projectID) {
+          return (< i className="fa fa-times large-icon open-speech-accent-font" />);
+        }
+        else {
+          return (<i className="fa fa-info large-icon open-speech-accent-font" />);
+        }
+      }
       else {
         return (<i className="fa fa-info large-icon open-speech-accent-font" />);
       }
     }
+
+
+    //Would like to rewrite this to better consider properties of selection. 
+    //Currently, takes into account ui return, selected projectID and object, as well as determines if downloading.
+    function highlightIfDownloaded(state: IState, props: OpenSpeechProps, projectID: string) {
+      if (!props.isDeviceDownloading) {
+        if (props.currentDemo === projectID) {
+          if (props.uiConfig) {
+            if (props.uiConfig.module === "Demo Upload Failed") {
+              return ("card card-stats open-speech-is-error-highlighted");
+            }//[End]If Demo upload failed
+            else {
+              return ("card card-stats open-speech-is-highlighted");
+            }//[End]Demo upload Succeeded
+          }//[End]UI Config Exists
+          else {return ("card card-stats open-speech-is-highlighted");}
+        }//[End] currentDemo downloaded is the entered objectID
+        else {
+          return ("card card-stats");
+        }//[End] currentDemo downloaded is not the entered objectID
+      }//[End] Device is NOT downloading
+      else {
+        if (props.currentDemo) {
+          if (props.currentDemo === projectID) {
+            if (props.uiConfig) {
+              if (props.uiConfig.module === "Demo Upload Failed") {
+                return ("card card-stats open-speech-is-error-highlighted");
+              }//[End] Demo Upload Failed
+              else {
+                return ("card card-stats");
+              }//[End] Demo Upload Did not Fail
+            }//[End] Ui Config Exists
+            else {
+              return ("card card-stats");
+            }//[End] Ui Config Does not exist
+          }//[End]Current project selected matches object
+          else {
+            return ("card card-stats");
+          }//[End] Current Project Selected does not match object
+        }//[End] We do have a current demo property
+        else {
+          return ("card card-stats");
+        }//[End] We do not have a current demo property
+      }//[End] Device IS downloading
+    }//[end]highlightIfDownloaded
 
     return (
       <div className="content">
@@ -277,6 +309,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <StatsCard
+                  isSelected={highlightIfDownloaded(this.state,this.props,d.name)}
                   isDownloading={animateDownloadStatus(this.state,this.props,d.name)}
                   downloadDevice={d.downloadurl.devicename}
                   downloadProject={d.downloadurl.projectname}

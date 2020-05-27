@@ -493,6 +493,29 @@ td .content {
   background-color: #0062cc;
 }
 
+.open-speech-highlight-color {
+  background-color: #3797ff;
+}
+
+.open-speech-accent-color {
+
+  .open-speech-processing-anim {
+    content: '';
+    position: absolute;
+    width: 58px;
+    height: 8px;
+    background-image: linear-gradient(to bottom, rgba(170, 184, 190, 0), rgba(170, 184, 190, .8));
+    animation: scanning .8s linear infinite;
+  }
+
+  @keyframes scanning {
+    100% {
+      transform: translate(0, 52px);
+    }
+  }
+
+}
+
 .open-speech-accent-font{
   color:aliceblue;
   font-size: 2em;
@@ -501,6 +524,26 @@ td .content {
   margin-bottom:3px;
   text-align:left;
   height:100%;
+  font-weight:400;
+}
+
+.open-speech-error-font {
+  color: crimson;
+  font-size: 2em;
+  margin-top: 7px;
+  margin-left: 5px;
+  margin-bottom: 3px;
+  text-align: left;
+  height: 100%;
+  font-weight: 400;
+}
+
+.open-speech-is-highlighted {
+  box-shadow: 0px 0px 6px #0062cc;
+}
+
+.open-speech-is-error-highlighted {
+  box-shadow: 0px 0px 6px crimson;
 }
 
 .open-speech-header-std {
@@ -511,6 +554,7 @@ td .content {
   box-shadow: 0px 3px 8px grey;
   align-content:center;
   padding-top:2px;
+  display:inherit;
 
   .fa{
     padding-top:2px;
@@ -598,4 +642,54 @@ td .content {
 .navbar {
   background-color: #0062cc!important;
   text-align:center!important;
+}
+
+.autogen-control {
+  padding-bottom: 6px;
+  padding-top: 9px;
+  border: 0px;
+  border-bottom: 1px;
+  border-style: solid;
+  border-color: #f7f4f4;
+}
+
+.autogen-control-name {
+  font-size: 2.5rem;
+  font-weight: 300;
+  text-shadow: 1px 2px 2px #0c4eb140;
+}
+
+
+.autogen-value-row {
+  background-color: #fbfcfd8a;
+  border-style: inset;
+  border-radius: 6px;
+  border-color: #f1f1f114;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.autogen-value {
+  font-size: 2.2rem;
+  font-weight: 300;
+  padding-left: 4px;
+  width: 55%;
+  white-space: nowrap;
+}
+
+.autogen-units {
+  font-size: 1.8rem;
+  font-weight: 300;
+  padding-top: 0.5rem;
+  padding-right: 0.5rem;
+  text-align: right;
+  width: 45%;
+  overflow: hidden;
+  color: #0062cc;
+  white-space: nowrap;
+}
+
+.range-slider__wrap{
+  padding-top: 10px;
+  padding-bottom:30px;
 }

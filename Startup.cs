@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace SWEDashboard
+namespace OpenSpeechTools
 {
   public class Startup
   {
@@ -44,7 +44,7 @@ namespace SWEDashboard
         app.UseHsts();
       }
 
-      app.UseHttpsRedirection();
+      //app.UseHttpsRedirection();
       app.UseStaticFiles();
       app.UseSpaStaticFiles();
 

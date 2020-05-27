@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace SWEDashboard
+namespace OpenSpeechTools
 {
   public class Program
   {
@@ -21,6 +21,7 @@ namespace SWEDashboard
             .ConfigureWebHostDefaults(webBuilder =>
             {
               webBuilder.UseStartup<Startup>();
+              webBuilder.UseUrls(urls: "http://*:5000;http://localhost:5001;http://hostname:5002");
             });
   }
 }

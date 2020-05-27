@@ -5,11 +5,11 @@ import { Row, Col, Button, Accordion, Card } from "react-bootstrap";
 export class StatsCard extends Component {
   render() {
     return (
-      <div className="card card-stats" key={this.props.key}>
+      <div className={this.props.isSelected} key={this.props.key}>
         <Row>
 
           <div className="open-speech-header open-speech-header-std open-speech-accent-color">
-          <Col lg={9} md={9} sm={9}>
+            <Col lg={10} md={10} sm={10}>
             <h1 className="open-speech-accent-font">{this.props.headerTitle}</h1>
             </Col>
             {this.props.isDownloading}
