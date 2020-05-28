@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <None Remove="ClientApp\package.json" />
-    <None Remove="ClientApp\src\views\Dashboard.tsx" />
+    <None Remove="ClientApp\src\Views\Auto-Gen.tsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\views\Dashboard.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Views\Auto-Gen.tsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

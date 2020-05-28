@@ -15,10 +15,11 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var react_redux_1 = require("react-redux");
-var OpenSpeechDataStore = require("../store/OpenSpeechToolsData");
+var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
-var StatsCard_jsx_1 = require("../components/StatsCard/StatsCard.jsx");
-var EffectPageDiv_jsx_1 = require("../components/Autogen/Containers/EffectPageDiv.jsx");
+var OpenSpeechDemoCard_jsx_1 = require("../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx");
+var EffectPageDiv_jsx_1 = require("../Components/Autogen/Containers/EffectPageDiv.jsx");
+var NotificationWrapper_jsx_1 = require("../Components/Notifications/NotificationWrapper.jsx");
 var Dashboard = /** @class */ (function (_super) {
     __extends(Dashboard, _super);
     function Dashboard(props) {
@@ -31,7 +32,9 @@ var Dashboard = /** @class */ (function (_super) {
             port: '3355',
             lastDownloadProgressRequestTime: 0,
             lastDownloadProgress: 0,
-            projectID: "Example"
+            projectID: "Example",
+            notificationText: "",
+            notificationLevel: ""
         };
         _this.handleIP1Change = _this.handleIP1Change.bind(_this);
         _this.handleIP2Change = _this.handleIP2Change.bind(_this);
@@ -43,6 +46,8 @@ var Dashboard = /** @class */ (function (_super) {
         _this.handleInputCommand = _this.handleInputCommand.bind(_this);
         _this.handleDownloadDemo = _this.handleDownloadDemo.bind(_this);
         _this.handleRequestDownloadProgress = _this.handleRequestDownloadProgress.bind(_this);
+        _this.setNotificationText = _this.setNotificationText.bind(_this);
+        _this.setNotificationLevel = _this.setNotificationLevel.bind(_this);
         return _this;
     }
     Dashboard.prototype.componentDidMount = function () {
@@ -58,6 +63,20 @@ var Dashboard = /** @class */ (function (_super) {
         }
     };
     Dashboard.prototype.componentDidUpdate = function () {
+        if (this.props.uiConfig) {
+            if (this.props.uiConfig.name === 'Demo Upload Failed') {
+                this.setNotificationLevel('error');
+                this.setNotificationText('Demo Upload Failed');
+            }
+            else if (this.props.uiConfig.name === "ERROR") {
+                this.setNotificationLevel('error');
+                this.setNotificationText('Control Generation Failed');
+            }
+            else {
+                this.setNotificationLevel('success');
+                this.setNotificationText('New Controls Generated: ' + this.props.uiConfig.name);
+            }
+        }
     };
     Dashboard.prototype.handlePollDownloadProgress = function () {
         if (this.props.isDeviceDownloading) {
@@ -107,22 +126,32 @@ var Dashboard = /** @class */ (function (_super) {
     Dashboard.prototype.handleRequestDownloadProgress = function () {
         this.props.requestS3DownloadProgress(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
     };
+    Dashboard.prototype.setNotificationText = function (text) {
+        this.setState({ notificationText: text });
+    };
+    Dashboard.prototype.setNotificationLevel = function (level) {
+        this.setState({ notificationLevel: level });
+    };
     Dashboard.prototype.render = function () {
         var _this = this;
         function getAutogen(board, props) {
-            if (props.uiConfig.pages) {
-                return (React.createElement("div", { className: "autogen autogen-effectContainer" },
-                    React.createElement(react_bootstrap_1.Jumbotron, null, props.uiConfig.module),
-                    React.createElement(react_bootstrap_1.Card, null, props.uiConfig.pages.map(function (page) {
-                        return React.createElement(React.Fragment, { key: page.name },
-                            React.createElement("div", { className: page.name },
-                                React.createElement(react_bootstrap_1.Jumbotron, null, page.name),
-                                React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: board.handleInputCommand, module: props.uiConfig.module, page: page })));
-                    }))));
-            }
-            else if (props.uiConfig.module) {
-                return (React.createElement("div", { className: "autogen autogen-effectContainer" },
-                    React.createElement("h4", null, props.uiConfig.module)));
+            if (props.uiConfig) {
+                if (props.uiConfig.pages) {
+                    var module = props.uiConfig.name ? props.uiConfig.name : "";
+                    module = (module === "ERROR") ? "" : module;
+                    return (React.createElement("div", { className: "autogen autogen-effectContainer" },
+                        React.createElement(react_bootstrap_1.Jumbotron, null, module),
+                        React.createElement(react_bootstrap_1.Card, null, props.uiConfig.pages.map(function (page) {
+                            return React.createElement(React.Fragment, { key: page.name },
+                                React.createElement("div", { className: page.name },
+                                    React.createElement(react_bootstrap_1.Jumbotron, null, page.name),
+                                    React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: board.handleInputCommand, module: module, page: page })));
+                        }))));
+                }
+                else if (props.uiConfig.name) {
+                    return (React.createElement("div", { className: "autogen autogen-effectContainer" },
+                        React.createElement("h4", null, props.uiConfig.name)));
+                }
             }
         }
         function animateDownloadStatus(state, props, projectID) {
@@ -135,7 +164,7 @@ var Dashboard = /** @class */ (function (_super) {
                 }
             }
             if (props.uiConfig && props.currentDemo) {
-                if (props.uiConfig.module === "Demo Upload Failed" && props.currentDemo === projectID) {
+                if (props.uiConfig.name === "Demo Upload Failed" && props.currentDemo === projectID) {
                     return (React.createElement("i", { className: "fa fa-times large-icon open-speech-accent-font" }));
                 }
                 else {
@@ -152,7 +181,7 @@ var Dashboard = /** @class */ (function (_super) {
             if (!props.isDeviceDownloading) {
                 if (props.currentDemo === projectID) {
                     if (props.uiConfig) {
-                        if (props.uiConfig.module === "Demo Upload Failed") {
+                        if (props.uiConfig.name === "Demo Upload Failed") {
                             return ("card card-stats open-speech-is-error-highlighted");
                         } //[End]If Demo upload failed
                         else {
@@ -168,30 +197,11 @@ var Dashboard = /** @class */ (function (_super) {
                 } //[End] currentDemo downloaded is not the entered objectID
             } //[End] Device is NOT downloading
             else {
-                if (props.currentDemo) {
-                    if (props.currentDemo === projectID) {
-                        if (props.uiConfig) {
-                            if (props.uiConfig.module === "Demo Upload Failed") {
-                                return ("card card-stats open-speech-is-error-highlighted");
-                            } //[End] Demo Upload Failed
-                            else {
-                                return ("card card-stats");
-                            } //[End] Demo Upload Did not Fail
-                        } //[End] Ui Config Exists
-                        else {
-                            return ("card card-stats");
-                        } //[End] Ui Config Does not exist
-                    } //[End]Current project selected matches object
-                    else {
-                        return ("card card-stats");
-                    } //[End] Current Project Selected does not match object
-                } //[End] We do have a current demo property
-                else {
-                    return ("card card-stats");
-                } //[End] We do not have a current demo property
+                return ("card card-stats");
             } //[End] Device IS downloading
         } //[end]highlightIfDownloaded
         return (React.createElement("div", { className: "content" },
+            React.createElement(NotificationWrapper_jsx_1.default, { pushText: this.state.notificationText, level: this.state.notificationLevel }),
             React.createElement(react_bootstrap_1.Container, { fluid: true },
                 React.createElement(react_bootstrap_1.Row, null,
                     React.createElement(react_bootstrap_1.Modal.Dialog, null,
@@ -217,7 +227,7 @@ var Dashboard = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Modal.Body, null,
                             React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
                                 return React.createElement(React.Fragment, { key: d.name },
-                                    React.createElement(StatsCard_jsx_1.StatsCard, { isSelected: highlightIfDownloaded(_this.state, _this.props, d.name), isDownloading: animateDownloadStatus(_this.state, _this.props, d.name), downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, headerTitle: d.name, callback: _this.handleDownloadDemo, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
+                                    React.createElement(OpenSpeechDemoCard_jsx_1.OpenSpeechDemoCard, { isSelected: highlightIfDownloaded(_this.state, _this.props, d.name), isDownloading: animateDownloadStatus(_this.state, _this.props, d.name), downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, headerTitle: d.name, callback: _this.handleDownloadDemo, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
                             }))))),
                 React.createElement(react_bootstrap_1.Row, null,
                     React.createElement(react_bootstrap_1.Modal.Dialog, null,
@@ -231,4 +241,4 @@ var Dashboard = /** @class */ (function (_super) {
     return Dashboard;
 }(React.PureComponent));
 exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(Dashboard);
-//# sourceMappingURL=Dashboard.js.map
+//# sourceMappingURL=Auto-Gen.js.map

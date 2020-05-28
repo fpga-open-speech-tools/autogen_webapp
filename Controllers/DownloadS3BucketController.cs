@@ -86,7 +86,7 @@ namespace UIConfig.Controllers
       {
         result = new AutogenConfig.EffectContainer()
         {
-          module = "Demo Upload Failed"
+          name = "Demo Upload Failed"
         };
       }
       

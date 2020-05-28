@@ -1,8 +1,7 @@
-
 import React, { Component } from "react";
-import { Row, Col, Button, Accordion, Card } from "react-bootstrap";
+import { Row, Col, Button} from "react-bootstrap";
 
-export class StatsCard extends Component {
+export class OpenSpeechDemoCard extends Component {
   render() {
     return (
       <div className={this.props.isSelected} key={this.props.key}>
@@ -48,4 +47,4 @@ export class StatsCard extends Component {
   }
 }
 
-export default StatsCard;
+export default OpenSpeechDemoCard;

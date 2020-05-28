@@ -8,11 +8,11 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import { createBrowserHistory } from 'history';
-import configureStore from './store/configureStore';
+import configureStore from './Store/configureStore';
 import registerServiceWorker from './registerServiceWorker';
-import AdminLayout from "./layouts/Admin.jsx";
-import Dashboard from './views/Dashboard';
-import * as OpenSpeechData from './store/OpenSpeechToolsData';
+import AdminLayout from "./Layouts/Tools.jsx";
+import AutoGen from './Views/Auto-Gen';
+import * as OpenSpeechData from './Store/OpenSpeechToolsData';
 import 'bootstrap';
 import 'react-bootstrap';
 
@@ -45,9 +45,9 @@ ReactDOM.render(
   <Provider store={store}>
   <BrowserRouter>
     <Switch>
-      <Route path="/admin" render={props => <AdminLayout {...props} />} />
-      <Redirect from="/" to="/admin/dashboard" />
-      <Route path="/admin/dashboard" component={Dashboard}/>
+      <Route path="/tools" render={props => <AdminLayout {...props} />} />
+      <Redirect from="/" to="/tools/auto-gen" />
+      <Route path="/tools/auto-gen" component={AutoGen}/>
     </Switch>
     </BrowserRouter>
    </Provider>, 

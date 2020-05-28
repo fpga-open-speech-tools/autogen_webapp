@@ -7,7 +7,7 @@ namespace UIConfig
     [Serializable]
     public class EffectContainer
     {
-      public string module { get; set; }
+      public string name { get; set; }
       public Page[] pages { get; set; }
     }
 

@@ -2,15 +2,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import * as OpenSpeechDataStore from '../store/OpenSpeechToolsData';
-import { ApplicationState } from '../';
+import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
+import { ApplicationState } from '..';
 import {
   Container, Row, Col, InputGroup,
   FormControl, Button, Spinner,
   Card, Jumbotron, Modal
 } from "react-bootstrap";
-import { StatsCard } from "../components/StatsCard/StatsCard.jsx";
-import { EffectPageDiv } from "../components/Autogen/Containers/EffectPageDiv.jsx";
+import { OpenSpeechDemoCard } from "../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
+import { EffectPageDiv } from "../Components/Autogen/Containers/EffectPageDiv.jsx";
+import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
 
 
 // At runtime, Redux will merge together...
@@ -25,10 +26,16 @@ interface IState {
   ipFragment3: string,
   ipFragment4: string,
   port: string,
+
   lastDownloadProgressRequestTime: number,
   lastDownloadProgress: number,
-  projectID: string
+
+  projectID: string,
+
+  notificationText: string,
+  notificationLevel:string
 }
+
 
 class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
@@ -41,9 +48,14 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       ipFragment3: '0',
       ipFragment4: '1',
       port: '3355',
+
       lastDownloadProgressRequestTime: 0,
       lastDownloadProgress: 0,
-      projectID: "Example"
+
+      projectID: "Example",
+
+      notificationText: "",
+      notificationLevel: ""
     };
     this.handleIP1Change = this.handleIP1Change.bind(this);
     this.handleIP2Change = this.handleIP2Change.bind(this);
@@ -56,6 +68,9 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     this.handleInputCommand = this.handleInputCommand.bind(this);
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
     this.handleRequestDownloadProgress = this.handleRequestDownloadProgress.bind(this);
+
+    this.setNotificationText = this.setNotificationText.bind(this);
+    this.setNotificationLevel = this.setNotificationLevel.bind(this);
   }
 
 
@@ -72,9 +87,22 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       }
     }
   }
-
   componentDidUpdate() {
 
+    if (this.props.uiConfig) {
+      if (this.props.uiConfig.name === 'Demo Upload Failed') {
+        this.setNotificationLevel('error');
+        this.setNotificationText('Demo Upload Failed');
+      }
+      else if (this.props.uiConfig.name === "ERROR") {
+        this.setNotificationLevel('error');
+        this.setNotificationText('Control Generation Failed');
+      }
+      else {
+        this.setNotificationLevel('success');
+        this.setNotificationText('New Controls Generated: ' + this.props.uiConfig.name);
+      }
+    }
   }
 
   handlePollDownloadProgress() {
@@ -143,34 +171,49 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     this.props.requestS3DownloadProgress(
       this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
       this.state.port);
+  }
 
+
+  setNotificationText(text:string) {
+    this.setState({notificationText:text});
+  }
+
+  setNotificationLevel(level:string) {
+    this.setState({notificationLevel:level});
   }
 
   render() {
 
     function getAutogen(board: Dashboard, props: OpenSpeechProps) {
-      if (props.uiConfig.pages) {
-        return (
-          <div className="autogen autogen-effectContainer">
-            <Jumbotron>{props.uiConfig.module}</Jumbotron>
-            <Card>
-            {props.uiConfig.pages.map((page) =>
-              <React.Fragment key={page.name}>
-                <div className={page.name}>
-                  <Jumbotron>{page.name}</Jumbotron>
-                  <EffectPageDiv
-                    callback={board.handleInputCommand}
-                    module={props.uiConfig.module}
-                    page={page} />
-                  </div>
-              </React.Fragment>)
-              }
+      if (props.uiConfig) {
+        if (props.uiConfig.pages) {
+          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
+          effectName = (effectName === "ERROR") ? "" : effectName;
+          return (
+            <div className="autogen autogen-effectContainer">
+              <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
+              <Card>
+                {props.uiConfig.pages.map((page) =>
+                  <React.Fragment key={page.name}>
+                    <div className={page.name}>
+                      <Jumbotron className="autogen-page-name">{page.name}</Jumbotron>
+                      <EffectPageDiv
+                        callback={board.handleInputCommand}
+                        module={module}
+                        page={page} />
+                    </div>
+                  </React.Fragment>)
+                }
               </Card>
-          </div>);
-      }
-      else if(props.uiConfig.module){
-        return (<div className="autogen autogen-effectContainer">
-          <h4>{props.uiConfig.module}</h4></div>);
+            </div>);
+        }
+        else if (props.uiConfig.name) {
+          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
+          effectName = (effectName === "ERROR") ? "" : effectName;
+          return (
+            <div className="autogen autogen-effectContainer autogen-error">
+            </div>);
+        }
       }
     }
 
@@ -188,7 +231,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
         }
       }
       if (props.uiConfig && props.currentDemo) {
-        if (props.uiConfig.module === "Demo Upload Failed" && props.currentDemo === projectID) {
+        if (props.uiConfig.name === "Demo Upload Failed" && props.currentDemo === projectID) {
           return (< i className="fa fa-times large-icon open-speech-accent-font" />);
         }
         else {
@@ -207,7 +250,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       if (!props.isDeviceDownloading) {
         if (props.currentDemo === projectID) {
           if (props.uiConfig) {
-            if (props.uiConfig.module === "Demo Upload Failed") {
+            if (props.uiConfig.name === "Demo Upload Failed") {
               return ("card card-stats open-speech-is-error-highlighted");
             }//[End]If Demo upload failed
             else {
@@ -221,32 +264,16 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
         }//[End] currentDemo downloaded is not the entered objectID
       }//[End] Device is NOT downloading
       else {
-        if (props.currentDemo) {
-          if (props.currentDemo === projectID) {
-            if (props.uiConfig) {
-              if (props.uiConfig.module === "Demo Upload Failed") {
-                return ("card card-stats open-speech-is-error-highlighted");
-              }//[End] Demo Upload Failed
-              else {
-                return ("card card-stats");
-              }//[End] Demo Upload Did not Fail
-            }//[End] Ui Config Exists
-            else {
-              return ("card card-stats");
-            }//[End] Ui Config Does not exist
-          }//[End]Current project selected matches object
-          else {
-            return ("card card-stats");
-          }//[End] Current Project Selected does not match object
-        }//[End] We do have a current demo property
-        else {
-          return ("card card-stats");
-        }//[End] We do not have a current demo property
+        return ("card card-stats");
       }//[End] Device IS downloading
     }//[end]highlightIfDownloaded
 
     return (
       <div className="content">
+        <NotificationWrapper
+          pushText={this.state.notificationText}
+          level={this.state.notificationLevel}
+        />
         <Container fluid>
           <Row>
             <Modal.Dialog><Modal.Header><Modal.Title>Connection</Modal.Title></Modal.Header>
@@ -308,7 +335,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                 <Row>
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
-                <StatsCard
+                <OpenSpeechDemoCard
                   isSelected={highlightIfDownloaded(this.state,this.props,d.name)}
                   isDownloading={animateDownloadStatus(this.state,this.props,d.name)}
                   downloadDevice={d.downloadurl.devicename}

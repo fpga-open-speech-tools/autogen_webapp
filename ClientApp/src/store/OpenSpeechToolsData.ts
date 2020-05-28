@@ -1,6 +1,5 @@
 import { Action, Reducer } from 'redux';
 import { AppThunkAction } from '../';
-import * as uicfg from './EffectContainer.json';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -10,7 +9,7 @@ export interface OpenSpeechToolsState {
   isDeviceDownloading: boolean;
   currentDemo?: string;
   //Interface for UI JSON
-  uiConfig: EffectContainer;
+  uiConfig?: EffectContainer;
   //Interface for Demos Array[]
   availableDemos: Demo[];
 
@@ -59,7 +58,7 @@ export interface s3bucketurl {
 }
 
 export interface EffectContainer {
-  module: string;
+  name: string;
   pages: Page[];
 }
 
@@ -265,11 +264,7 @@ export const openSpeechDataActionCreators = {
 const unloadedState: OpenSpeechToolsState = {
   availableDemos: [],
   isLoading: false,
-  isDeviceDownloading: false,
-  uiConfig: {
-    pages: uicfg.pages,
-    module: uicfg.module
-  }
+  isDeviceDownloading: false
   };
 
 export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsState | undefined, incomingAction: Action): OpenSpeechToolsState => {
@@ -295,6 +290,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_SEND_COMMAND':
       return {
+        currentDemo: state.currentDemo,
         uiConfig: state.uiConfig,
         availableDemos: state.availableDemos,
         command: state.command,
@@ -303,6 +299,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
       return {
+        currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -310,6 +307,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_OPENSPEECH_DEMOS':  
       return {
+        currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -317,6 +315,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_OPENSPEECH_DEMOS':
       return {
+        currentDemo: state.currentDemo,
         availableDemos: action.availableDemos,
         uiConfig: state.uiConfig,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -341,6 +340,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_S3_DOWNLOAD_PROGRESS':
       return {
+        currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -348,6 +348,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_S3_DOWNLOAD_PROGRESS':  
       return {
+        currentDemo: state.currentDemo,
         downloadProgress: action.downloadProgress,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,

@@ -29,6 +29,12 @@ namespace UIConfig.Controllers
           json_data = HTTP_GET(url).Output;
         }
         catch (Exception) { }
+        if (json_data == "")
+        {
+        json_data = "{\"name\":\"ERROR\"}";
+        }
+        System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
+
         // if string with JSON data is not empty, deserialize it to class and return its instance 
         return !string.IsNullOrEmpty(json_data) ? JsonConvert.DeserializeObject<T>(json_data) : new T();
       
@@ -88,6 +94,7 @@ namespace UIConfig.Controllers
 
       model.Output = Out;
       model.ErrorMessage = Error;
+      System.Diagnostics.Debug.WriteLine(Error + "Output" +  Out);
       if (!string.IsNullOrWhiteSpace(Out))
       {
         model.IsSuccess = true;
@@ -105,12 +112,13 @@ namespace UIConfig.Controllers
     public AutogenConfig.EffectContainer Get(string ip1, string ip2, string ip3, string ip4, string port)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
+      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer()
+      {name="Error"
+      };
 
       var url = "http://" + deviceIP + ":" + port + "/ui";
       System.Diagnostics.Debug.WriteLine("Attempting to Get UI @: " + url);
       result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
-
       return result;
     }
   }

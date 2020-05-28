@@ -20,11 +20,11 @@ var React = require("react");
 var ReactDOM = require("react-dom");
 var react_router_dom_1 = require("react-router-dom");
 var history_1 = require("history");
-var configureStore_1 = require("./store/configureStore");
+var configureStore_1 = require("./Store/configureStore");
 var registerServiceWorker_1 = require("./registerServiceWorker");
-var Admin_jsx_1 = require("./layouts/Admin.jsx");
-var Dashboard_1 = require("./views/Dashboard");
-var OpenSpeechData = require("./store/OpenSpeechToolsData");
+var Tools_jsx_1 = require("./Layouts/Tools.jsx");
+var Auto_Gen_1 = require("./Views/Auto-Gen");
+var OpenSpeechData = require("./Store/OpenSpeechToolsData");
 require("bootstrap");
 require("react-bootstrap");
 // Whenever an action is dispatched, Redux will update each top-level application state property using
@@ -41,8 +41,8 @@ var store = configureStore_1.default(history);
 ReactDOM.render(React.createElement(react_redux_1.Provider, { store: store },
     React.createElement(react_router_dom_1.BrowserRouter, null,
         React.createElement(react_router_dom_1.Switch, null,
-            React.createElement(react_router_dom_1.Route, { path: "/admin", render: function (props) { return React.createElement(Admin_jsx_1.default, __assign({}, props)); } }),
-            React.createElement(react_router_dom_1.Redirect, { from: "/", to: "/admin/dashboard" }),
-            React.createElement(react_router_dom_1.Route, { path: "/admin/dashboard", component: Dashboard_1.default })))), document.getElementById('root'));
+            React.createElement(react_router_dom_1.Route, { path: "/tools", render: function (props) { return React.createElement(Tools_jsx_1.default, __assign({}, props)); } }),
+            React.createElement(react_router_dom_1.Redirect, { from: "/", to: "/tools/auto-gen" }),
+            React.createElement(react_router_dom_1.Route, { path: "/tools/auto-gen", component: Auto_Gen_1.default })))), document.getElementById('root'));
 registerServiceWorker_1.default();
 //# sourceMappingURL=index.js.map
