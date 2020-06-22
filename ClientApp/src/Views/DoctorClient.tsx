@@ -7,7 +7,7 @@ import { ApplicationState } from '..';
 import {
   Container, Row, Col, InputGroup,
   FormControl, Button, Spinner,
-  Card, Jumbotron, Modal
+  Card, Jumbotron, Modal,Form
 } from "react-bootstrap";
 import { EffectPageDiv } from "../Components/Autogen/Containers/EffectPageDiv.jsx";
 import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
@@ -33,18 +33,22 @@ interface IState {
   dragging: boolean,
   file: File | null,
 
+  connectedToServer:boolean,
   groupID: string,
   sessionPatientConnected: boolean,
   sessionStarted: boolean,
   user: string,
   message: string,
-  patientFeedback: boolean|null,
+
+  patientFeedback: number | null,
+  patientFeedbackNotes: string,
+  doctorNotes: string,
 
   notificationText: string,
   notificationLevel:string
 }
 
-let connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+let connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 
 
 class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
@@ -66,12 +70,15 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       dragging: false,
       file: null,
 
+      connectedToServer:false,
       sessionStarted: false,
       sessionPatientConnected: false,
       groupID: "",
       user: "Doctor",
       message: "",
       patientFeedback: null,
+      patientFeedbackNotes: "",
+      doctorNotes: "",
 
       notificationText: "",
       notificationLevel: ""
@@ -82,6 +89,8 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     this.handleIP4Change = this.handleIP4Change.bind(this);
     this.handlePortChange = this.handlePortChange.bind(this);
 
+    this.handleNotesChange = this.handleNotesChange.bind(this);
+
     this.handleRequestUI = this.handleRequestUI.bind(this);
     this.handleInputCommand = this.handleInputCommand.bind(this);
 
@@ -89,6 +98,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     this.setNotificationLevel = this.setNotificationLevel.bind(this);
 
     this.startSession = this.startSession.bind(this);
+    this.verifyConnection = this.verifyConnection.bind(this);
     this.startGroup = this.startGroup.bind(this);
     this.stopGroup = this.stopGroup.bind(this);
     this.sendFeedbackRequestToServer = this.sendFeedbackRequestToServer.bind(this);
@@ -202,6 +212,10 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     this.setState({ port: e.target.value });
   }
 
+  handleNotesChange(e: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ doctorNotes: e.target.value });
+  }
+
   handleRequestUI() {
     this.props.requestOpenSpeechUI(
       this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
@@ -228,14 +242,30 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     this.setState({notificationLevel:level});
   }
 
-  startSession(){
+  verifyConnection() {
+    connection.invoke("AfterConnected").catch(function (err) {
+      return console.error(err.toString());
+    });
+  }
+
+  startSession() {
+
+    connection.on("Connected", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      this.setState({
+        connectedToServer: true,
+        notificationLevel: "success",
+        notificationText: msg
+      });
+    });
+
     connection.on("ReceiveMessage", (user, message) => {
       var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       var encodedMsg = user + ": " + msg;
       this.setState({ message: encodedMsg });
     });
 
-    connection.on("Send", (message) => {
+    connection.on("GroupMessage", (message) => {
       var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       var encodedMsg = msg;
       this.setState({
@@ -244,24 +274,73 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       })
     });
 
-    connection.on("ReceiveFeedback", (user, feedback) => {
-      this.setState({ message: feedback });
-      var level = feedback ? "success" : "error";
-      var feedbackText = feedback ? "Good" : "Bad";
-      var d = new Date();
-      var n = d.toLocaleTimeString();
-      feedbackText = feedbackText + " at " + n;
+    connection.on("AddedToGroup", (message) => {
       this.setState({
-        notificationLevel: level,
-        notificationText: feedbackText
+        sessionStarted: true,
+        notificationLevel: "info",
+        notificationText: message
+      })
+    });
+
+    connection.on("LeftGroup", (message) => {
+      this.setState({
+        sessionStarted: false,
+        notificationLevel: "info",
+        notificationText: message
+      })
+    });
+
+    connection.on("UserDisconnected", (user) => {
+      var msg = "User " + user + " has disconnected";
+      this.setState({
+        notificationLevel: "warning",
+        notificationText: msg
       });
     });
 
-    connection.start().then(function () {
-    }).catch(function (err) {
-      return console.error(err.toString());
+    connection.on("ReceiveFeedback", (user, feedback, notes) => {
+      this.setState({ message: feedback });
+
+      var feedbackLevel = "";
+      var feedbackText = "";
+
+      if (feedback === 1) { feedbackLevel = "success";feedbackText = "Good";}
+      else if (feedback === -1) { feedbackLevel = "error"; feedbackText = "Bad";}
+      else { feedbackLevel = "warning"; feedbackText = "Neutral";}
+
+      var d = new Date();
+      var n = d.toLocaleTimeString();
+      feedbackText = user + " Feedback: " + feedbackText + " at " + n;
+
+      this.setState({
+        notificationLevel: feedbackLevel,
+        notificationText: feedbackText,
+        patientFeedback: feedback,
+        patientFeedbackNotes: notes
+      });
     });
-  }
+
+    connection.on("GroupEnded", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      this.setState({
+        sessionStarted: false,
+        sessionPatientConnected:false,
+        groupID: "Inactive"
+      })
+    });
+
+    connection.start()
+      .then(function (val) {
+        
+    }).then(res => this.verifyConnection())
+      .catch(function (err) {
+
+        return console.error(err.toString());
+
+    });
+
+  } //End Start Connection to SignalR Client hub
+
 
   startGroup() {
     var nums = "0123456789";
@@ -273,11 +352,10 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     connection.invoke("AddToGroup", result).catch(function (err) {
       return console.error(err.toString());
     });
-    this.setState({sessionStarted: true});
   }
 
   stopGroup() {
-    connection.invoke("RemoveFromGroup", this.state.groupID).catch(function (err) {
+    connection.invoke("EndGroup", this.state.groupID).catch(function (err) {
       return console.error(err.toString());
     });
     this.setState({ sessionStarted: false,groupID:"" });
@@ -331,8 +409,98 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       </Button>);
     }
 
-    function getSessionButton(props: Doctor, state: IState) {
+    function disableIfNotChosen(choice:number|null,itemNumber:number) {
+      if (choice === itemNumber) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+
+    function feedbackUI(props: Doctor, state: IState) {
+      
+      return (
+        <Modal.Dialog className="">
+          <Modal.Header>
+            <Modal.Title>Patient Feedback</Modal.Title>
+            <Button
+              onClick={props.sendFeedbackRequestToServer}
+              className="btn-simple btn-icon"
+            >
+              <i className="fa fa-pencil-square-o large-icon" />
+            </Button></Modal.Header>
+          <Form className = "display-em">
+                <Form.Control
+                  className = "patient-first-name"
+                  placeholder="First name" />
+                <Form.Control
+                  className="patient-last-name"
+                placeholder="Last name" />
+          </Form>
+          <div className="patient-feedback-interface">
+            <Button
+              variant="light"
+              disabled={disableIfNotChosen(state.patientFeedback,1)}
+              className="btn-simple btn-icon btn-success"
+            >
+              <i className="fa fa-smile-o large-icon" />
+            </Button>
+            <Button
+              variant="light"
+              disabled={disableIfNotChosen(state.patientFeedback, 0)}
+              className="btn-simple btn-icon btn-warning"
+            >
+              <i className="far fa-meh large-icon" />
+            </Button>
+            <Button
+              variant="light"
+              disabled={disableIfNotChosen(state.patientFeedback, -1)}
+              className="btn-simple btn-icon btn-danger"
+            >
+              <i className="far fa-frown large-icon" />
+            </Button>
+          </div>
+          <div>
+            <InputGroup>
+              <InputGroup.Prepend>
+                <InputGroup.Text>Patient Notes</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                defaultValue={state.patientFeedbackNotes}
+                disabled
+                as="textarea"
+                aria-label="With textarea" />
+            </InputGroup>
+            <InputGroup>
+              <InputGroup.Prepend>
+                <InputGroup.Text>Doctor Notes</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                defaultValue={state.doctorNotes}
+                onChange={props.handleNotesChange}
+                as="textarea"
+                aria-label="With textarea" />
+            </InputGroup>
+          </div>
+
+        </Modal.Dialog>
+      );
+    }
+
+    function isSessionActive(state: IState){
+      var sessionClassName = "doctor-session ";
       if (state.sessionStarted) {
+        sessionClassName += ("session-active");
+      }
+      else {
+        sessionClassName += ("session-inactive");
+      }
+      return sessionClassName;
+    }
+
+    function getSessionButton(props: Doctor, state: IState) {
+      if (state.sessionStarted && state.connectedToServer) {
         return (
           <Button
             className="flex-right btn-simple btn-icon"
@@ -340,13 +508,22 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
           ><i className="fa fa-stop large-icon" />
           </Button>);
       }
-      else {
+      else if (!state.sessionStarted && state.connectedToServer) {
         return (
           <Button
             className="flex-right btn-simple btn-icon"
             onClick={props.startGroup}
           ><i className="fa fa-play large-icon" />
           </Button>);
+      }
+      else {
+        return (
+          <Button
+            className="flex-right btn-simple btn-icon"
+          >
+            <Spinner animation="border" variant="primary" />
+          </Button>
+        );
       }
     }
 
@@ -357,6 +534,20 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
           level={this.state.notificationLevel}
         />
         <Container fluid>
+          <Row>
+            <Modal.Dialog>
+              <Modal.Header className={isSessionActive(this.state)}>
+                <Modal.Title className="float-left">
+                  Session
+                </Modal.Title>
+                {getSessionButton(this, this.state)}
+              </Modal.Header>
+              <Row>
+                <h4 className="centered-header">{this.state.groupID}</h4>
+              </Row>
+            </Modal.Dialog>
+          </Row>
+          <Row>{feedbackUI(this,this.state)}</Row>
           <Row>
             <Modal.Dialog id="controls">
               <Modal.Header>
@@ -398,24 +589,6 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
                   </FileUploaderPresentationalComponent>
               </div></Modal.Header>
             {getAutogen(this, this.props)}
-            </Modal.Dialog>
-          </Row>
-
-          <Row>
-            <Modal.Dialog>
-              <Modal.Header>
-                <Modal.Title className="float-left">
-                  Session
-                </Modal.Title>
-                {getSessionButton(this, this.state)}
-              </Modal.Header>
-              <Row>
-                <h4 className="centered-header">{this.state.groupID}</h4>
-              </Row>
-              <Button
-                onClick={this.sendFeedbackRequestToServer}
-              >GetFeedback
-              </Button>
             </Modal.Dialog>
           </Row>
           <script src="~/js/signalr/dist/browser/signalr.js"></script>

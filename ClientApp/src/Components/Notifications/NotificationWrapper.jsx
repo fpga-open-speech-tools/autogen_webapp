@@ -63,7 +63,7 @@ class NotificationWrapper extends Component {
           </div>
         ),
         level: level,
-        position: "tc",
+        position: "tr",
         autoDismiss: 8
       });
     }

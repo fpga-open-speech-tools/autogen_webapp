@@ -13,7 +13,6 @@ import NotificationWrapper from "../Components/Notifications/NotificationWrapper
 import * as signalR from "@microsoft/signalr";
 
 
-
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
   OpenSpeechDataStore.OpenSpeechToolsState // ... state we've requested from the Redux store
@@ -26,17 +25,21 @@ interface IState {
 
   user: string,
   groupID: string,
+  sessionIsActive: boolean,
   testString: string,
-  userFeedback: boolean|null,
+  userFeedback: number | null,
+  userFeedbackNotes: string,
   feedbackRequested: boolean,
-  pinEntry:string,
+  pinEntry: string,
+
+  connectedToServer:boolean,
 
   notificationText: string,
   notificationLevel:string
 }
 
 
-let connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+let connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 
 
 class Patient extends React.PureComponent<OpenSpeechProps, IState> {
@@ -47,12 +50,18 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
     this.state = {
       messages: ["Message1", "Message2"],
       testString: "test",
+
       outboundMessage: "message",
       user: "user", 
       groupID: "",
-      userFeedback: null,
-      feedbackRequested:false,
       pinEntry: "",
+      sessionIsActive: false,
+
+      userFeedback: null,
+      userFeedbackNotes: "",
+      feedbackRequested: false,
+
+      connectedToServer:false,
 
       notificationText: "",
       notificationLevel: ""
@@ -63,6 +72,7 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
     this.setNotificationLevel = this.setNotificationLevel.bind(this);
 
     this.setFeedback = this.setFeedback.bind(this);
+    this.setFeedbackNotes = this.setFeedbackNotes.bind(this);
 
     this.handleOutboutMessageUpdate = this.handleOutboutMessageUpdate.bind(this);
     this.addMessageToMessageList = this.addMessageToMessageList.bind(this);
@@ -84,13 +94,19 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
 
   }
 
-  setFeedback(feedback: boolean) {
+  setFeedback(feedback: number,feedbackNotes:string) {
     this.setState({
       userFeedback: feedback, 
       notificationLevel: "success",
       notificationText: "Feedback Sent."
     });
-    this.sendFeedbackToServer(feedback);
+    this.sendFeedbackToServer(feedback,feedbackNotes);
+  }
+
+  setFeedbackNotes(e: React.ChangeEvent<HTMLInputElement>){
+    this.setState({
+      userFeedbackNotes:e.target.value
+    })
   }
 
   setNotificationText(text:string) {
@@ -124,6 +140,16 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
   }
 
   startConnection() {
+
+    connection.on("Connected", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      this.setState({
+        connectedToServer:true,
+        notificationLevel:"success",
+        notificationText: msg
+      });
+    });
+
     connection.on("ReceiveMessage",  (user, message) => {
       var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       var encodedMsg = user + ": " + msg;
@@ -137,10 +163,57 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
       this.setState({ feedbackRequested: true });
     });
 
-    connection.start().then(function () {
-    }).catch(function (err) {
+    connection.start()
+      .then(function (val) {
+
+      }).then(res => this.verifyConnection())
+      .catch(function (err) {
+
+        return console.error(err.toString());
+
+      });
+
+
+    connection.on("AddedToGroup", (message) => {
+      this.setState({
+        sessionIsActive: true,
+        notificationLevel: "info",
+        notificationText: message
+      })
+    });
+
+    connection.on("LeftGroup", (message) => {
+      this.setState({
+        sessionIsActive: false,
+        notificationLevel: "info",
+        notificationText: message
+      })
+    });
+
+    connection.on("GroupMessage", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      var encodedMsg = msg;
+      this.setState({
+        notificationLevel: "info",
+        notificationText: msg
+      })
+    });
+
+    connection.on("GroupEnded", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      this.setState({
+        sessionIsActive: false,
+        groupID:"Inactive"
+      })
+    });
+
+  }//End Start Connection
+
+  verifyConnection() {
+    connection.invoke("AfterConnected").catch(function (err) {
       return console.error(err.toString());
     });
+    return true;
   }
 
   sendMessageToServer() {
@@ -149,8 +222,9 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
     });
   }
 
-  sendFeedbackToServer(feedback:boolean) {
-    connection.invoke("SendFeedback", this.state.user, feedback, this.state.groupID).catch(function (err) {
+  sendFeedbackToServer(feedback:number,feedbackNotes:string) {
+    connection.invoke("SendFeedback", this.state.user, feedback, feedbackNotes, this.state.groupID).catch(function (err) {
+      //Add Handling for FeedbackSendFailure
       return console.error(err.toString());
     });
     this.setState({ feedbackRequested: false });
@@ -159,6 +233,7 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
   joinGroupByID() {
     this.handleGroupUpdate();
     connection.invoke("AddToGroup", this.state.pinEntry).catch(function (err) {
+      //Add Handling for SessionJoinFailure
       return console.error(err.toString());
     });
   }
@@ -168,22 +243,66 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
 
   render() {
 
-    function feedbackUI(props:Patient,state:IState) {
-      if (state.feedbackRequested) {
+    function feedbackUI(props: Patient, state: IState) {
+
+      var disabled = !state.feedbackRequested;
+
         return (
-          <div>
-            <Button
-              onClick={() => props.setFeedback(true)}
-            >Good
-            </Button>
-            <Button
-              onClick={() => props.setFeedback(false)}
-            >Bad
-            </Button>
-          </div>
+          <Modal.Dialog className="patient-feedback-modal">
+            <Modal.Header><Modal.Title>Feedback</Modal.Title></Modal.Header>
+            <div className="patient-feedback-interface">
+              <Button
+                variant="light"
+                disabled={disabled}
+                onClick={() => props.setFeedback(1,state.userFeedbackNotes)}
+                className="btn-simple btn-icon btn-success"
+              >
+                <i className="fa fa-smile-o large-icon"/>
+              </Button>
+              <Button
+                variant="light"
+                disabled={disabled}
+                onClick={() => props.setFeedback(0, state.userFeedbackNotes)}
+                className="btn-simple btn-icon btn-warning"
+              >
+                <i className="far fa-meh large-icon" />
+              </Button>
+              <Button
+                variant="light"
+                disabled={disabled}
+                className="btn-simple btn-icon btn-danger"
+                onClick={() => props.setFeedback(-1, state.userFeedbackNotes)}
+              >
+                <i className="far fa-frown large-icon" />
+              </Button>
+            </div>
+            <div>
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text>Notes</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl
+                  name="Note-Entry"
+                  defaultValue={state.userFeedbackNotes}
+                  onChange={props.setFeedbackNotes}
+                  as="textarea"
+                  aria-label="With textarea" />
+              </InputGroup>
+            </div>
+
+          </Modal.Dialog>
         );
+    }
+
+    function isSessionActive(state: IState) {
+      var sessionClassName = "";
+      if (state.sessionIsActive) {
+        sessionClassName+=("session-active");
       }
-      else { return (<div></div>);}
+      else {
+        sessionClassName +=("session-inactive");
+      }
+      return sessionClassName;
     }
 
     return (
@@ -194,25 +313,27 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
         />
         <Container fluid>
           <div>
-            <Modal.Dialog>
-            <Modal.Header></Modal.Header>
-            <InputGroup className="mb-3">
-              <InputGroup.Prepend>
-                <InputGroup.Text id="inputGroup-sizing-default">Pin</InputGroup.Text>
-              </InputGroup.Prepend>
-              <FormControl
-                name="PinEntry"
-                defaultValue={this.state.groupID}
-                onChange={this.handlePinEntryUpdate}
-                aria-label="Pin"
-                aria-describedby="inputGroup-sizing-default"
-              />
-              <Button
-                onClick={this.joinGroupByID}
-              >Join
-            </Button>
-              </InputGroup>
-              </Modal.Dialog>
+            <Modal.Dialog className="patient-session">
+              <Modal.Header className={isSessionActive(this.state)}><Modal.Title>Session</Modal.Title></Modal.Header>
+                <InputGroup className="mb-3">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text id="inputGroup-sizing-default">Pin</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <FormControl
+                    name="PinEntry"
+                    defaultValue={this.state.groupID}
+                    onChange={this.handlePinEntryUpdate}
+                    aria-label="Pin"
+                    aria-describedby="inputGroup-sizing-default"
+                  />
+                  <Button
+                  onClick={this.joinGroupByID}
+                  className="btn-simple btn-icon"
+                >
+                  <i className="fa fa-sign-in icon-large" />
+                  </Button>
+                </InputGroup>
+            </Modal.Dialog>
             {feedbackUI(this,this.state)}
 
           </div>

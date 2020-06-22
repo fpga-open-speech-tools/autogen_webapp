@@ -290,7 +290,7 @@ h1 {
 .file-uploader {
   //width: 300px;
   //height: 150px;
-  border: 2px solid steelblue;
+  border: 1px dashed #e1dddd;
   border-radius: 8px;
   //padding: 10px;
   font-size: 4px;
@@ -315,4 +315,21 @@ h1 {
 
 .file-uploader-hidden{
   display:none!important;
+}
+
+.patient-session{
+  width: 40rem;
+}
+
+.patient-feedback-interface {
+  text-align: center;
+  font-size: 3em;
+}
+
+.patient-feedback-modal {
+  width:40rem;
+}
+
+.session-active {
+  border: 1px solid lawngreen;
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,6 +37,14 @@ namespace OpenSpeechTools
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      // Set up custom content types - associating file extension to MIME type
+      var provider = new FileExtensionContentTypeProvider();
+      // Add new mappings      
+      provider.Mappings[".htm3"] = "text/html";
+      provider.Mappings[".image"] = "image/png";
+      provider.Mappings[".woff2"] = "application/font-woff2";
+      provider.Mappings[".woff"] = "application/font-woff";
+
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
@@ -48,7 +57,10 @@ namespace OpenSpeechTools
       }
 
       //app.UseHttpsRedirection();
-      app.UseStaticFiles();
+      app.UseStaticFiles(new StaticFileOptions
+      {
+        ContentTypeProvider = provider
+      });
       app.UseSpaStaticFiles();
 
       app.UseRouting();
@@ -58,7 +70,7 @@ namespace OpenSpeechTools
         endpoints.MapControllerRoute(
                   name: "default",
                   pattern: "{controller}/{action=Index}/{id?}");
-        endpoints.MapHub<ChatHub>("/chathub");
+        endpoints.MapHub<DoctorPatient>("/doctor-patient");
       });
 
       app.UseSpa(spa =>
