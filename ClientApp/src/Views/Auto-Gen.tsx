@@ -57,6 +57,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
       notificationText: "",
       notificationLevel: ""
     };
+
     this.handleIP1Change = this.handleIP1Change.bind(this);
     this.handleIP2Change = this.handleIP2Change.bind(this);
     this.handleIP3Change = this.handleIP3Change.bind(this);
@@ -148,6 +149,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     this.props.requestOpenSpeechUI(
       this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
       this.state.port);
+  }
+
+  handleDownloadDemosJSON = () =>{
+    downloadObjectAsJson(this.props.availableDemos,"demos");
   }
 
   handleInputCommand(module: string, link: string, value: string) {
@@ -276,7 +281,10 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
         />
         <Container fluid>
           <Row>
-            <Modal.Dialog><Modal.Header><Modal.Title>Connection</Modal.Title></Modal.Header>
+            <Modal.Dialog>
+              <Modal.Header>
+                <Modal.Title>Connection</Modal.Title>
+              </Modal.Header>
               <Col lg={12} md={12} sm={12}>
               <InputGroup className="mb-2">
                 <InputGroup.Prepend>
@@ -330,7 +338,15 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
           </Row>
           <Row>
           <Modal.Dialog>
-              <Modal.Header><Modal.Title>Available Demos</Modal.Title></Modal.Header>
+              <Modal.Header>
+                <Modal.Title>Available Demos</Modal.Title>
+                <Button
+                  variant="primary"
+                  className="flex-right btn=simple btn-icon"
+                  onClick={this.handleDownloadDemosJSON}>
+                  <i className="fa fa-download large-icon" />
+                </Button>
+              </Modal.Header>
               <Modal.Body>
                 <Row>
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
@@ -374,6 +390,17 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
   }
   
 
+}
+
+
+function downloadObjectAsJson(exportObj:any, exportName: string) {
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj,null,4));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href", dataStr);
+  downloadAnchorNode.setAttribute("download", exportName + ".json");
+  document.body.appendChild(downloadAnchorNode); // required for firefox
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
 }
 
 export default connect(

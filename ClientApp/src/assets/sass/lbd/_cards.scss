@@ -617,6 +617,25 @@ td .content {
   }
 }
 
+.flex-right {
+  display: flex;
+  align-items: flex-end;
+}
+
+.flex-left{
+  display:flex;
+  align-items:flex-start;
+}
+
+.centered-header{
+  text-align:center;
+  margin:auto;
+}
+
+#upload-json{
+  display:none;
+}
+
 .modal-content {
 
   border-left: hidden;

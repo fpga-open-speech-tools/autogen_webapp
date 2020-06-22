@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.ElasticBeanstalk" Version="3.3.100.149" />
     <PackageReference Include="AWSSDK.S3" Version="3.3.110.52" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.1" />
     <PackageReference Include="MySql.Data" Version="8.0.19" />
     <PackageReference Include="Newtonsoft.JSON" Version="12.0.3" />
@@ -29,7 +30,10 @@
 
   <ItemGroup>
     <None Remove="ClientApp\package.json" />
+    <None Remove="ClientApp\src\Components\FileManagement\FIleUploaderPresentationalComponent.tsx" />
     <None Remove="ClientApp\src\Views\Auto-Gen.tsx" />
+    <None Remove="ClientApp\src\Views\DoctorClient.tsx" />
+    <None Remove="ClientApp\src\Views\PatientClient.tsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,6 +41,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\Components\FileManagement\FileUploaderPresentationalComponent.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Views\DoctorClient.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Views\PatientClient.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Auto-Gen.tsx" />
   </ItemGroup>
 

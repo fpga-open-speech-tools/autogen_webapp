@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OpenSpeechTools.Hubs;
 
 namespace OpenSpeechTools
 {
@@ -28,6 +29,8 @@ namespace OpenSpeechTools
       {
         configuration.RootPath = "ClientApp/build";
       });
+
+      services.AddSignalR();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +58,7 @@ namespace OpenSpeechTools
         endpoints.MapControllerRoute(
                   name: "default",
                   pattern: "{controller}/{action=Index}/{id?}");
+        endpoints.MapHub<ChatHub>("/chathub");
       });
 
       app.UseSpa(spa =>

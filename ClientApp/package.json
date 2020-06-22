@@ -3,11 +3,13 @@
   "version": "0.7.0",
   "private": true,
   "dependencies": {
+    "@microsoft/signalr": "^3.1.5",
     "@types/chartist": "^0.9.47",
     "@types/jquery": "^3.3.33",
     "@types/leaflet": "^1.5.11",
     "@types/popper.js": "^1.11.0",
     "@types/react-leaflet": "^2.5.1",
+    "@types/signalr": "^2.2.36",
     "bootstrap": "^4.4.1",
     "chartist": "^0.11.4",
     "connected-react-router": "^6.5.2",
@@ -41,7 +43,7 @@
   "devDependencies": {
     "@types/history": "4.7.3",
     "@types/jest": "24.0.19",
-    "@types/node": "^12.12.31",
+    "@types/node": "^12.12.47",
     "@types/react": "^16.9.25",
     "@types/react-dom": "16.9.2",
     "@types/react-redux": "7.1.5",
