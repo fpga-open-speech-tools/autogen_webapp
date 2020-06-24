@@ -45,7 +45,7 @@ let connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").b
 class Patient extends React.PureComponent<OpenSpeechProps, IState> {
 
   constructor(props: OpenSpeechProps) {
-    super(props);
+    super(props); 
 
     this.state = {
       messages: ["Message1", "Message2"],

@@ -33,7 +33,7 @@ namespace UIConfig.Controllers
         {
         json_data = "{\"name\":\"ERROR\"}";
         }
-        System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
+        //System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
 
         // if string with JSON data is not empty, deserialize it to class and return its instance 
         return !string.IsNullOrEmpty(json_data) ? JsonConvert.DeserializeObject<T>(json_data) : new T();
@@ -57,7 +57,7 @@ namespace UIConfig.Controllers
 
       try
       {
-        req.Method = "POST";
+        req.Method = "PUT";
         req.Timeout = 1000;
         req.ContentType = "application/json";
 
@@ -113,8 +113,15 @@ namespace UIConfig.Controllers
     /// <param name="ip">FormatDesired(aaabbbcccdddd, ex: 192.168.0.1 --> 192168000001)</param>
     /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    [HttpPost("{ip1}/{ip2}/{ip3}/{ip4}/{port}")]
-    public AutogenConfig.EffectContainer Post(string ip1, string ip2, string ip3, string ip4, string port, string registers)
+    //[HttpPut("{ip1}/{ip2}/{ip3}/{ip4}/{port}")]
+    [HttpPut]
+    public AutogenConfig.EffectContainer Put(
+      [FromForm]string ip1, 
+      [FromForm]string ip2, 
+      [FromForm]string ip3, 
+      [FromForm]string ip4, 
+      [FromForm]string port, 
+      [FromForm]string registers)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
       AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer()
@@ -122,7 +129,7 @@ namespace UIConfig.Controllers
       };
 
       var url = "http://" + deviceIP + ":" + port + "/set-register-config";
-      System.Diagnostics.Debug.WriteLine("Attempting to Set Register Configuration @: " + url + "\nPostedJSON: " + registers);
+      //System.Diagnostics.Debug.WriteLine("Attempting to Set Register Configuration @: " + url + "\nPostedJSON: " + registers);
       result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url,registers);
       return result;
     }

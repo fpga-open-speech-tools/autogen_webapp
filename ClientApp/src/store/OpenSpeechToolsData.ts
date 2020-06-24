@@ -9,7 +9,7 @@ export interface OpenSpeechToolsState {
   isDeviceDownloading: boolean;
   currentDemo?: string;
   //Interface for UI JSON
-  uiConfig?: EffectContainer;
+  uiConfig?: EffectContainer | null;
   currentRegisterConfig?: RegisterConfig;
   //Interface for Demos Array[]
   availableDemos: Demo[];
@@ -283,15 +283,15 @@ export const openSpeechDataActionCreators = {
       ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
     devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
-      data.append("json", ip1Requested);
-      data.append("json", ip2Requested);
-      data.append("json", ip3Requested);
-      data.append("json", ip4Requested);
-      data.append("json", devicePortRequested);
+      data.append('ip1', ip1Requested);
+      data.append('ip2', ip2Requested);
+      data.append('ip3', ip3Requested);
+      data.append('ip4', ip4Requested);
+      data.append('port', devicePortRequested);
       var registersAsString = JSON.stringify(registers);
-        data.append("json", JSON.stringify(registers));
+        data.append('registers', JSON.stringify(registers));
         //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
-        fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
+        fetch(`setregisterconfig`, { method: "PUT", body: data })
           .then(response => response.json() as Promise<EffectContainer>)
           .then(data => {
             dispatch({
@@ -358,7 +358,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
   switch (action.type) {
     case 'REQUEST_OPENSPEECH_UI':
       return {
-        uiConfig: state.uiConfig,
+        uiConfig: null,
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
@@ -372,6 +372,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_SEND_COMMAND':
       return {
+        currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         uiConfig: state.uiConfig,
         availableDemos: state.availableDemos,
@@ -381,6 +382,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
       return {
+        currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
@@ -433,7 +435,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
+        uiConfig: null,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };

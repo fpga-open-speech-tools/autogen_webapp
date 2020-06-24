@@ -72,10 +72,10 @@ var Doctor = /** @class */ (function (_super) {
             downloadObjectAsJson(_this.props.availableDemos, "demos");
         };
         _this.state = {
-            ipFragment1: '174',
-            ipFragment2: '45',
-            ipFragment3: '85',
-            ipFragment4: '61',
+            ipFragment1: '192',
+            ipFragment2: '168',
+            ipFragment3: '0',
+            ipFragment4: '120',
             port: '3355',
             uiConfigName: "",
             dragging: false,
@@ -392,7 +392,9 @@ var Doctor = /** @class */ (function (_super) {
                 React.createElement(react_bootstrap_1.Row, null,
                     React.createElement(react_bootstrap_1.Modal.Dialog, null,
                         React.createElement(react_bootstrap_1.Modal.Header, { className: isSessionActive(this.state) },
-                            React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" }, "Session"),
+                            React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" },
+                                "Session ",
+                                JSON.stringify(this.props.currentRegisterConfig)),
                             getSessionButton(this, this.state)),
                         React.createElement(react_bootstrap_1.Row, null,
                             React.createElement("h4", { className: "centered-header" }, this.state.groupID)))),

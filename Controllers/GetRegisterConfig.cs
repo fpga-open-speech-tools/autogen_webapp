@@ -33,7 +33,7 @@ namespace UIConfig.Controllers
         {
         json_data = "{\"name\":\"ERROR\"}";
         }
-        System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
+        //System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
 
         // if string with JSON data is not empty, deserialize it to class and return its instance 
         return !string.IsNullOrEmpty(json_data) ? JsonConvert.DeserializeObject<T>(json_data) : new T();
@@ -117,7 +117,7 @@ namespace UIConfig.Controllers
       };
 
       var url = "http://" + deviceIP + ":" + port + "/get-register-config";
-      System.Diagnostics.Debug.WriteLine("Attempting to Get Register Configuration @: " + url);
+//System.Diagnostics.Debug.WriteLine("Attempting to Get Register Configuration @: " + url);
       result = _download_serialized_json_data<RegisterConfig.RegisterConfig>(url);
       return result;
     }

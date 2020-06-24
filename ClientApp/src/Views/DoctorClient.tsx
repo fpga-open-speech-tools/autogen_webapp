@@ -59,10 +59,10 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     super(props);
 
     this.state = {
-      ipFragment1: '174',
-      ipFragment2: '45',
-      ipFragment3: '85',
-      ipFragment4: '61',
+      ipFragment1: '192',
+      ipFragment2: '168',
+      ipFragment3: '0',
+      ipFragment4: '120',
       port: '3355',
 
       uiConfigName: "",
@@ -563,7 +563,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
             <Modal.Dialog>
               <Modal.Header className={isSessionActive(this.state)}>
                 <Modal.Title className="float-left">
-                  Session
+                  Session {JSON.stringify(this.props.currentRegisterConfig)}
                 </Modal.Title>
                 {getSessionButton(this, this.state)}
               </Modal.Header>
