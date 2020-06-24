@@ -10,6 +10,7 @@ export interface OpenSpeechToolsState {
   currentDemo?: string;
   //Interface for UI JSON
   uiConfig?: EffectContainer;
+  currentRegisterConfig?: RegisterConfig;
   //Interface for Demos Array[]
   availableDemos: Demo[];
 
@@ -28,6 +29,16 @@ export interface OpenSpeechToolsState {
   devicePort?: string;
 
   command?: Command;
+}
+
+export interface RegisterConfig {
+  registers: Register[]
+}
+
+export interface Register {
+  module: string
+  link: string,
+  value: string
 }
 
 
@@ -149,6 +160,32 @@ interface ReceiveOpenSpeechUIConfig {
   uiConfig: EffectContainer;
 }
 
+interface RequestSetRegisterConfigAction {
+  type: 'REQUEST_SET_REGISTER_CONFIG';
+  ip1: string;
+  ip2: string;
+  ip3: string;
+  ip4: string;
+  devicePort: string;
+  registerConfigString: string;
+}
+
+
+interface RequestGetRegisterConfigAction {
+  type: 'REQUEST_GET_REGISTER_CONFIG_ACTION';
+  ip1: string;
+  ip2: string;
+  ip3: string;
+  ip4: string;
+  devicePort: string;
+}
+
+interface ReceiveGetRegisterConfigResponse {
+  type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE';
+  currentRegisterConfig: RegisterConfig;
+}
+
+
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   ip1: string;
@@ -170,7 +207,8 @@ type KnownAction =
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
-  RequestS3DownloadProgressAction | ReceiveS3DownloadProgressAction;
+  RequestS3DownloadProgressAction | ReceiveS3DownloadProgressAction |
+  RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -237,6 +275,50 @@ export const openSpeechDataActionCreators = {
         type: 'REQUEST_SEND_COMMAND',
         ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
         devicePort: devicePortRequested, command: { link: link, value: value, module: module }
+      });
+    },
+
+  requestSendRegisterConfig: (
+      registers:RegisterConfig,
+      ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
+    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+      var data = new FormData();
+      data.append("json", ip1Requested);
+      data.append("json", ip2Requested);
+      data.append("json", ip3Requested);
+      data.append("json", ip4Requested);
+      data.append("json", devicePortRequested);
+      var registersAsString = JSON.stringify(registers);
+        data.append("json", JSON.stringify(registers));
+        //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
+        fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
+          .then(response => response.json() as Promise<EffectContainer>)
+          .then(data => {
+            dispatch({
+              type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
+            });
+          });
+        dispatch({
+          type: 'REQUEST_SET_REGISTER_CONFIG',
+          ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+          devicePort: devicePortRequested, registerConfigString: registersAsString
+        });
+    },
+
+  requestGetRegisterConfig: (
+    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
+    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+      fetch(`getregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
+        .then(response => response.json() as Promise<RegisterConfig>)
+        .then(data => {
+          dispatch({
+            type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE', currentRegisterConfig: data
+          });
+        });
+      dispatch({
+        type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
+        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+        devicePort: devicePortRequested
       });
     },
 
@@ -346,6 +428,35 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
+    case 'REQUEST_SET_REGISTER_CONFIG':
+      return {
+        currentRegisterConfig: state.currentRegisterConfig,
+        currentDemo: state.currentDemo,
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: false
+      };
+
+    case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
+      return {
+        currentDemo: state.currentDemo,
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: false
+      };
+
+    case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
+      return {
+        currentRegisterConfig: action.currentRegisterConfig,
+        currentDemo: state.currentDemo,
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: false
+      };
+
     case 'RECEIVE_S3_DOWNLOAD_PROGRESS':  
       return {
         currentDemo: state.currentDemo,

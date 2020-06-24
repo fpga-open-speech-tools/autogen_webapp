@@ -55,6 +55,43 @@ exports.openSpeechDataActionCreators = {
             devicePort: devicePortRequested, command: { link: link, value: value, module: module }
         });
     }; },
+    requestSendRegisterConfig: function (registers, ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
+        var data = new FormData();
+        data.append("json", ip1Requested);
+        data.append("json", ip2Requested);
+        data.append("json", ip3Requested);
+        data.append("json", ip4Requested);
+        data.append("json", devicePortRequested);
+        var registersAsString = JSON.stringify(registers);
+        data.append("json", JSON.stringify(registers));
+        //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
+        fetch("setregisterconfig/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested, { method: "POST", body: data })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+            dispatch({
+                type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
+            });
+        });
+        dispatch({
+            type: 'REQUEST_SET_REGISTER_CONFIG',
+            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+            devicePort: devicePortRequested, registerConfigString: registersAsString
+        });
+    }; },
+    requestGetRegisterConfig: function (ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
+        fetch("getregisterconfig/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested)
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+            dispatch({
+                type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE', currentRegisterConfig: data
+            });
+        });
+        dispatch({
+            type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
+            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+            devicePort: devicePortRequested
+        });
+    }; },
     requestDownloadS3Demo: function (devicename, projectname, ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
         fetch("downloads3bucket/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested + "/" + devicename + "/" + projectname)
             .then(function (response) { return response.json(); })
@@ -149,6 +186,32 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_S3_DOWNLOAD_PROGRESS':
             return {
+                currentDemo: state.currentDemo,
+                availableDemos: state.availableDemos,
+                uiConfig: state.uiConfig,
+                isDeviceDownloading: state.isDeviceDownloading,
+                isLoading: false
+            };
+        case 'REQUEST_SET_REGISTER_CONFIG':
+            return {
+                currentRegisterConfig: state.currentRegisterConfig,
+                currentDemo: state.currentDemo,
+                availableDemos: state.availableDemos,
+                uiConfig: state.uiConfig,
+                isDeviceDownloading: state.isDeviceDownloading,
+                isLoading: false
+            };
+        case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
+            return {
+                currentDemo: state.currentDemo,
+                availableDemos: state.availableDemos,
+                uiConfig: state.uiConfig,
+                isDeviceDownloading: state.isDeviceDownloading,
+                isLoading: false
+            };
+        case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
+            return {
+                currentRegisterConfig: action.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
                 uiConfig: state.uiConfig,

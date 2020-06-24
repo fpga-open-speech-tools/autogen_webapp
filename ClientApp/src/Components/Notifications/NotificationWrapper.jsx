@@ -25,18 +25,6 @@ class NotificationWrapper extends Component {
     this.setState({ _notificationSystem: this.refs.notificationSystem });
     var _notificationSystem = this.refs.notificationSystem;
     var level = 'warning';
-
-    _notificationSystem.addNotification({
-      title: <span data-notify="icon" className="pe-7s-like2" />,
-      message: (
-        <div>
-          Welcome to <b>The Open-Speech Tools</b><b> Web Application!</b>
-        </div>
-      ),
-      level: level,
-      position: "tc",
-      autoDismiss: 8
-    });
   }
 
   componentWillUnmount() {
@@ -64,7 +52,7 @@ class NotificationWrapper extends Component {
         ),
         level: level,
         position: "tr",
-        autoDismiss: 8
+        autoDismiss: 4
       });
     }
 

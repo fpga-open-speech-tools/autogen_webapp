@@ -72,10 +72,10 @@ var Doctor = /** @class */ (function (_super) {
             downloadObjectAsJson(_this.props.availableDemos, "demos");
         };
         _this.state = {
-            ipFragment1: '127',
-            ipFragment2: '0',
-            ipFragment3: '0',
-            ipFragment4: '1',
+            ipFragment1: '174',
+            ipFragment2: '45',
+            ipFragment3: '85',
+            ipFragment4: '61',
             port: '3355',
             uiConfigName: "",
             dragging: false,
@@ -107,6 +107,8 @@ var Doctor = /** @class */ (function (_super) {
         _this.startGroup = _this.startGroup.bind(_this);
         _this.stopGroup = _this.stopGroup.bind(_this);
         _this.sendFeedbackRequestToServer = _this.sendFeedbackRequestToServer.bind(_this);
+        _this.handleRequestGetRegisterConfig = _this.handleRequestGetRegisterConfig.bind(_this);
+        _this.handleRequestSetRegisterConfig = _this.handleRequestSetRegisterConfig.bind(_this);
         return _this;
     } //End Constructor 
     Doctor.prototype.componentDidMount = function () {
@@ -160,6 +162,14 @@ var Doctor = /** @class */ (function (_super) {
     };
     Doctor.prototype.handleNotesChange = function (e) {
         this.setState({ doctorNotes: e.target.value });
+    };
+    Doctor.prototype.handleRequestGetRegisterConfig = function () {
+        this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+    };
+    Doctor.prototype.handleRequestSetRegisterConfig = function () {
+        if (this.props.currentRegisterConfig) {
+            this.props.requestSendRegisterConfig(this.props.currentRegisterConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+        }
     };
     Doctor.prototype.handleRequestUI = function () {
         this.props.requestOpenSpeechUI(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
@@ -326,6 +336,10 @@ var Doctor = /** @class */ (function (_super) {
             return (React.createElement(react_bootstrap_1.Modal.Dialog, { className: "" },
                 React.createElement(react_bootstrap_1.Modal.Header, null,
                     React.createElement(react_bootstrap_1.Modal.Title, null, "Patient Feedback"),
+                    React.createElement(react_bootstrap_1.Button, { onClick: props.handleRequestGetRegisterConfig, className: "btn-simple btn-icon" },
+                        React.createElement("i", { className: "fa fa-smile-o -square-o large-icon" })),
+                    React.createElement(react_bootstrap_1.Button, { onClick: props.handleRequestSetRegisterConfig, className: "btn-simple btn-icon" },
+                        React.createElement("i", { className: "fa fa-smile-o -square-o large-icon" })),
                     React.createElement(react_bootstrap_1.Button, { onClick: props.sendFeedbackRequestToServer, className: "btn-simple btn-icon" },
                         React.createElement("i", { className: "fa fa-pencil-square-o large-icon" }))),
                 React.createElement(react_bootstrap_1.Form, { className: "display-em" },

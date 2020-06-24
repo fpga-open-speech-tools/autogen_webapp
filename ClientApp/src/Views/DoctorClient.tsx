@@ -59,10 +59,10 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     super(props);
 
     this.state = {
-      ipFragment1: '127',
-      ipFragment2: '0',
-      ipFragment3: '0',
-      ipFragment4: '1',
+      ipFragment1: '174',
+      ipFragment2: '45',
+      ipFragment3: '85',
+      ipFragment4: '61',
       port: '3355',
 
       uiConfigName: "",
@@ -102,6 +102,9 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     this.startGroup = this.startGroup.bind(this);
     this.stopGroup = this.stopGroup.bind(this);
     this.sendFeedbackRequestToServer = this.sendFeedbackRequestToServer.bind(this);
+
+    this.handleRequestGetRegisterConfig = this.handleRequestGetRegisterConfig.bind(this);
+    this.handleRequestSetRegisterConfig = this.handleRequestSetRegisterConfig.bind(this);
   }//End Constructor 
 
   dragEventCounter = 0;
@@ -214,6 +217,18 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
 
   handleNotesChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ doctorNotes: e.target.value });
+  }
+
+  handleRequestGetRegisterConfig(){
+    this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+      this.state.port);
+  }
+
+  handleRequestSetRegisterConfig() {
+    if (this.props.currentRegisterConfig) {
+      this.props.requestSendRegisterConfig(this.props.currentRegisterConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+        this.state.port);
+    }
   }
 
   handleRequestUI() {
@@ -424,6 +439,16 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
         <Modal.Dialog className="">
           <Modal.Header>
             <Modal.Title>Patient Feedback</Modal.Title>
+            <Button
+              onClick={props.handleRequestGetRegisterConfig}
+              className="btn-simple btn-icon"
+            >
+              <i className="fa fa-smile-o -square-o large-icon" /></Button>
+            <Button
+              onClick={props.handleRequestSetRegisterConfig}
+              className="btn-simple btn-icon"
+            >
+              <i className="fa fa-smile-o -square-o large-icon" /></Button>
             <Button
               onClick={props.sendFeedbackRequestToServer}
               className="btn-simple btn-icon"
