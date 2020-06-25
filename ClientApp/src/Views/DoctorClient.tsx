@@ -32,6 +32,7 @@ interface IState {
 
   dragging: boolean,
   file: File | null,
+  newFile:boolean,
 
   connectedToServer:boolean,
   groupID: string,
@@ -40,7 +41,10 @@ interface IState {
   user: string,
   message: string,
 
-  patientFeedback: number | null,
+
+  patientFirstName: string,
+  patientLastName: string,
+  patientFeedback: number,
   patientFeedbackNotes: string,
   doctorNotes: string,
 
@@ -69,6 +73,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
 
       dragging: false,
       file: null,
+      newFile:false,
 
       connectedToServer:false,
       sessionStarted: false,
@@ -76,7 +81,10 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       groupID: "",
       user: "Doctor",
       message: "",
-      patientFeedback: null,
+
+      patientFirstName: "",
+      patientLastName: "",
+      patientFeedback: -2,
       patientFeedbackNotes: "",
       doctorNotes: "",
 
@@ -105,6 +113,14 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
 
     this.handleRequestGetRegisterConfig = this.handleRequestGetRegisterConfig.bind(this);
     this.handleRequestSetRegisterConfig = this.handleRequestSetRegisterConfig.bind(this);
+
+    this.handlePatientFirstNameChange = this.handlePatientFirstNameChange.bind(this);
+    this.handlePatientLastNameChange = this.handlePatientLastNameChange.bind(this);
+    this.handleDownloadDemosJSON = this.handleDownloadDemosJSON.bind(this);
+    this.downloadPatientConfig = this.downloadPatientConfig.bind(this);
+    this.handleNewPatientConfigFile = this.handleNewPatientConfigFile.bind(this);
+
+    this.doNothing = this.doNothing.bind(this);
   }//End Constructor 
 
   dragEventCounter = 0;
@@ -153,7 +169,8 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
 
   onFileChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      this.setState({ file: event.target.files[0] });
+      this.setState({ file: event.target.files[0], newFile: true });
+      this.handleNewPatientConfigFile(event.target.files[0]);
     }
   };
 
@@ -216,18 +233,70 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
   }
 
   handleNotesChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ doctorNotes: e.target.value });
+    if (!this.state.newFile) {
+      this.setState({ doctorNotes: e.target.value });
+    }
   }
 
-  handleRequestGetRegisterConfig(){
+  handlePatientFirstNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ patientFirstName: e.target.value });
+  }
+
+  handlePatientLastNameChange(e: React.ChangeEvent<HTMLInputElement>) {
+    this.setState({ patientLastName: e.target.value });
+  }
+
+  handleRequestGetRegisterConfig(callback: Function) {
+
     this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-      this.state.port);
+      this.state.port,callback);
   }
 
-  handleRequestSetRegisterConfig() {
-    if (this.props.currentRegisterConfig) {
-      this.props.requestSendRegisterConfig(this.props.currentRegisterConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
+  handleRequestSetRegisterConfig(registerConfig: OpenSpeechDataStore.RegisterConfig) {
+      this.props.requestSendRegisterConfig(registerConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
         this.state.port);
+    
+  }
+
+  handleNewPatientConfigFile(configFile: File | null) {
+    if (configFile) {
+      var text: string;
+      text = "";
+
+      var reader = new FileReader();
+      reader.readAsBinaryString(configFile);
+      reader.onloadend = ( () => {
+        text = reader.result as string;
+        var obj = JSON.parse(text);
+
+        interface patientConfig {
+          patientFeedback: number,
+          patientFeedbackNotes: string,
+          doctorNotes: string,
+          patientFirstName: string,
+          patientLastName: string,
+          registerConfiguration: OpenSpeechDataStore.RegisterConfig | undefined
+        }
+
+        var config: patientConfig = {
+          patientFeedback: obj.patientFeedback,
+          patientFeedbackNotes: obj.patientFeedbackNotes,
+          doctorNotes: obj.doctorNotes,
+          patientFirstName: obj.patientFirstName,
+          patientLastName: obj.patientLastName,
+          registerConfiguration: obj.registerConfiguration,
+        };
+        this.setState({
+          patientFeedback: config.patientFeedback,
+          patientFeedbackNotes: config.patientFeedbackNotes,
+          doctorNotes: config.doctorNotes,
+          patientFirstName: config.patientFirstName,
+          patientLastName: config.patientLastName,
+          newFile: false
+        });
+
+        this.handleRequestSetRegisterConfig(config.registerConfiguration as OpenSpeechDataStore.RegisterConfig);
+      });
     }
   }
 
@@ -237,8 +306,30 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       this.state.port);
   }
 
-  handleDownloadDemosJSON = () =>{
-    downloadObjectAsJson(this.props.availableDemos,"demos");
+  handleDownloadDemosJSON = () => {
+    this.handleRequestGetRegisterConfig(this.downloadPatientConfig);
+  }
+
+  downloadPatientConfig() {
+    interface patientConfig {
+      patientFeedback: number,
+      patientFeedbackNotes: string,
+      doctorNotes: string,
+      patientFirstName: string,
+      patientLastName: string,
+      registerConfiguration: OpenSpeechDataStore.RegisterConfig | undefined
+    }
+
+    var config: patientConfig = {
+      patientFeedback: this.state.patientFeedback,
+      patientFeedbackNotes: this.state.patientFeedbackNotes,
+      doctorNotes: this.state.doctorNotes,
+      patientFirstName: this.state.patientFirstName,
+      patientLastName: this.state.patientLastName,
+      registerConfiguration: this.props.currentRegisterConfig,
+    };
+
+    downloadObjectAsJson(config, "patient_config");
   }
 
   handleInputCommand(module: string, link: string, value: string) {
@@ -382,6 +473,10 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     });
   }
 
+  doNothing() {
+
+  } 
+
   render() {
 
     function getAutogen(board: Doctor, props: OpenSpeechProps) {
@@ -440,28 +535,24 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
           <Modal.Header>
             <Modal.Title>Patient Feedback</Modal.Title>
             <Button
-              onClick={props.handleRequestGetRegisterConfig}
-              className="btn-simple btn-icon"
-            >
-              <i className="fa fa-smile-o -square-o large-icon" /></Button>
-            <Button
-              onClick={props.handleRequestSetRegisterConfig}
-              className="btn-simple btn-icon"
-            >
-              <i className="fa fa-smile-o -square-o large-icon" /></Button>
-            <Button
               onClick={props.sendFeedbackRequestToServer}
               className="btn-simple btn-icon"
             >
               <i className="fa fa-pencil-square-o large-icon" />
             </Button></Modal.Header>
           <Form className = "display-em">
-                <Form.Control
-                  className = "patient-first-name"
-                  placeholder="First name" />
-                <Form.Control
-                  className="patient-last-name"
-                placeholder="Last name" />
+            <FormControl
+              className="patient-first-name"
+              placeholder="First name"
+              value={state.patientFirstName}
+              onChange={props.handlePatientFirstNameChange}
+              />
+            <FormControl
+              className="patient-last-name"
+              placeholder="Last name"
+              value={state.patientLastName}
+              onChange={props.handlePatientLastNameChange}
+            />
           </Form>
           <div className="patient-feedback-interface">
             <Button
@@ -492,7 +583,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
                 <InputGroup.Text>Patient Notes</InputGroup.Text>
               </InputGroup.Prepend>
               <FormControl
-                defaultValue={state.patientFeedbackNotes}
+                value={state.patientFeedbackNotes}
                 disabled
                 as="textarea"
                 aria-label="With textarea" />
@@ -502,7 +593,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
                 <InputGroup.Text>Doctor Notes</InputGroup.Text>
               </InputGroup.Prepend>
               <FormControl
-                defaultValue={state.doctorNotes}
+                value={state.doctorNotes}
                 onChange={props.handleNotesChange}
                 as="textarea"
                 aria-label="With textarea" />
@@ -563,7 +654,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
             <Modal.Dialog>
               <Modal.Header className={isSessionActive(this.state)}>
                 <Modal.Title className="float-left">
-                  Session {JSON.stringify(this.props.currentRegisterConfig)}
+                  Session
                 </Modal.Title>
                 {getSessionButton(this, this.state)}
               </Modal.Header>

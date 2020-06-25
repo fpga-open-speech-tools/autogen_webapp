@@ -65,11 +65,12 @@ var Doctor = /** @class */ (function (_super) {
         };
         _this.onFileChanged = function (event) {
             if (event.target.files && event.target.files[0]) {
-                _this.setState({ file: event.target.files[0] });
+                _this.setState({ file: event.target.files[0], newFile: true });
+                _this.handleNewPatientConfigFile(event.target.files[0]);
             }
         };
         _this.handleDownloadDemosJSON = function () {
-            downloadObjectAsJson(_this.props.availableDemos, "demos");
+            _this.handleRequestGetRegisterConfig(_this.downloadPatientConfig);
         };
         _this.state = {
             ipFragment1: '192',
@@ -80,13 +81,16 @@ var Doctor = /** @class */ (function (_super) {
             uiConfigName: "",
             dragging: false,
             file: null,
+            newFile: false,
             connectedToServer: false,
             sessionStarted: false,
             sessionPatientConnected: false,
             groupID: "",
             user: "Doctor",
             message: "",
-            patientFeedback: null,
+            patientFirstName: "",
+            patientLastName: "",
+            patientFeedback: -2,
             patientFeedbackNotes: "",
             doctorNotes: "",
             notificationText: "",
@@ -109,6 +113,12 @@ var Doctor = /** @class */ (function (_super) {
         _this.sendFeedbackRequestToServer = _this.sendFeedbackRequestToServer.bind(_this);
         _this.handleRequestGetRegisterConfig = _this.handleRequestGetRegisterConfig.bind(_this);
         _this.handleRequestSetRegisterConfig = _this.handleRequestSetRegisterConfig.bind(_this);
+        _this.handlePatientFirstNameChange = _this.handlePatientFirstNameChange.bind(_this);
+        _this.handlePatientLastNameChange = _this.handlePatientLastNameChange.bind(_this);
+        _this.handleDownloadDemosJSON = _this.handleDownloadDemosJSON.bind(_this);
+        _this.downloadPatientConfig = _this.downloadPatientConfig.bind(_this);
+        _this.handleNewPatientConfigFile = _this.handleNewPatientConfigFile.bind(_this);
+        _this.doNothing = _this.doNothing.bind(_this);
         return _this;
     } //End Constructor 
     Doctor.prototype.componentDidMount = function () {
@@ -161,18 +171,65 @@ var Doctor = /** @class */ (function (_super) {
         this.setState({ port: e.target.value });
     };
     Doctor.prototype.handleNotesChange = function (e) {
-        this.setState({ doctorNotes: e.target.value });
+        if (!this.state.newFile) {
+            this.setState({ doctorNotes: e.target.value });
+        }
     };
-    Doctor.prototype.handleRequestGetRegisterConfig = function () {
-        this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+    Doctor.prototype.handlePatientFirstNameChange = function (e) {
+        this.setState({ patientFirstName: e.target.value });
     };
-    Doctor.prototype.handleRequestSetRegisterConfig = function () {
-        if (this.props.currentRegisterConfig) {
-            this.props.requestSendRegisterConfig(this.props.currentRegisterConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+    Doctor.prototype.handlePatientLastNameChange = function (e) {
+        this.setState({ patientLastName: e.target.value });
+    };
+    Doctor.prototype.handleRequestGetRegisterConfig = function (callback) {
+        this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port, callback);
+    };
+    Doctor.prototype.handleRequestSetRegisterConfig = function (registerConfig) {
+        this.props.requestSendRegisterConfig(registerConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+    };
+    Doctor.prototype.handleNewPatientConfigFile = function (configFile) {
+        var _this = this;
+        if (configFile) {
+            var text;
+            text = "";
+            var reader = new FileReader();
+            reader.readAsBinaryString(configFile);
+            reader.onloadend = (function () {
+                text = reader.result;
+                var obj = JSON.parse(text);
+                var config = {
+                    patientFeedback: obj.patientFeedback,
+                    patientFeedbackNotes: obj.patientFeedbackNotes,
+                    doctorNotes: obj.doctorNotes,
+                    patientFirstName: obj.patientFirstName,
+                    patientLastName: obj.patientLastName,
+                    registerConfiguration: obj.registerConfiguration,
+                };
+                _this.setState({
+                    patientFeedback: config.patientFeedback,
+                    patientFeedbackNotes: config.patientFeedbackNotes,
+                    doctorNotes: config.doctorNotes,
+                    patientFirstName: config.patientFirstName,
+                    patientLastName: config.patientLastName,
+                    newFile: false
+                });
+                _this.handleRequestSetRegisterConfig(config.registerConfiguration);
+            });
         }
     };
     Doctor.prototype.handleRequestUI = function () {
         this.props.requestOpenSpeechUI(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+    };
+    Doctor.prototype.downloadPatientConfig = function () {
+        var config = {
+            patientFeedback: this.state.patientFeedback,
+            patientFeedbackNotes: this.state.patientFeedbackNotes,
+            doctorNotes: this.state.doctorNotes,
+            patientFirstName: this.state.patientFirstName,
+            patientLastName: this.state.patientLastName,
+            registerConfiguration: this.props.currentRegisterConfig,
+        };
+        downloadObjectAsJson(config, "patient_config");
     };
     Doctor.prototype.handleInputCommand = function (module, link, value) {
         if (!this.props.isLoading) {
@@ -297,6 +354,8 @@ var Doctor = /** @class */ (function (_super) {
             return console.error(err.toString());
         });
     };
+    Doctor.prototype.doNothing = function () {
+    };
     Doctor.prototype.render = function () {
         var _this = this;
         function getAutogen(board, props) {
@@ -336,15 +395,11 @@ var Doctor = /** @class */ (function (_super) {
             return (React.createElement(react_bootstrap_1.Modal.Dialog, { className: "" },
                 React.createElement(react_bootstrap_1.Modal.Header, null,
                     React.createElement(react_bootstrap_1.Modal.Title, null, "Patient Feedback"),
-                    React.createElement(react_bootstrap_1.Button, { onClick: props.handleRequestGetRegisterConfig, className: "btn-simple btn-icon" },
-                        React.createElement("i", { className: "fa fa-smile-o -square-o large-icon" })),
-                    React.createElement(react_bootstrap_1.Button, { onClick: props.handleRequestSetRegisterConfig, className: "btn-simple btn-icon" },
-                        React.createElement("i", { className: "fa fa-smile-o -square-o large-icon" })),
                     React.createElement(react_bootstrap_1.Button, { onClick: props.sendFeedbackRequestToServer, className: "btn-simple btn-icon" },
                         React.createElement("i", { className: "fa fa-pencil-square-o large-icon" }))),
                 React.createElement(react_bootstrap_1.Form, { className: "display-em" },
-                    React.createElement(react_bootstrap_1.Form.Control, { className: "patient-first-name", placeholder: "First name" }),
-                    React.createElement(react_bootstrap_1.Form.Control, { className: "patient-last-name", placeholder: "Last name" })),
+                    React.createElement(react_bootstrap_1.FormControl, { className: "patient-first-name", placeholder: "First name", value: state.patientFirstName, onChange: props.handlePatientFirstNameChange }),
+                    React.createElement(react_bootstrap_1.FormControl, { className: "patient-last-name", placeholder: "Last name", value: state.patientLastName, onChange: props.handlePatientLastNameChange })),
                 React.createElement("div", { className: "patient-feedback-interface" },
                     React.createElement(react_bootstrap_1.Button, { variant: "light", disabled: disableIfNotChosen(state.patientFeedback, 1), className: "btn-simple btn-icon btn-success" },
                         React.createElement("i", { className: "fa fa-smile-o large-icon" })),
@@ -356,11 +411,11 @@ var Doctor = /** @class */ (function (_super) {
                     React.createElement(react_bootstrap_1.InputGroup, null,
                         React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
                             React.createElement(react_bootstrap_1.InputGroup.Text, null, "Patient Notes")),
-                        React.createElement(react_bootstrap_1.FormControl, { defaultValue: state.patientFeedbackNotes, disabled: true, as: "textarea", "aria-label": "With textarea" })),
+                        React.createElement(react_bootstrap_1.FormControl, { value: state.patientFeedbackNotes, disabled: true, as: "textarea", "aria-label": "With textarea" })),
                     React.createElement(react_bootstrap_1.InputGroup, null,
                         React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
                             React.createElement(react_bootstrap_1.InputGroup.Text, null, "Doctor Notes")),
-                        React.createElement(react_bootstrap_1.FormControl, { defaultValue: state.doctorNotes, onChange: props.handleNotesChange, as: "textarea", "aria-label": "With textarea" })))));
+                        React.createElement(react_bootstrap_1.FormControl, { value: state.doctorNotes, onChange: props.handleNotesChange, as: "textarea", "aria-label": "With textarea" })))));
         }
         function isSessionActive(state) {
             var sessionClassName = "doctor-session ";
@@ -392,9 +447,7 @@ var Doctor = /** @class */ (function (_super) {
                 React.createElement(react_bootstrap_1.Row, null,
                     React.createElement(react_bootstrap_1.Modal.Dialog, null,
                         React.createElement(react_bootstrap_1.Modal.Header, { className: isSessionActive(this.state) },
-                            React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" },
-                                "Session ",
-                                JSON.stringify(this.props.currentRegisterConfig)),
+                            React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" }, "Session"),
                             getSessionButton(this, this.state)),
                         React.createElement(react_bootstrap_1.Row, null,
                             React.createElement("h4", { className: "centered-header" }, this.state.groupID)))),

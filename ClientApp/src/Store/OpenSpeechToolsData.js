@@ -78,13 +78,14 @@ exports.openSpeechDataActionCreators = {
             devicePort: devicePortRequested, registerConfigString: registersAsString
         });
     }; },
-    requestGetRegisterConfig: function (ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
+    requestGetRegisterConfig: function (ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested, callback) { return function (dispatch, getState) {
         fetch("getregisterconfig/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested)
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
                 type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE', currentRegisterConfig: data
             });
+            callback();
         });
         dispatch({
             type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',

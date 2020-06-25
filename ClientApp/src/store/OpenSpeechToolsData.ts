@@ -230,30 +230,30 @@ export const openSpeechDataActionCreators = {
   requestS3DownloadProgress: (
     ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
     devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch) => {
-    fetch(`downloadprogress/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
-      .then(response => response.json() as Promise<S3DownloadProgress>)
-      .then(data => {
-        dispatch({
-          type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data
+      fetch(`downloadprogress/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
+        .then(response => response.json() as Promise<S3DownloadProgress>)
+        .then(data => {
+          dispatch({
+            type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data
+          });
         });
+      dispatch({
+        type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
+        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+        devicePort: devicePortRequested
       });
-    dispatch({
-      type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
-      ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-      devicePort: devicePortRequested
-    });
-  },
+    },
 
   requestOpenSpeechUI: (
     ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
     devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
       fetch(`uiconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
-      .then(response => response.json() as Promise<EffectContainer>)
-      .then(data => {
-        dispatch({
-          type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
+        .then(response => response.json() as Promise<EffectContainer>)
+        .then(data => {
+          dispatch({
+            type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
+          });
         });
-      });
       dispatch({
         type: 'REQUEST_OPENSPEECH_UI',
         ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
@@ -266,11 +266,11 @@ export const openSpeechDataActionCreators = {
     ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
     devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
       fetch(`command/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}/${link}/${value}/${module}`)
-      .then(() => {
-        dispatch({
-          type: 'RECEIVE_SEND_COMMAND_RESPONSE'
+        .then(() => {
+          dispatch({
+            type: 'RECEIVE_SEND_COMMAND_RESPONSE'
+          });
         });
-      });
       dispatch({
         type: 'REQUEST_SEND_COMMAND',
         ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
@@ -279,8 +279,8 @@ export const openSpeechDataActionCreators = {
     },
 
   requestSendRegisterConfig: (
-      registers:RegisterConfig,
-      ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
+    registers: RegisterConfig,
+    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
     devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
       data.append('ip1', ip1Requested);
@@ -289,31 +289,32 @@ export const openSpeechDataActionCreators = {
       data.append('ip4', ip4Requested);
       data.append('port', devicePortRequested);
       var registersAsString = JSON.stringify(registers);
-        data.append('registers', JSON.stringify(registers));
-        //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
-        fetch(`setregisterconfig`, { method: "PUT", body: data })
-          .then(response => response.json() as Promise<EffectContainer>)
-          .then(data => {
-            dispatch({
-              type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
-            });
+      data.append('registers', JSON.stringify(registers));
+      //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
+      fetch(`setregisterconfig`, { method: "PUT", body: data })
+        .then(response => response.json() as Promise<EffectContainer>)
+        .then(data => {
+          dispatch({
+            type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
           });
-        dispatch({
-          type: 'REQUEST_SET_REGISTER_CONFIG',
-          ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-          devicePort: devicePortRequested, registerConfigString: registersAsString
         });
+      dispatch({
+        type: 'REQUEST_SET_REGISTER_CONFIG',
+        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
+        devicePort: devicePortRequested, registerConfigString: registersAsString
+      });
     },
 
   requestGetRegisterConfig: (
     ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
-    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    devicePortRequested: string, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
       fetch(`getregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
         .then(response => response.json() as Promise<RegisterConfig>)
         .then(data => {
           dispatch({
             type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE', currentRegisterConfig: data
           });
+          callback();
         });
       dispatch({
         type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
