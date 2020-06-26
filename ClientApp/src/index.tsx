@@ -11,7 +11,7 @@ import { createBrowserHistory } from 'history';
 import configureStore from './Store/configureStore';
 import registerServiceWorker from './registerServiceWorker';
 import AdminLayout from "./Layouts/Tools.jsx";
-import AutoGen from './Views/Auto-Gen';
+import AutoGen from './Views/Auto-Gen-View';
 import * as OpenSpeechData from './Store/OpenSpeechToolsData';
 import 'bootstrap';
 import 'react-bootstrap';

@@ -22,9 +22,9 @@ var NotificationWrapper_jsx_1 = require("../Components/Notifications/Notificatio
 var FileUploaderPresentationalComponent_1 = require("../Components/FileManagement/FileUploaderPresentationalComponent");
 var signalR = require("@microsoft/signalr");
 var connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
-var Doctor = /** @class */ (function (_super) {
-    __extends(Doctor, _super);
-    function Doctor(props) {
+var DoctorView = /** @class */ (function (_super) {
+    __extends(DoctorView, _super);
+    function DoctorView(props) {
         var _this = _super.call(this, props) || this;
         _this.fileUploaderInput = null;
         _this.dragEventCounter = 0;
@@ -53,7 +53,8 @@ var Doctor = /** @class */ (function (_super) {
             _this.dragEventCounter = 0;
             _this.setState({ dragging: false });
             if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-                _this.setState({ file: event.dataTransfer.files[0] });
+                _this.setState({ file: event.dataTransfer.files[0], newFile: true });
+                _this.handleNewPatientConfigFile(event.dataTransfer.files[0]);
             }
         };
         _this.overrideEventDefaults = function (event) {
@@ -121,7 +122,7 @@ var Doctor = /** @class */ (function (_super) {
         _this.doNothing = _this.doNothing.bind(_this);
         return _this;
     } //End Constructor 
-    Doctor.prototype.componentDidMount = function () {
+    DoctorView.prototype.componentDidMount = function () {
         var _this = this;
         this.handleRequestUI();
         this.startSession();
@@ -132,7 +133,7 @@ var Doctor = /** @class */ (function (_super) {
             _this.overrideEventDefaults(event);
         });
     }; // End ComponentDidMount
-    Doctor.prototype.componentDidUpdate = function () {
+    DoctorView.prototype.componentDidUpdate = function () {
         if (this.props.uiConfig) {
             if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfigName) {
                 this.setNotificationLevel('error');
@@ -151,43 +152,43 @@ var Doctor = /** @class */ (function (_super) {
             }
         }
     }; //End ComponentDidUpdate
-    Doctor.prototype.componentWillMount = function () {
+    DoctorView.prototype.componentWillMount = function () {
         window.removeEventListener("dragover", this.overrideEventDefaults);
         window.removeEventListener("drop", this.overrideEventDefaults);
     };
-    Doctor.prototype.handleIP1Change = function (e) {
+    DoctorView.prototype.handleIP1Change = function (e) {
         this.setState({ ipFragment1: e.target.value });
     };
-    Doctor.prototype.handleIP2Change = function (e) {
+    DoctorView.prototype.handleIP2Change = function (e) {
         this.setState({ ipFragment2: e.target.value });
     };
-    Doctor.prototype.handleIP3Change = function (e) {
+    DoctorView.prototype.handleIP3Change = function (e) {
         this.setState({ ipFragment3: e.target.value });
     };
-    Doctor.prototype.handleIP4Change = function (e) {
+    DoctorView.prototype.handleIP4Change = function (e) {
         this.setState({ ipFragment4: e.target.value });
     };
-    Doctor.prototype.handlePortChange = function (e) {
+    DoctorView.prototype.handlePortChange = function (e) {
         this.setState({ port: e.target.value });
     };
-    Doctor.prototype.handleNotesChange = function (e) {
+    DoctorView.prototype.handleNotesChange = function (e) {
         if (!this.state.newFile) {
             this.setState({ doctorNotes: e.target.value });
         }
     };
-    Doctor.prototype.handlePatientFirstNameChange = function (e) {
+    DoctorView.prototype.handlePatientFirstNameChange = function (e) {
         this.setState({ patientFirstName: e.target.value });
     };
-    Doctor.prototype.handlePatientLastNameChange = function (e) {
+    DoctorView.prototype.handlePatientLastNameChange = function (e) {
         this.setState({ patientLastName: e.target.value });
     };
-    Doctor.prototype.handleRequestGetRegisterConfig = function (callback) {
+    DoctorView.prototype.handleRequestGetRegisterConfig = function (callback) {
         this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port, callback);
     };
-    Doctor.prototype.handleRequestSetRegisterConfig = function (registerConfig) {
+    DoctorView.prototype.handleRequestSetRegisterConfig = function (registerConfig) {
         this.props.requestSendRegisterConfig(registerConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
     };
-    Doctor.prototype.handleNewPatientConfigFile = function (configFile) {
+    DoctorView.prototype.handleNewPatientConfigFile = function (configFile) {
         var _this = this;
         if (configFile) {
             var text;
@@ -217,10 +218,10 @@ var Doctor = /** @class */ (function (_super) {
             });
         }
     };
-    Doctor.prototype.handleRequestUI = function () {
+    DoctorView.prototype.handleRequestUI = function () {
         this.props.requestOpenSpeechUI(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
     };
-    Doctor.prototype.downloadPatientConfig = function () {
+    DoctorView.prototype.downloadPatientConfig = function () {
         var config = {
             patientFeedback: this.state.patientFeedback,
             patientFeedbackNotes: this.state.patientFeedbackNotes,
@@ -231,23 +232,23 @@ var Doctor = /** @class */ (function (_super) {
         };
         downloadObjectAsJson(config, "patient_config");
     };
-    Doctor.prototype.handleInputCommand = function (module, link, value) {
+    DoctorView.prototype.handleInputCommand = function (module, link, value) {
         if (!this.props.isLoading) {
             this.props.requestSendCommand(link, value, module, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
         }
     };
-    Doctor.prototype.setNotificationText = function (text) {
+    DoctorView.prototype.setNotificationText = function (text) {
         this.setState({ notificationText: text });
     };
-    Doctor.prototype.setNotificationLevel = function (level) {
+    DoctorView.prototype.setNotificationLevel = function (level) {
         this.setState({ notificationLevel: level });
     };
-    Doctor.prototype.verifyConnection = function () {
+    DoctorView.prototype.verifyConnection = function () {
         connection.invoke("AfterConnected").catch(function (err) {
             return console.error(err.toString());
         });
     };
-    Doctor.prototype.startSession = function () {
+    DoctorView.prototype.startSession = function () {
         var _this = this;
         connection.on("Connected", function (message) {
             var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -332,7 +333,7 @@ var Doctor = /** @class */ (function (_super) {
             return console.error(err.toString());
         });
     }; //End Start Connection to SignalR Client hub
-    Doctor.prototype.startGroup = function () {
+    DoctorView.prototype.startGroup = function () {
         var nums = "0123456789";
         var result = "";
         for (var i = 4; i > 0; --i) {
@@ -343,20 +344,20 @@ var Doctor = /** @class */ (function (_super) {
             return console.error(err.toString());
         });
     };
-    Doctor.prototype.stopGroup = function () {
+    DoctorView.prototype.stopGroup = function () {
         connection.invoke("EndGroup", this.state.groupID).catch(function (err) {
             return console.error(err.toString());
         });
         this.setState({ sessionStarted: false, groupID: "" });
     };
-    Doctor.prototype.sendFeedbackRequestToServer = function () {
+    DoctorView.prototype.sendFeedbackRequestToServer = function () {
         connection.invoke("RequestFeedback", this.state.user, this.state.groupID).catch(function (err) {
             return console.error(err.toString());
         });
     };
-    Doctor.prototype.doNothing = function () {
+    DoctorView.prototype.doNothing = function () {
     };
-    Doctor.prototype.render = function () {
+    DoctorView.prototype.render = function () {
         var _this = this;
         function getAutogen(board, props) {
             if (props.uiConfig) {
@@ -467,9 +468,10 @@ var Doctor = /** @class */ (function (_super) {
                 React.createElement("script", { src: "~/js/signalr/dist/browser/signalr.js" }),
                 React.createElement("script", { src: "~/js/chat.js" }))));
     }; //End Render
-    Doctor.counter = 0;
-    return Doctor;
+    DoctorView.counter = 0;
+    return DoctorView;
 }(React.PureComponent));
+exports.DoctorView = DoctorView;
 function downloadObjectAsJson(exportObj, exportName) {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 4));
     var downloadAnchorNode = document.createElement('a');
@@ -479,5 +481,5 @@ function downloadObjectAsJson(exportObj, exportName) {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 }
-exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(Doctor);
-//# sourceMappingURL=DoctorClient.js.map
+exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(DoctorView);
+//# sourceMappingURL=Doctor-View.js.map

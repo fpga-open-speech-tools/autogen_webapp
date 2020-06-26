@@ -3,8 +3,6 @@ import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import { EffectPanelDiv } from './EffectPanelDiv';
 
 export class EffectPageDiv extends Component {
-
-  
   render() {
     return (
       <div className="autogen autogen-page row">

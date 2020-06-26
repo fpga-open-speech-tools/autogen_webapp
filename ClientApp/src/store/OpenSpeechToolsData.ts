@@ -22,25 +22,30 @@ export interface OpenSpeechToolsState {
   projectName?: string;
 
   //Device Controls info
-  ip1?: string;
-  ip2?: string;
-  ip3?: string;
-  ip4?: string;
-  devicePort?: string;
+  deviceAddress: DeviceAddress;
 
   command?: Command;
 }
 
+export interface DeviceAddress {
+  ipAddress: {
+    ip1: string;
+    ip2: string;
+    ip3: string;
+    ip4: string;
+  };
+  port: string;
+}
+
 export interface RegisterConfig {
-  registers: Register[]
+  registers: Register[];
 }
 
 export interface Register {
-  module: string
-  link: string,
-  value: string
+  module: string;
+  link: string;
+  value: string;
 }
-
 
 export interface S3DownloadProgress {
   name: string;
@@ -103,6 +108,11 @@ export interface Control {
 // ACTIONS - These are serializable (hence replayable) descriptions of state transitions.
 // They do not themselves have any side-effects; they just describe something that is going to happen.
 
+interface SetDeviceAddress {
+  type: 'SET_DEVICE_ADDRESS';
+  address: DeviceAddress;
+}
+
 interface RequestOpenSpeechS3DemosAction {
   type: 'REQUEST_OPENSPEECH_DEMOS';
 }
@@ -114,11 +124,7 @@ interface ReceiveOpenSpeechS3DemosAction {
 
 interface RequestOpenSpeechS3DownloadAction {
   type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO';
-  ip1: string;
-  ip2: string;
-  ip3: string;
-  ip4: string;
-  devicePort:   string;
+  deviceAddress: DeviceAddress;
   deviceFamily: string;
   projectName:  string;
   isDeviceDownloading: boolean;
@@ -134,11 +140,7 @@ interface ReceiveOpenSpeechS3DownloadAction {
 
 interface RequestS3DownloadProgressAction {
   type: 'REQUEST_S3_DOWNLOAD_PROGRESS';
-  ip1: string;
-  ip2: string;
-  ip3: string;
-  ip4: string;
-  devicePort: string;
+  deviceAddress: DeviceAddress;
 }
 
 interface ReceiveS3DownloadProgressAction {
@@ -148,11 +150,7 @@ interface ReceiveS3DownloadProgressAction {
 
 interface RequestOpenSpeechUIConfig {
   type: 'REQUEST_OPENSPEECH_UI';
-  ip1: string;
-  ip2: string;
-  ip3: string;
-  ip4: string;
-  devicePort: string;
+  deviceAddress: DeviceAddress;
 }
 
 interface ReceiveOpenSpeechUIConfig {
@@ -162,22 +160,14 @@ interface ReceiveOpenSpeechUIConfig {
 
 interface RequestSetRegisterConfigAction {
   type: 'REQUEST_SET_REGISTER_CONFIG';
-  ip1: string;
-  ip2: string;
-  ip3: string;
-  ip4: string;
-  devicePort: string;
+  deviceAddress: DeviceAddress;
   registerConfigString: string;
 }
 
 
 interface RequestGetRegisterConfigAction {
   type: 'REQUEST_GET_REGISTER_CONFIG_ACTION';
-  ip1: string;
-  ip2: string;
-  ip3: string;
-  ip4: string;
-  devicePort: string;
+  deviceAddress: DeviceAddress;
 }
 
 interface ReceiveGetRegisterConfigResponse {
@@ -188,11 +178,7 @@ interface ReceiveGetRegisterConfigResponse {
 
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
-  ip1: string;
-  ip2: string;
-  ip3: string;
-  ip4: string;
-  devicePort: string;
+  deviceAddress: DeviceAddress;
   command: Command;
 }
 
@@ -208,7 +194,8 @@ type KnownAction =
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
   RequestS3DownloadProgressAction | ReceiveS3DownloadProgressAction |
-  RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse;
+  RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse |
+  SetDeviceAddress;
 
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
@@ -227,10 +214,8 @@ export const openSpeechDataActionCreators = {
     dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
   },
 
-  requestS3DownloadProgress: (
-    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
-    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch) => {
-      fetch(`downloadprogress/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
+  requestS3DownloadProgress: (address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch) => {
+      fetch(`downloadprogress/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}`)
         .then(response => response.json() as Promise<S3DownloadProgress>)
         .then(data => {
           dispatch({
@@ -239,15 +224,12 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-        devicePort: devicePortRequested
+        deviceAddress:address
       });
     },
 
-  requestOpenSpeechUI: (
-    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
-    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`uiconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
+  requestOpenSpeechUI: (address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
+      fetch(`uiconfig/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}`)
         .then(response => response.json() as Promise<EffectContainer>)
         .then(data => {
           dispatch({
@@ -256,16 +238,15 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_OPENSPEECH_UI',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-        devicePort: devicePortRequested
+        deviceAddress:address
       });
     },
 
   requestSendCommand: (
     link: string, value: string, module: string,
-    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
+    address:DeviceAddress,
     devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`command/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}/${link}/${value}/${module}`)
+      fetch(`command/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${link}/${value}/${module}`)
         .then(() => {
           dispatch({
             type: 'RECEIVE_SEND_COMMAND_RESPONSE'
@@ -273,24 +254,20 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_SEND_COMMAND',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-        devicePort: devicePortRequested, command: { link: link, value: value, module: module }
+        deviceAddress:address, command: { link: link, value: value, module: module }
       });
     },
 
   requestSendRegisterConfig: (
-    registers: RegisterConfig,
-    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
-    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    registers: RegisterConfig,address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
-      data.append('ip1', ip1Requested);
-      data.append('ip2', ip2Requested);
-      data.append('ip3', ip3Requested);
-      data.append('ip4', ip4Requested);
-      data.append('port', devicePortRequested);
+      data.append('ip1', address.ipAddress.ip1);
+      data.append('ip2', address.ipAddress.ip2);
+      data.append('ip3', address.ipAddress.ip3);
+      data.append('ip4', address.ipAddress.ip4);
+      data.append('port', address.port);
       var registersAsString = JSON.stringify(registers);
       data.append('registers', JSON.stringify(registers));
-      //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
       fetch(`setregisterconfig`, { method: "PUT", body: data })
         .then(response => response.json() as Promise<EffectContainer>)
         .then(data => {
@@ -300,15 +277,12 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_SET_REGISTER_CONFIG',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-        devicePort: devicePortRequested, registerConfigString: registersAsString
+        deviceAddress:address, registerConfigString: registersAsString
       });
     },
 
-  requestGetRegisterConfig: (
-    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
-    devicePortRequested: string, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`getregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`)
+  requestGetRegisterConfig: (address: DeviceAddress, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    fetch(`getregisterconfig/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}`)
         .then(response => response.json() as Promise<RegisterConfig>)
         .then(data => {
           dispatch({
@@ -318,15 +292,12 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-        devicePort: devicePortRequested
+        deviceAddress: address
       });
     },
 
-  requestDownloadS3Demo: (devicename: string, projectname: string,
-    ip1Requested: string, ip2Requested: string, ip3Requested: string, ip4Requested: string,
-    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`downloads3bucket/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}/${devicename}/${projectname}`)
+  requestDownloadS3Demo: (address:DeviceAddress,devicename: string, projectname: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${devicename}/${projectname}`)
       .then(response => response.json() as Promise<EffectContainer>)
       .then(data => {
         dispatch({
@@ -335,16 +306,23 @@ export const openSpeechDataActionCreators = {
       });
       dispatch({
         type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO',
-        ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested, devicePort: devicePortRequested,
+        deviceAddress:address,
         deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo:projectname
       });
-  }
+    },
+  setDeviceAddress: (address: DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
+      dispatch({
+        type: 'SET_DEVICE_ADDRESS',
+        address: address
+      });
+    },
 };
 
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
+  deviceAddress: { ipAddress: {ip1:'127',ip2:'0',ip3:'0',ip4:'1'},port:'3355' },
   availableDemos: [],
   isLoading: false,
   isDeviceDownloading: false
@@ -359,6 +337,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
   switch (action.type) {
     case 'REQUEST_OPENSPEECH_UI':
       return {
+        deviceAddress:state.deviceAddress,
         uiConfig: null,
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -366,6 +345,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_OPENSPEECH_UI':
       return {
+        deviceAddress: state.deviceAddress,
         availableDemos: state.availableDemos,
         uiConfig: action.uiConfig,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -373,6 +353,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_SEND_COMMAND':
       return {
+        deviceAddress: state.deviceAddress,
         currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         uiConfig: state.uiConfig,
@@ -383,6 +364,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
       return {
+        deviceAddress: state.deviceAddress,
         currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
@@ -392,6 +374,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_OPENSPEECH_DEMOS':  
       return {
+        deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
@@ -400,6 +383,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_OPENSPEECH_DEMOS':
       return {
+        deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: action.availableDemos,
         uiConfig: state.uiConfig,
@@ -408,6 +392,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
       return {
+        deviceAddress: state.deviceAddress,
         deviceFamily: action.deviceFamily,
         availableDemos: state.availableDemos,
         isDeviceDownloading: true,
@@ -417,6 +402,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
       return {
+        deviceAddress: state.deviceAddress,
         availableDemos: state.availableDemos,
         currentDemo: action.currentDemo,
         uiConfig: action.uiConfig,
@@ -425,6 +411,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_S3_DOWNLOAD_PROGRESS':
       return {
+        deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
@@ -433,6 +420,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       };
     case 'REQUEST_SET_REGISTER_CONFIG':
       return {
+        deviceAddress: state.deviceAddress,
         currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
@@ -443,6 +431,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
 
     case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
       return {
+        deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         uiConfig: state.uiConfig,
@@ -452,6 +441,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
 
     case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
       return {
+        deviceAddress: state.deviceAddress,
         currentRegisterConfig: action.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
@@ -462,6 +452,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
 
     case 'RECEIVE_S3_DOWNLOAD_PROGRESS':  
       return {
+        deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         downloadProgress: action.downloadProgress,
         availableDemos: state.availableDemos,
@@ -469,6 +460,14 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
+    case 'SET_DEVICE_ADDRESS':
+      return {
+        deviceAddress: action.address,
+        availableDemos: state.availableDemos,
+        uiConfig: state.uiConfig,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: false
+      }
     default:
       return state as OpenSpeechToolsState;
 

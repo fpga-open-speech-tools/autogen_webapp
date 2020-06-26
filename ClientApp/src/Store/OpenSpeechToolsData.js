@@ -14,8 +14,8 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
     }; },
-    requestS3DownloadProgress: function (ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch) {
-        fetch("downloadprogress/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested)
+    requestS3DownloadProgress: function (address) { return function (dispatch) {
+        fetch("downloadprogress/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port)
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -24,12 +24,11 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
-            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-            devicePort: devicePortRequested
+            deviceAddress: address
         });
     }; },
-    requestOpenSpeechUI: function (ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
-        fetch("uiconfig/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested)
+    requestOpenSpeechUI: function (address) { return function (dispatch, getState) {
+        fetch("uiconfig/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port)
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -38,12 +37,11 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_OPENSPEECH_UI',
-            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-            devicePort: devicePortRequested
+            deviceAddress: address
         });
     }; },
-    requestSendCommand: function (link, value, module, ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
-        fetch("command/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested + "/" + link + "/" + value + "/" + module)
+    requestSendCommand: function (link, value, module, address, devicePortRequested) { return function (dispatch, getState) {
+        fetch("command/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + link + "/" + value + "/" + module)
             .then(function () {
             dispatch({
                 type: 'RECEIVE_SEND_COMMAND_RESPONSE'
@@ -51,20 +49,18 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_SEND_COMMAND',
-            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-            devicePort: devicePortRequested, command: { link: link, value: value, module: module }
+            deviceAddress: address, command: { link: link, value: value, module: module }
         });
     }; },
-    requestSendRegisterConfig: function (registers, ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
+    requestSendRegisterConfig: function (registers, address) { return function (dispatch, getState) {
         var data = new FormData();
-        data.append('ip1', ip1Requested);
-        data.append('ip2', ip2Requested);
-        data.append('ip3', ip3Requested);
-        data.append('ip4', ip4Requested);
-        data.append('port', devicePortRequested);
+        data.append('ip1', address.ipAddress.ip1);
+        data.append('ip2', address.ipAddress.ip2);
+        data.append('ip3', address.ipAddress.ip3);
+        data.append('ip4', address.ipAddress.ip4);
+        data.append('port', address.port);
         var registersAsString = JSON.stringify(registers);
         data.append('registers', JSON.stringify(registers));
-        //fetch(`setregisterconfig/${ip1Requested}/${ip2Requested}/${ip3Requested}/${ip4Requested}/${devicePortRequested}`, { method: "POST", body: data })
         fetch("setregisterconfig", { method: "PUT", body: data })
             .then(function (response) { return response.json(); })
             .then(function (data) {
@@ -74,12 +70,11 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_SET_REGISTER_CONFIG',
-            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-            devicePort: devicePortRequested, registerConfigString: registersAsString
+            deviceAddress: address, registerConfigString: registersAsString
         });
     }; },
-    requestGetRegisterConfig: function (ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested, callback) { return function (dispatch, getState) {
-        fetch("getregisterconfig/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested)
+    requestGetRegisterConfig: function (address, callback) { return function (dispatch, getState) {
+        fetch("getregisterconfig/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port)
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -89,12 +84,11 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
-            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested,
-            devicePort: devicePortRequested
+            deviceAddress: address
         });
     }; },
-    requestDownloadS3Demo: function (devicename, projectname, ip1Requested, ip2Requested, ip3Requested, ip4Requested, devicePortRequested) { return function (dispatch, getState) {
-        fetch("downloads3bucket/" + ip1Requested + "/" + ip2Requested + "/" + ip3Requested + "/" + ip4Requested + "/" + devicePortRequested + "/" + devicename + "/" + projectname)
+    requestDownloadS3Demo: function (address, devicename, projectname) { return function (dispatch, getState) {
+        fetch("downloads3bucket/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + devicename + "/" + projectname)
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -103,14 +97,21 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO',
-            ip1: ip1Requested, ip2: ip2Requested, ip3: ip3Requested, ip4: ip4Requested, devicePort: devicePortRequested,
+            deviceAddress: address,
             deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo: projectname
         });
-    }; }
+    }; },
+    setDeviceAddress: function (address) { return function (dispatch, getState) {
+        dispatch({
+            type: 'SET_DEVICE_ADDRESS',
+            address: address
+        });
+    }; },
 };
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 var unloadedState = {
+    deviceAddress: { ipAddress: { ip1: '127', ip2: '0', ip3: '0', ip4: '1' }, port: '3355' },
     availableDemos: [],
     isLoading: false,
     isDeviceDownloading: false
@@ -123,6 +124,7 @@ exports.reducer = function (state, incomingAction) {
     switch (action.type) {
         case 'REQUEST_OPENSPEECH_UI':
             return {
+                deviceAddress: state.deviceAddress,
                 uiConfig: null,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: state.isDeviceDownloading,
@@ -130,6 +132,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'RECEIVE_OPENSPEECH_UI':
             return {
+                deviceAddress: state.deviceAddress,
                 availableDemos: state.availableDemos,
                 uiConfig: action.uiConfig,
                 isDeviceDownloading: state.isDeviceDownloading,
@@ -137,6 +140,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_SEND_COMMAND':
             return {
+                deviceAddress: state.deviceAddress,
                 currentRegisterConfig: state.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 uiConfig: state.uiConfig,
@@ -147,6 +151,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'RECEIVE_SEND_COMMAND_RESPONSE':
             return {
+                deviceAddress: state.deviceAddress,
                 currentRegisterConfig: state.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
@@ -156,6 +161,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_OPENSPEECH_DEMOS':
             return {
+                deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
                 uiConfig: state.uiConfig,
@@ -164,6 +170,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'RECEIVE_OPENSPEECH_DEMOS':
             return {
+                deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: action.availableDemos,
                 uiConfig: state.uiConfig,
@@ -172,6 +179,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
             return {
+                deviceAddress: state.deviceAddress,
                 deviceFamily: action.deviceFamily,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: true,
@@ -181,6 +189,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
             return {
+                deviceAddress: state.deviceAddress,
                 availableDemos: state.availableDemos,
                 currentDemo: action.currentDemo,
                 uiConfig: action.uiConfig,
@@ -189,6 +198,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_S3_DOWNLOAD_PROGRESS':
             return {
+                deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
                 uiConfig: state.uiConfig,
@@ -197,6 +207,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_SET_REGISTER_CONFIG':
             return {
+                deviceAddress: state.deviceAddress,
                 currentRegisterConfig: state.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
@@ -206,6 +217,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
             return {
+                deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
                 uiConfig: state.uiConfig,
@@ -214,6 +226,7 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
             return {
+                deviceAddress: state.deviceAddress,
                 currentRegisterConfig: action.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
@@ -223,8 +236,17 @@ exports.reducer = function (state, incomingAction) {
             };
         case 'RECEIVE_S3_DOWNLOAD_PROGRESS':
             return {
+                deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 downloadProgress: action.downloadProgress,
+                availableDemos: state.availableDemos,
+                uiConfig: state.uiConfig,
+                isDeviceDownloading: state.isDeviceDownloading,
+                isLoading: false
+            };
+        case 'SET_DEVICE_ADDRESS':
+            return {
+                deviceAddress: action.address,
                 availableDemos: state.availableDemos,
                 uiConfig: state.uiConfig,
                 isDeviceDownloading: state.isDeviceDownloading,

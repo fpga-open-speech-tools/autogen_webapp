@@ -2,16 +2,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
-import { ApplicationState } from '..';
+import * as OpenSpeechDataStore from '../../Store/OpenSpeechToolsData';
+import { ApplicationState } from '../..';
 import {
   Container, Row, Col, InputGroup,
   FormControl, Button, Spinner,
   Card, Jumbotron, Modal
 } from "react-bootstrap";
-import { OpenSpeechDemoCard } from "../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
-import { EffectPageDiv } from "../Components/Autogen/Containers/EffectPageDiv.jsx";
-import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
+import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
+import { EffectPageDiv } from "../../Components/Autogen/Containers/EffectPageDiv.jsx";
+import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 
 
 // At runtime, Redux will merge together...
@@ -20,58 +20,61 @@ type OpenSpeechProps =
   & typeof OpenSpeechDataStore.openSpeechDataActionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
-interface IState {
-  ipFragment1: string,
-  ipFragment2: string,
-  ipFragment3: string,
-  ipFragment4: string,
-  port: string,
-
-  lastDownloadProgressRequestTime: number,
-  lastDownloadProgress: number,
-
-  projectID: string,
-
-  notificationText: string,
-  notificationLevel:string
+export interface AutoGenState {
+  downloadStatus: DownloadStatus,
+  uiConfig: UIConfig,
+  notification: Notification
 }
 
 
-class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
+interface DownloadStatus {
+  lastDownloadProgressRequestTime: number,
+  lastDownloadProgress: number,
+}
+
+interface UIConfig {
+  name: string,
+  projectID: string,
+}
+
+interface Notification {
+  text: string,
+  level: string
+}
+
+export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenState>{
 
   constructor(props: OpenSpeechProps) {
     super(props);
 
     this.state = {
-      ipFragment1: '127',
-      ipFragment2: '0',
-      ipFragment3: '0',
-      ipFragment4: '1',
-      port: '3355',
+      downloadStatus: {
+        lastDownloadProgressRequestTime: 0,
+        lastDownloadProgress: 0,
+      },
 
-      lastDownloadProgressRequestTime: 0,
-      lastDownloadProgress: 0,
+      notification: {
+        text: "",
+        level: ""
+      },
 
-      projectID: "Example",
+      uiConfig: {
+        name: "",
+        projectID: "Example",
+      }
 
-      notificationText: "",
-      notificationLevel: ""
     };
 
-    this.handleIP1Change = this.handleIP1Change.bind(this);
-    this.handleIP2Change = this.handleIP2Change.bind(this);
-    this.handleIP3Change = this.handleIP3Change.bind(this);
-    this.handleIP4Change = this.handleIP4Change.bind(this);
-    this.handlePortChange = this.handlePortChange.bind(this);
-    this.handlelastDownloadProgressRequestTimeChange = this.handlelastDownloadProgressRequestTimeChange.bind(this);
+    this.handleDeviceAddressChange = this.handleDeviceAddressChange.bind(this);
 
     this.handleRequestUI = this.handleRequestUI.bind(this);
     this.handleInputCommand = this.handleInputCommand.bind(this);
+
+    this.handlelastDownloadProgressRequestTimeChange = this.handlelastDownloadProgressRequestTimeChange.bind(this);
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
     this.handleRequestDownloadProgress = this.handleRequestDownloadProgress.bind(this);
 
-    this.setNotificationText = this.setNotificationText.bind(this);
-    this.setNotificationLevel = this.setNotificationLevel.bind(this);
+    this.setNotification = this.setNotification.bind(this);
   }
 
 
@@ -80,9 +83,12 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     this.handleRequestUI();
 
     if (this.props.downloadProgress) {
-      if (this.state.lastDownloadProgress !== this.props.downloadProgress.progress) {
+      if (this.state.downloadStatus.lastDownloadProgress !== this.props.downloadProgress.progress) {
         this.setState({
-          lastDownloadProgress: this.props.downloadProgress.progress
+          downloadStatus: {
+            lastDownloadProgress: this.props.downloadProgress.progress,
+            lastDownloadProgressRequestTime: this.state.downloadStatus.lastDownloadProgressRequestTime
+          }
         });
         this.forceUpdate();
       }
@@ -91,17 +97,32 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
   componentDidUpdate() {
 
     if (this.props.uiConfig) {
-      if (this.props.uiConfig.name === 'Demo Upload Failed') {
-        this.setNotificationLevel('error');
-        this.setNotificationText('Demo Upload Failed');
+      if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfig.name) {
+        this.setNotification('error', 'Demo Upload Failed');
+        this.setState({
+          uiConfig: {
+            name: this.props.uiConfig.name,
+            projectID: this.state.uiConfig.projectID
+          }
+        });
       }
-      else if (this.props.uiConfig.name === "ERROR") {
-        this.setNotificationLevel('error');
-        this.setNotificationText('Control Generation Failed');
+      else if (this.props.uiConfig.name === "ERROR" && this.props.uiConfig.name != this.state.uiConfig.name) {
+        this.setNotification('error', 'Control Generation Failed')
+        this.setState({
+          uiConfig: {
+            name: this.props.uiConfig.name,
+            projectID: this.state.uiConfig.projectID
+          }
+        });
       }
-      else {
-        this.setNotificationLevel('success');
-        this.setNotificationText('New Controls Generated: ' + this.props.uiConfig.name);
+      else if (this.props.uiConfig.name != this.state.uiConfig.name) {
+        this.setNotification('success', 'New Controls Generated');
+        this.setState({
+          uiConfig: {
+            name: this.props.uiConfig.name,
+            projectID: this.state.uiConfig.projectID
+          }
+        });
       }
     }
   }
@@ -114,82 +135,165 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
 
       //if the current datetime in milliseconds is greater the last request log plus the request rate,
       //Then set the new request datetime in milliseconds, and request the download progress.
-      if (currentDateInMS > (this.state.lastDownloadProgressRequestTime + requestRateInMS)) {
+      if (currentDateInMS > (this.state.downloadStatus.lastDownloadProgressRequestTime + requestRateInMS)) {
         this.handlelastDownloadProgressRequestTimeChange(currentDateInMS);
         this.handleRequestDownloadProgress();
       }
     }
   }
 
-  handleIP1Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment1: e.target.value });
+  handleChangeIP1(e: React.ChangeEvent<HTMLInputElement>){
+    this.handleDeviceAddressChange(e, 'ip1');
+  }
+  handleChangeIP2(e: React.ChangeEvent<HTMLInputElement>) {
+    this.handleDeviceAddressChange(e, 'ip2');
+  }
+  handleChangeIP3(e: React.ChangeEvent<HTMLInputElement>) {
+    this.handleDeviceAddressChange(e, 'ip3');
+  }
+  handleChangeIP4(e: React.ChangeEvent<HTMLInputElement>) {
+    this.handleDeviceAddressChange(e, 'ip4');
+  }
+  handleChangePort(e: React.ChangeEvent<HTMLInputElement>) {
+    this.handleDeviceAddressChange(e, 'port');
   }
 
-  handleIP2Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment2: e.target.value });
-  }
+  handleDeviceAddressChange(e: React.ChangeEvent<HTMLInputElement>,key:string) {
+    switch (key) {
+      case 'ip1': {
 
-  handleIP3Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment3: e.target.value });
-  }
-
-  handleIP4Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment4: e.target.value });
-  }
-
-  handlePortChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ port: e.target.value });
+        this.setState({
+          deviceAddress: {
+            ipFragment1: e.target.value,
+            ipFragment2: this.state.deviceAddress.ipFragment2,
+            ipFragment3: this.state.deviceAddress.ipFragment3,
+            ipFragment4: this.state.deviceAddress.ipFragment4,
+            port: this.state.deviceAddress.port
+          }
+        });
+        break;
+      }
+      case 'ip2': {
+        this.setState({
+          deviceAddress: {
+            ipFragment1: this.state.deviceAddress.ipFragment1,
+            ipFragment2: e.target.value,
+            ipFragment3: this.state.deviceAddress.ipFragment3,
+            ipFragment4: this.state.deviceAddress.ipFragment4,
+            port: this.state.deviceAddress.port
+          }
+        });
+        break;
+      }
+      case 'ip3': {
+        this.setState({
+          deviceAddress: {
+            ipFragment1: this.state.deviceAddress.ipFragment1,
+            ipFragment2: this.state.deviceAddress.ipFragment2,
+            ipFragment3: e.target.value,
+            ipFragment4: this.state.deviceAddress.ipFragment4,
+            port: this.state.deviceAddress.port
+          }
+        });
+        break;
+      }
+      case 'ip4': {
+        this.setState({
+          deviceAddress: {
+            ipFragment1: this.state.deviceAddress.ipFragment1,
+            ipFragment2: this.state.deviceAddress.ipFragment2,
+            ipFragment3: this.state.deviceAddress.ipFragment3,
+            ipFragment4: e.target.value,
+            port: this.state.deviceAddress.port
+          }
+        });
+        break;
+      }
+      case 'port': {
+        this.setState({
+          deviceAddress: {
+            ipFragment1: this.state.deviceAddress.ipFragment1,
+            ipFragment2: this.state.deviceAddress.ipFragment2,
+            ipFragment3: this.state.deviceAddress.ipFragment3,
+            ipFragment4: this.state.deviceAddress.ipFragment4,
+            port: e.target.value
+          }
+        });
+        break;
+      }
+      default:
+        break;
+    }
   }
 
   handlelastDownloadProgressRequestTimeChange(n: number) {
-    this.setState({ lastDownloadProgressRequestTime: n });
+    this.setState({
+      downloadStatus: {
+        lastDownloadProgress: n,
+        lastDownloadProgressRequestTime: this.state.downloadStatus.lastDownloadProgressRequestTime
+      }
+    });
   }
 
   handleRequestUI() {
     this.props.requestOpenSpeechUI(
-      this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-      this.state.port);
-  }
-
-  handleDownloadDemosJSON = () =>{
-    downloadObjectAsJson(this.props.availableDemos,"demos");
+      this.state.deviceAddress.ipFragment1,
+      this.state.deviceAddress.ipFragment2,
+      this.state.deviceAddress.ipFragment3,
+      this.state.deviceAddress.ipFragment4,
+      this.state.deviceAddress.port);
   }
 
   handleInputCommand(module: string, link: string, value: string) {
     if (!this.props.isLoading) {
-        this.props.requestSendCommand(link, value, module,
-        this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-        this.state.port)
+      this.props.requestSendCommand(link, value, module,
+        this.state.deviceAddress.ipFragment1,
+        this.state.deviceAddress.ipFragment2,
+        this.state.deviceAddress.ipFragment3,
+        this.state.deviceAddress.ipFragment4,
+        this.state.deviceAddress.port);
     }
   }
 
   handleDownloadDemo(device:string,project:string) {
     if (!this.props.isLoading) {
-      this.setState({ projectID: project });
+      this.setState({
+        uiConfig: {
+          projectID: project,
+          name: this.state.uiConfig.name
+        }
+      });
       this.props.requestDownloadS3Demo(device, project,
-        this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-        this.state.port)
+        this.state.deviceAddress.ipFragment1,
+        this.state.deviceAddress.ipFragment2,
+        this.state.deviceAddress.ipFragment3,
+        this.state.deviceAddress.ipFragment4,
+        this.state.deviceAddress.port);
     }
   }
 
   handleRequestDownloadProgress() {
     this.props.requestS3DownloadProgress(
-      this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-      this.state.port);
+      this.state.deviceAddress.ipFragment1,
+      this.state.deviceAddress.ipFragment2,
+      this.state.deviceAddress.ipFragment3,
+      this.state.deviceAddress.ipFragment4,
+      this.state.deviceAddress.port);
   }
 
 
-  setNotificationText(text:string) {
-    this.setState({notificationText:text});
-  }
-
-  setNotificationLevel(level:string) {
-    this.setState({notificationLevel:level});
+  setNotification(level: string, text: string) {
+    this.setState({
+      notification: {
+        level:level,
+        text:text
+      }
+    });
   }
 
   render() {
 
-    function getAutogen(board: Dashboard, props: OpenSpeechProps) {
+    function getAutogen(state: AutoGenStates, props: OpenSpeechProps) {
       if (props.uiConfig) {
         if (props.uiConfig.pages) {
           var effectName = props.uiConfig.name ? props.uiConfig.name : "";
@@ -203,7 +307,7 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                     <div className={page.name}>
                       <Jumbotron className="autogen-page-name">{page.name}</Jumbotron>
                       <EffectPageDiv
-                        callback={board.handleInputCommand}
+                        callback={state.handleInputCommand}
                         module={module}
                         page={page} />
                     </div>
@@ -223,35 +327,35 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     }
 
 
-    function animateDownloadStatus(state: IState, props:OpenSpeechProps, projectID: string) {
+      function animateDownloadStatus(state: AutoGenState, props:OpenSpeechProps, projectID: string) {
       if (props.isDeviceDownloading === true) {
-        if (state.projectID === projectID) {
+        if (state.uiConfig.projectID === projectID) {
           return (
             <Spinner animation="border" variant="light" className="open-speech-loading-anim"/>
             );
         }
         else {
           return (
-            <i className="fa fa-info large-icon open-speech-accent-font" />);
+            <i className="fas fa-info large-icon open-speech-accent-icon" />);
         }
       }
       if (props.uiConfig && props.currentDemo) {
         if (props.uiConfig.name === "Demo Upload Failed" && props.currentDemo === projectID) {
-          return (< i className="fa fa-times large-icon open-speech-accent-font" />);
+          return (< i className="fa fa-times open-speech-accent-font" />);
         }
         else {
-          return (<i className="fa fa-info large-icon open-speech-accent-font" />);
+          return (<i className="fas fa-info  open-speech-accent-icon" />);
         }
       }
       else {
-        return (<i className="fa fa-info large-icon open-speech-accent-font" />);
+        return (<i className="fas fa-info open-speech-accent-icon" />);
       }
     }
 
 
     //Would like to rewrite this to better consider properties of selection. 
     //Currently, takes into account ui return, selected projectID and object, as well as determines if downloading.
-    function highlightIfDownloaded(state: IState, props: OpenSpeechProps, projectID: string) {
+     function highlightIfDownloaded(state: AutoGenState, props: OpenSpeechProps, projectID: string) {
       if (!props.isDeviceDownloading) {
         if (props.currentDemo === projectID) {
           if (props.uiConfig) {
@@ -276,8 +380,8 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     return (
       <div className="content">
         <NotificationWrapper
-          pushText={this.state.notificationText}
-          level={this.state.notificationLevel}
+          pushText={this.state.notification.text}
+          level={this.state.notification.level}
         />
         <Container fluid>
           <Row>
@@ -292,29 +396,29 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                 </InputGroup.Prepend>
                 <FormControl
                   name="ip1"
-                  defaultValue={this.state.ipFragment1}
-                  onChange={this.handleIP1Change}
+                    defaultValue={this.state.deviceAddress.ipFragment1}
+                    onChange={this.handleChangeIP1}
                   aria-label="IP1"
                   aria-describedby="inputGroup-sizing-default"
                 />
                 <FormControl
-                  name="ip2"
-                  defaultValue={this.state.ipFragment2}
-                  onChange={this.handleIP2Change}
+                    name="ip2"
+                    defaultValue={this.state.deviceAddress.ipFragment2}
+                  onChange={this.handleChangeIP2}
                   aria-label="IP2"
                   aria-describedby="inputGroup-sizing-default"
                 />
                 <FormControl
                   name="ip3"
-                  defaultValue={this.state.ipFragment3}
-                  onChange={this.handleIP3Change}
+                  defaultValue={this.state.deviceAddress.ipFragment3}
+                  onChange={this.handleChangeIP3}
                   aria-label="IP3"
                   aria-describedby="inputGroup-sizing-default"
                 />
                 <FormControl
                   name="ip4"
-                  defaultValue={this.state.ipFragment4}
-                  onChange={this.handleIP4Change}
+                    defaultValue={this.state.deviceAddress.ipFragment4}
+                    onChange={this.handleChangeIP4}
                   aria-label="IP4"
                   aria-describedby="inputGroup-sizing-default"
                 />
@@ -327,8 +431,8 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
                 </InputGroup.Prepend>
                 <FormControl
                   name="port"
-                  defaultValue={this.state.port}
-                  onChange={this.handlePortChange}
+                    value={this.props.deviceAddress.port}
+                  onChange={this.handleChangePort}
                   aria-label="Port"
                   aria-describedby="inputGroup-sizing-default"
                 />
@@ -340,12 +444,6 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
           <Modal.Dialog>
               <Modal.Header>
                 <Modal.Title>Available Demos</Modal.Title>
-                <Button
-                  variant="primary"
-                  className="flex-right btn=simple btn-icon"
-                  onClick={this.handleDownloadDemosJSON}>
-                  <i className="fa fa-download large-icon" />
-                </Button>
               </Modal.Header>
               <Modal.Body>
                 <Row>
@@ -389,21 +487,9 @@ class Dashboard extends React.PureComponent<OpenSpeechProps, IState> {
     );
   }
   
-
-}
-
-
-function downloadObjectAsJson(exportObj:any, exportName: string) {
-  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj,null,4));
-  var downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", exportName + ".json");
-  document.body.appendChild(downloadAnchorNode); // required for firefox
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
 }
 
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
-  OpenSpeechDataStore.openSpeechDataActionCreators 
-)(Dashboard as any);     
+  OpenSpeechDataStore.openSpeechDataActionCreators
+)(AutoGenStates as any);    

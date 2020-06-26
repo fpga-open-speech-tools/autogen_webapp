@@ -55,7 +55,7 @@ interface IState {
 let connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 
 
-class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
+export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
 
   static counter = 0;
   fileUploaderInput: HTMLElement | null = null;
@@ -154,7 +154,8 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
     this.setState({ dragging: false });
 
     if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      this.setState({ file: event.dataTransfer.files[0] });
+      this.setState({ file: event.dataTransfer.files[0], newFile: true });
+      this.handleNewPatientConfigFile(event.dataTransfer.files[0]);
     }
   };
 
@@ -479,7 +480,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
 
   render() {
 
-    function getAutogen(board: Doctor, props: OpenSpeechProps) {
+    function getAutogen(board: DoctorView, props: OpenSpeechProps) {
       if (props.uiConfig) {
         if (props.uiConfig.pages) {
           var effectName = props.uiConfig.name ? props.uiConfig.name : "";
@@ -528,7 +529,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       }
     }
 
-    function feedbackUI(props: Doctor, state: IState) {
+    function feedbackUI(props: DoctorView, state: IState) {
       
       return (
         <Modal.Dialog className="">
@@ -615,7 +616,7 @@ class Doctor extends React.PureComponent<OpenSpeechProps, IState> {
       return sessionClassName;
     }
 
-    function getSessionButton(props: Doctor, state: IState) {
+    function getSessionButton(props: DoctorView, state: IState) {
       if (state.sessionStarted && state.connectedToServer) {
         return (
           <Button
@@ -729,4 +730,4 @@ function downloadObjectAsJson(exportObj:any, exportName: string) {
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
   OpenSpeechDataStore.openSpeechDataActionCreators 
-)(Doctor as any);     
+)(DoctorView as any);     

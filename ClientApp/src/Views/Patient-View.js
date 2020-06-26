@@ -20,9 +20,9 @@ var react_bootstrap_1 = require("react-bootstrap");
 var NotificationWrapper_jsx_1 = require("../Components/Notifications/NotificationWrapper.jsx");
 var signalR = require("@microsoft/signalr");
 var connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
-var Patient = /** @class */ (function (_super) {
-    __extends(Patient, _super);
-    function Patient(props) {
+var PatientView = /** @class */ (function (_super) {
+    __extends(PatientView, _super);
+    function PatientView(props) {
         var _this = _super.call(this, props) || this;
         _this.state = {
             messages: ["Message1", "Message2"],
@@ -52,12 +52,12 @@ var Patient = /** @class */ (function (_super) {
         _this.joinGroupByID = _this.joinGroupByID.bind(_this);
         return _this;
     }
-    Patient.prototype.componentDidMount = function () {
+    PatientView.prototype.componentDidMount = function () {
         this.startConnection();
     };
-    Patient.prototype.componentDidUpdate = function () {
+    PatientView.prototype.componentDidUpdate = function () {
     };
-    Patient.prototype.setFeedback = function (feedback, feedbackNotes) {
+    PatientView.prototype.setFeedback = function (feedback, feedbackNotes) {
         this.setState({
             userFeedback: feedback,
             notificationLevel: "success",
@@ -65,35 +65,35 @@ var Patient = /** @class */ (function (_super) {
         });
         this.sendFeedbackToServer(feedback, feedbackNotes);
     };
-    Patient.prototype.setFeedbackNotes = function (e) {
+    PatientView.prototype.setFeedbackNotes = function (e) {
         this.setState({
             userFeedbackNotes: e.target.value
         });
     };
-    Patient.prototype.setNotificationText = function (text) {
+    PatientView.prototype.setNotificationText = function (text) {
         this.setState({ notificationText: text });
     };
-    Patient.prototype.setNotificationLevel = function (level) {
+    PatientView.prototype.setNotificationLevel = function (level) {
         this.setState({ notificationLevel: level });
     };
-    Patient.prototype.handleOutboutMessageUpdate = function (e) {
+    PatientView.prototype.handleOutboutMessageUpdate = function (e) {
         this.setState({ outboundMessage: e.target.value });
     };
-    Patient.prototype.handleUserUpdate = function (e) {
+    PatientView.prototype.handleUserUpdate = function (e) {
         this.setState({ user: e.target.value });
     };
-    Patient.prototype.handleGroupUpdate = function () {
+    PatientView.prototype.handleGroupUpdate = function () {
         this.setState({ groupID: this.state.pinEntry });
     };
-    Patient.prototype.handlePinEntryUpdate = function (e) {
+    PatientView.prototype.handlePinEntryUpdate = function (e) {
         this.setState({ pinEntry: e.target.value });
     };
-    Patient.prototype.addMessageToMessageList = function (incomingMessage) {
+    PatientView.prototype.addMessageToMessageList = function (incomingMessage) {
         var newList = this.state.messages;
         newList.push(incomingMessage);
         this.setState({ messages: newList });
     };
-    Patient.prototype.startConnection = function () {
+    PatientView.prototype.startConnection = function () {
         var _this = this;
         connection.on("Connected", function (message) {
             var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -150,32 +150,32 @@ var Patient = /** @class */ (function (_super) {
             });
         });
     }; //End Start Connection
-    Patient.prototype.verifyConnection = function () {
+    PatientView.prototype.verifyConnection = function () {
         connection.invoke("AfterConnected").catch(function (err) {
             return console.error(err.toString());
         });
         return true;
     };
-    Patient.prototype.sendMessageToServer = function () {
+    PatientView.prototype.sendMessageToServer = function () {
         connection.invoke("SendMessage", this.state.user, this.state.outboundMessage).catch(function (err) {
             return console.error(err.toString());
         });
     };
-    Patient.prototype.sendFeedbackToServer = function (feedback, feedbackNotes) {
+    PatientView.prototype.sendFeedbackToServer = function (feedback, feedbackNotes) {
         connection.invoke("SendFeedback", this.state.user, feedback, feedbackNotes, this.state.groupID).catch(function (err) {
             //Add Handling for FeedbackSendFailure
             return console.error(err.toString());
         });
         this.setState({ feedbackRequested: false });
     };
-    Patient.prototype.joinGroupByID = function () {
+    PatientView.prototype.joinGroupByID = function () {
         this.handleGroupUpdate();
         connection.invoke("AddToGroup", this.state.pinEntry).catch(function (err) {
             //Add Handling for SessionJoinFailure
             return console.error(err.toString());
         });
     };
-    Patient.prototype.render = function () {
+    PatientView.prototype.render = function () {
         function feedbackUI(props, state) {
             var disabled = !state.feedbackRequested;
             return (React.createElement(react_bootstrap_1.Modal.Dialog, { className: "patient-feedback-modal" },
@@ -221,16 +221,7 @@ var Patient = /** @class */ (function (_super) {
                 React.createElement("script", { src: "~/js/signalr/dist/browser/signalr.js" }),
                 React.createElement("script", { src: "~/js/chat.js" }))));
     };
-    return Patient;
+    return PatientView;
 }(React.PureComponent));
-function downloadObjectAsJson(exportObj, exportName) {
-    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 4));
-    var downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", exportName + ".json");
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-}
-exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(Patient);
-//# sourceMappingURL=PatientClient.js.map
+exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(PatientView);
+//# sourceMappingURL=Patient-View.js.map

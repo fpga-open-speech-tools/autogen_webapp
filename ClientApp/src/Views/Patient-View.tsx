@@ -42,7 +42,7 @@ interface IState {
 let connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 
 
-class Patient extends React.PureComponent<OpenSpeechProps, IState> {
+class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
 
   constructor(props: OpenSpeechProps) {
     super(props); 
@@ -243,7 +243,7 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
 
   render() {
 
-    function feedbackUI(props: Patient, state: IState) {
+    function feedbackUI(props: PatientView, state: IState) {
 
       var disabled = !state.feedbackRequested;
 
@@ -347,18 +347,7 @@ class Patient extends React.PureComponent<OpenSpeechProps, IState> {
 
 }
 
-
-function downloadObjectAsJson(exportObj:any, exportName: string) {
-  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj,null,4));
-  var downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href", dataStr);
-  downloadAnchorNode.setAttribute("download", exportName + ".json");
-  document.body.appendChild(downloadAnchorNode); // required for firefox
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
-}
-
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
   OpenSpeechDataStore.openSpeechDataActionCreators 
-)(Patient as any);     
+)(PatientView as any);     
