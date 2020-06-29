@@ -12,6 +12,7 @@ import {
 import { EffectPageDiv } from "../Components/Autogen/Containers/EffectPageDiv.jsx";
 import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
 import { FileUploaderPresentationalComponent } from "../Components/FileManagement/FileUploaderPresentationalComponent";
+import { AutoGenControls } from './FunctionalElements/AutoGenControls';
 
 import * as signalR from "@microsoft/signalr";
 
@@ -22,11 +23,6 @@ type OpenSpeechProps =
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 interface IState {
-  ipFragment1: string,
-  ipFragment2: string,
-  ipFragment3: string,
-  ipFragment4: string,
-  port: string,
 
   uiConfigName: string,
 
@@ -63,12 +59,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
     super(props);
 
     this.state = {
-      ipFragment1: '192',
-      ipFragment2: '168',
-      ipFragment3: '0',
-      ipFragment4: '120',
-      port: '3355',
-
       uiConfigName: "",
 
       dragging: false,
@@ -91,16 +81,10 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
       notificationText: "",
       notificationLevel: ""
     };
-    this.handleIP1Change = this.handleIP1Change.bind(this);
-    this.handleIP2Change = this.handleIP2Change.bind(this);
-    this.handleIP3Change = this.handleIP3Change.bind(this);
-    this.handleIP4Change = this.handleIP4Change.bind(this);
-    this.handlePortChange = this.handlePortChange.bind(this);
+
 
     this.handleNotesChange = this.handleNotesChange.bind(this);
 
-    this.handleRequestUI = this.handleRequestUI.bind(this);
-    this.handleInputCommand = this.handleInputCommand.bind(this);
 
     this.setNotificationText = this.setNotificationText.bind(this);
     this.setNotificationLevel = this.setNotificationLevel.bind(this);
@@ -176,7 +160,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
   };
 
   componentDidMount() {
-    this.handleRequestUI();
     this.startSession();
     window.addEventListener("dragover", (event: Event) => {
       this.overrideEventDefaults(event);
@@ -212,27 +195,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
     window.removeEventListener("drop", this.overrideEventDefaults);
   }
 
-
-  handleIP1Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment1: e.target.value });
-  }
-
-  handleIP2Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment2: e.target.value });
-  }
-
-  handleIP3Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment3: e.target.value });
-  }
-
-  handleIP4Change(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ ipFragment4: e.target.value });
-  }
-
-  handlePortChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ port: e.target.value });
-  }
-
   handleNotesChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!this.state.newFile) {
       this.setState({ doctorNotes: e.target.value });
@@ -249,13 +211,11 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
 
   handleRequestGetRegisterConfig(callback: Function) {
 
-    this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-      this.state.port,callback);
+    this.props.requestGetRegisterConfig(this.props.deviceAddress,callback);
   }
 
   handleRequestSetRegisterConfig(registerConfig: OpenSpeechDataStore.RegisterConfig) {
-      this.props.requestSendRegisterConfig(registerConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-        this.state.port);
+      this.props.requestSendRegisterConfig(registerConfig, this.props.deviceAddress);
     
   }
 
@@ -301,11 +261,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
     }
   }
 
-  handleRequestUI() {
-    this.props.requestOpenSpeechUI(
-      this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-      this.state.port);
-  }
 
   handleDownloadDemosJSON = () => {
     this.handleRequestGetRegisterConfig(this.downloadPatientConfig);
@@ -333,13 +288,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
     downloadObjectAsJson(config, "patient_config");
   }
 
-  handleInputCommand(module: string, link: string, value: string) {
-    if (!this.props.isLoading) {
-        this.props.requestSendCommand(link, value, module,
-        this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4,
-        this.state.port)
-    }
-  }
 
   setNotificationText(text:string) {
     this.setState({notificationText:text});
@@ -479,46 +427,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
   } 
 
   render() {
-
-    function getAutogen(board: DoctorView, props: OpenSpeechProps) {
-      if (props.uiConfig) {
-        if (props.uiConfig.pages) {
-          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
-          effectName = (effectName === "ERROR") ? "" : effectName;
-          return (
-            <div className="autogen autogen-effectContainer">
-              <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
-              <Card>
-                {props.uiConfig.pages.map((page) =>
-                  <React.Fragment key={page.name}>
-                    <div className={page.name}>
-                      <Jumbotron className="autogen-page-name">{page.name}</Jumbotron>
-                      <EffectPageDiv
-                        callback={board.handleInputCommand}
-                        page={page} />
-                    </div>
-                  </React.Fragment>)
-                }
-              </Card>
-            </div>);
-        }
-        else if (props.uiConfig.name) {
-          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
-          effectName = (effectName === "ERROR") ? "" : effectName;
-          return (
-            <div className="autogen autogen-effectContainer autogen-error">
-            </div>);
-        }
-      }
-    }// End Get Autogen
-
-    function getUploadIcon() {
-      return (<Button
-        variant="primary"
-        className="float-right btn-simple btn-icon">
-        <i className="fa fa-upload large-icon" />
-      </Button>);
-    }
 
     function disableIfNotChosen(choice:number|null,itemNumber:number) {
       if (choice === itemNumber) {
@@ -672,13 +580,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
                   Controls
                 </Modal.Title>
                 <div className="flex-right">
-                <Button
-                  variant="primary"
-                  className="btn-simple btn-icon"
-                  onClick={this.handleRequestUI}
-                >
-                  <i className="fa fa-refresh large-icon" />
-                  </Button>
                   <Button
                     variant="primary"
                     className="float-right btn-simple btn-icon"
@@ -705,9 +606,11 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
                     />
                   </FileUploaderPresentationalComponent>
               </div></Modal.Header>
-            {getAutogen(this, this.props)}
             </Modal.Dialog>
           </Row>
+          <AutoGenControls
+            {...this.props}
+          />
           <script src="~/js/signalr/dist/browser/signalr.js"></script>
           <script src="~/js/chat.js"></script>
         </Container>

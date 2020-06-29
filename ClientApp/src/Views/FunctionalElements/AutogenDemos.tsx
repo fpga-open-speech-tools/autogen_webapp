@@ -41,7 +41,7 @@ interface Notification {
   level: string
 }
 
-export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenState>{
+export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenState>{
 
   constructor(props: OpenSpeechProps) {
     super(props);
@@ -65,9 +65,6 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
     };
 
 
-    this.handleRequestUI = this.handleRequestUI.bind(this);
-    this.handleInputCommand = this.handleInputCommand.bind(this);
-
     this.handlelastDownloadProgressRequestTimeChange = this.handlelastDownloadProgressRequestTimeChange.bind(this);
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
     this.handleRequestDownloadProgress = this.handleRequestDownloadProgress.bind(this);
@@ -78,7 +75,6 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
 
   componentDidMount() {
     this.props.requestOpenSpeechS3Demos();
-    this.handleRequestUI();
 
     if (this.props.downloadProgress) {
       if (this.state.downloadStatus.lastDownloadProgress !== this.props.downloadProgress.progress) {
@@ -140,89 +136,6 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
     }
   }
 
-  handleChangeIP1(e: React.ChangeEvent<HTMLInputElement>){
-    this.handleDeviceAddressChange(e, 'ip1');
-  }
-  handleChangeIP2(e: React.ChangeEvent<HTMLInputElement>) {
-    this.handleDeviceAddressChange(e, 'ip2');
-  }
-  handleChangeIP3(e: React.ChangeEvent<HTMLInputElement>) {
-    this.handleDeviceAddressChange(e, 'ip3');
-  }
-  handleChangeIP4(e: React.ChangeEvent<HTMLInputElement>) {
-    this.handleDeviceAddressChange(e, 'ip4');
-  }
-  handleChangePort(e: React.ChangeEvent<HTMLInputElement>) {
-    this.handleDeviceAddressChange(e, 'port');
-  }
-
-  handleDeviceAddressChange(e: React.ChangeEvent<HTMLInputElement>,key:string) {
-    switch (key) {
-      case 'ip1': {
-        this.setState({
-          deviceAddress: {
-            ipFragment1: e.target.value,
-            ipFragment2: this.state.deviceAddress.ipFragment2,
-            ipFragment3: this.state.deviceAddress.ipFragment3,
-            ipFragment4: this.state.deviceAddress.ipFragment4,
-            port: this.state.deviceAddress.port
-          }
-        });
-        break;
-      }
-      case 'ip2': {
-        this.setState({
-          deviceAddress: {
-            ipFragment1: this.state.deviceAddress.ipFragment1,
-            ipFragment2: e.target.value,
-            ipFragment3: this.state.deviceAddress.ipFragment3,
-            ipFragment4: this.state.deviceAddress.ipFragment4,
-            port: this.state.deviceAddress.port
-          }
-        });
-        break;
-      }
-      case 'ip3': {
-        this.setState({
-          deviceAddress: {
-            ipFragment1: this.state.deviceAddress.ipFragment1,
-            ipFragment2: this.state.deviceAddress.ipFragment2,
-            ipFragment3: e.target.value,
-            ipFragment4: this.state.deviceAddress.ipFragment4,
-            port: this.state.deviceAddress.port
-          }
-        });
-        break;
-      }
-      case 'ip4': {
-        this.setState({
-          deviceAddress: {
-            ipFragment1: this.state.deviceAddress.ipFragment1,
-            ipFragment2: this.state.deviceAddress.ipFragment2,
-            ipFragment3: this.state.deviceAddress.ipFragment3,
-            ipFragment4: e.target.value,
-            port: this.state.deviceAddress.port
-          }
-        });
-        break;
-      }
-      case 'port': {
-        this.setState({
-          deviceAddress: {
-            ipFragment1: this.state.deviceAddress.ipFragment1,
-            ipFragment2: this.state.deviceAddress.ipFragment2,
-            ipFragment3: this.state.deviceAddress.ipFragment3,
-            ipFragment4: this.state.deviceAddress.ipFragment4,
-            port: e.target.value
-          }
-        });
-        break;
-      }
-      default:
-        break;
-    }
-  }
-
   handlelastDownloadProgressRequestTimeChange(n: number) {
     this.setState({
       downloadStatus: {
@@ -232,25 +145,8 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
     });
   }
 
-  handleRequestUI() {
-    this.props.requestOpenSpeechUI(
-      this.state.deviceAddress.ipFragment1,
-      this.state.deviceAddress.ipFragment2,
-      this.state.deviceAddress.ipFragment3,
-      this.state.deviceAddress.ipFragment4,
-      this.state.deviceAddress.port);
-  }
 
-  handleInputCommand(module: string, link: string, value: string) {
-    if (!this.props.isLoading) {
-      this.props.requestSendCommand(link, value, module,
-        this.state.deviceAddress.ipFragment1,
-        this.state.deviceAddress.ipFragment2,
-        this.state.deviceAddress.ipFragment3,
-        this.state.deviceAddress.ipFragment4,
-        this.state.deviceAddress.port);
-    }
-  }
+
 
   handleDownloadDemo(device:string,project:string) {
     if (!this.props.isLoading) {
@@ -260,22 +156,13 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
           name: this.state.uiConfig.name
         }
       });
-      this.props.requestDownloadS3Demo(device, project,
-        this.state.deviceAddress.ipFragment1,
-        this.state.deviceAddress.ipFragment2,
-        this.state.deviceAddress.ipFragment3,
-        this.state.deviceAddress.ipFragment4,
-        this.state.deviceAddress.port);
+      this.props.requestDownloadS3Demo(this.props.deviceAddress,device, project);
     }
   }
 
   handleRequestDownloadProgress() {
     this.props.requestS3DownloadProgress(
-      this.state.deviceAddress.ipFragment1,
-      this.state.deviceAddress.ipFragment2,
-      this.state.deviceAddress.ipFragment3,
-      this.state.deviceAddress.ipFragment4,
-      this.state.deviceAddress.port);
+      this.props.deviceAddress);
   }
 
 
@@ -289,40 +176,6 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
   }
 
   render() {
-
-    function getAutogen(state: AutoGenStates, props: OpenSpeechProps) {
-      if (props.uiConfig) {
-        if (props.uiConfig.pages) {
-          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
-          effectName = (effectName === "ERROR") ? "" : effectName;
-          return (
-            <div className="autogen autogen-effectContainer">
-              <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
-              <Card>
-                {props.uiConfig.pages.map((page) =>
-                  <React.Fragment key={page.name}>
-                    <div className={page.name}>
-                      <Jumbotron className="autogen-page-name">{page.name}</Jumbotron>
-                      <EffectPageDiv
-                        callback={state.handleInputCommand}
-                        module={module}
-                        page={page} />
-                    </div>
-                  </React.Fragment>)
-                }
-              </Card>
-            </div>);
-        }
-        else if (props.uiConfig.name) {
-          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
-          effectName = (effectName === "ERROR") ? "" : effectName;
-          return (
-            <div className="autogen autogen-effectContainer autogen-error">
-            </div>);
-        }
-      }
-    }
-
 
       function animateDownloadStatus(state: AutoGenState, props:OpenSpeechProps, projectID: string) {
       if (props.isDeviceDownloading === true) {
@@ -374,6 +227,8 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
       }//[End] Device IS downloading
     }//[end]highlightIfDownloaded
 
+
+
     return (
       <div className="content">
         <NotificationWrapper
@@ -381,62 +236,6 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
           level={this.state.notification.level}
         />
         <Container fluid>
-          <Row>
-            <Modal.Dialog>
-              <Modal.Header>
-                <Modal.Title>Connection</Modal.Title>
-              </Modal.Header>
-              <Col lg={12} md={12} sm={12}>
-              <InputGroup className="mb-2">
-                <InputGroup.Prepend>
-                <InputGroup.Text id="inputGroup-sizing-default">IP</InputGroup.Text>
-                </InputGroup.Prepend>
-                <FormControl
-                  name="ip1"
-                    defaultValue={this.state.deviceAddress.ipFragment1}
-                    onChange={this.handleChangeIP1}
-                  aria-label="IP1"
-                  aria-describedby="inputGroup-sizing-default"
-                />
-                <FormControl
-                    name="ip2"
-                    defaultValue={this.state.deviceAddress.ipFragment2}
-                  onChange={this.handleChangeIP2}
-                  aria-label="IP2"
-                  aria-describedby="inputGroup-sizing-default"
-                />
-                <FormControl
-                  name="ip3"
-                  defaultValue={this.state.deviceAddress.ipFragment3}
-                  onChange={this.handleChangeIP3}
-                  aria-label="IP3"
-                  aria-describedby="inputGroup-sizing-default"
-                />
-                <FormControl
-                  name="ip4"
-                    defaultValue={this.state.deviceAddress.ipFragment4}
-                    onChange={this.handleChangeIP4}
-                  aria-label="IP4"
-                  aria-describedby="inputGroup-sizing-default"
-                />
-              </InputGroup>
-              </Col>
-              <Col lg={12} md={12} sm={12}>
-              <InputGroup className="mb-3">
-                <InputGroup.Prepend>
-                  <InputGroup.Text id="inputGroup-sizing-default">Port</InputGroup.Text>
-                </InputGroup.Prepend>
-                <FormControl
-                  name="port"
-                  defaultValue={this.state.deviceAddress.port}
-                  onChange={this.handleChangePort}
-                  aria-label="Port"
-                  aria-describedby="inputGroup-sizing-default"
-                />
-              </InputGroup>
-              </Col>
-              </Modal.Dialog>
-          </Row>
           <Row>
           <Modal.Dialog>
               <Modal.Header>
@@ -463,22 +262,6 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
                 </Modal.Body>
             </Modal.Dialog>
           </Row>
-          <Row>
-            <Modal.Dialog>
-              <Modal.Header><Modal.Title className="float-left">Controls</Modal.Title>
-                <div className="float-right">
-                <Button
-                  variant="primary"
-                  className="btn-simple btn-icon"
-                  onClick={this.handleRequestUI}
-                >
-                  <i className="fa fa-refresh large-icon" />
-                </Button>
-              </div></Modal.Header>
-
-            {getAutogen(this, this.props)}
-            </Modal.Dialog>
-            </Row>
         </Container>
       </div>
     );
@@ -489,4 +272,4 @@ export class AutoGenStates extends React.PureComponent<OpenSpeechProps,AutoGenSt
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
   OpenSpeechDataStore.openSpeechDataActionCreators
-)(AutoGenStates as any);    
+)(AvailableDemos as any);    

@@ -4,7 +4,10 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
 import { ApplicationState } from '..';
-import { AutoGenStates } from './FunctionalElements/Auto-Gen-Elements';
+
+import { AutoGenControls } from './FunctionalElements/AutoGenControls';
+import { AvailableDemos } from './FunctionalElements/AutoGenDemos';
+import { AddressManager} from './FunctionalElements/AutoGenDeviceAddress';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -29,10 +32,15 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   render() {
     return (
       <div>
-        <AutoGenStates
-        {...this.props}
+        <AddressManager
+          {...this.props}
+          />
+        <AvailableDemos
+          {...this.props}
         />
-
+        <AutoGenControls
+          {...this.props}
+        />
       </div>
       );
   }

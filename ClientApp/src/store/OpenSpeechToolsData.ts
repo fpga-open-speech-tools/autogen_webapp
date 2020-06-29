@@ -244,8 +244,7 @@ export const openSpeechDataActionCreators = {
 
   requestSendCommand: (
     link: string, value: string, module: string,
-    address:DeviceAddress,
-    devicePortRequested: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
       fetch(`command/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${link}/${value}/${module}`)
         .then(() => {
           dispatch({

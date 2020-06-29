@@ -40,7 +40,7 @@ exports.openSpeechDataActionCreators = {
             deviceAddress: address
         });
     }; },
-    requestSendCommand: function (link, value, module, address, devicePortRequested) { return function (dispatch, getState) {
+    requestSendCommand: function (link, value, module, address) { return function (dispatch, getState) {
         fetch("command/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + link + "/" + value + "/" + module)
             .then(function () {
             dispatch({

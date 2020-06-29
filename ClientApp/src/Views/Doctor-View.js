@@ -12,14 +12,25 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
-var EffectPageDiv_jsx_1 = require("../Components/Autogen/Containers/EffectPageDiv.jsx");
 var NotificationWrapper_jsx_1 = require("../Components/Notifications/NotificationWrapper.jsx");
 var FileUploaderPresentationalComponent_1 = require("../Components/FileManagement/FileUploaderPresentationalComponent");
+var AutoGenControls_1 = require("./FunctionalElements/AutoGenControls");
 var signalR = require("@microsoft/signalr");
 var connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 var DoctorView = /** @class */ (function (_super) {
@@ -74,11 +85,6 @@ var DoctorView = /** @class */ (function (_super) {
             _this.handleRequestGetRegisterConfig(_this.downloadPatientConfig);
         };
         _this.state = {
-            ipFragment1: '192',
-            ipFragment2: '168',
-            ipFragment3: '0',
-            ipFragment4: '120',
-            port: '3355',
             uiConfigName: "",
             dragging: false,
             file: null,
@@ -97,14 +103,7 @@ var DoctorView = /** @class */ (function (_super) {
             notificationText: "",
             notificationLevel: ""
         };
-        _this.handleIP1Change = _this.handleIP1Change.bind(_this);
-        _this.handleIP2Change = _this.handleIP2Change.bind(_this);
-        _this.handleIP3Change = _this.handleIP3Change.bind(_this);
-        _this.handleIP4Change = _this.handleIP4Change.bind(_this);
-        _this.handlePortChange = _this.handlePortChange.bind(_this);
         _this.handleNotesChange = _this.handleNotesChange.bind(_this);
-        _this.handleRequestUI = _this.handleRequestUI.bind(_this);
-        _this.handleInputCommand = _this.handleInputCommand.bind(_this);
         _this.setNotificationText = _this.setNotificationText.bind(_this);
         _this.setNotificationLevel = _this.setNotificationLevel.bind(_this);
         _this.startSession = _this.startSession.bind(_this);
@@ -124,7 +123,6 @@ var DoctorView = /** @class */ (function (_super) {
     } //End Constructor 
     DoctorView.prototype.componentDidMount = function () {
         var _this = this;
-        this.handleRequestUI();
         this.startSession();
         window.addEventListener("dragover", function (event) {
             _this.overrideEventDefaults(event);
@@ -156,21 +154,6 @@ var DoctorView = /** @class */ (function (_super) {
         window.removeEventListener("dragover", this.overrideEventDefaults);
         window.removeEventListener("drop", this.overrideEventDefaults);
     };
-    DoctorView.prototype.handleIP1Change = function (e) {
-        this.setState({ ipFragment1: e.target.value });
-    };
-    DoctorView.prototype.handleIP2Change = function (e) {
-        this.setState({ ipFragment2: e.target.value });
-    };
-    DoctorView.prototype.handleIP3Change = function (e) {
-        this.setState({ ipFragment3: e.target.value });
-    };
-    DoctorView.prototype.handleIP4Change = function (e) {
-        this.setState({ ipFragment4: e.target.value });
-    };
-    DoctorView.prototype.handlePortChange = function (e) {
-        this.setState({ port: e.target.value });
-    };
     DoctorView.prototype.handleNotesChange = function (e) {
         if (!this.state.newFile) {
             this.setState({ doctorNotes: e.target.value });
@@ -183,10 +166,10 @@ var DoctorView = /** @class */ (function (_super) {
         this.setState({ patientLastName: e.target.value });
     };
     DoctorView.prototype.handleRequestGetRegisterConfig = function (callback) {
-        this.props.requestGetRegisterConfig(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port, callback);
+        this.props.requestGetRegisterConfig(this.props.deviceAddress, callback);
     };
     DoctorView.prototype.handleRequestSetRegisterConfig = function (registerConfig) {
-        this.props.requestSendRegisterConfig(registerConfig, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
+        this.props.requestSendRegisterConfig(registerConfig, this.props.deviceAddress);
     };
     DoctorView.prototype.handleNewPatientConfigFile = function (configFile) {
         var _this = this;
@@ -218,9 +201,6 @@ var DoctorView = /** @class */ (function (_super) {
             });
         }
     };
-    DoctorView.prototype.handleRequestUI = function () {
-        this.props.requestOpenSpeechUI(this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
-    };
     DoctorView.prototype.downloadPatientConfig = function () {
         var config = {
             patientFeedback: this.state.patientFeedback,
@@ -231,11 +211,6 @@ var DoctorView = /** @class */ (function (_super) {
             registerConfiguration: this.props.currentRegisterConfig,
         };
         downloadObjectAsJson(config, "patient_config");
-    };
-    DoctorView.prototype.handleInputCommand = function (module, link, value) {
-        if (!this.props.isLoading) {
-            this.props.requestSendCommand(link, value, module, this.state.ipFragment1, this.state.ipFragment2, this.state.ipFragment3, this.state.ipFragment4, this.state.port);
-        }
     };
     DoctorView.prototype.setNotificationText = function (text) {
         this.setState({ notificationText: text });
@@ -359,31 +334,6 @@ var DoctorView = /** @class */ (function (_super) {
     };
     DoctorView.prototype.render = function () {
         var _this = this;
-        function getAutogen(board, props) {
-            if (props.uiConfig) {
-                if (props.uiConfig.pages) {
-                    var effectName = props.uiConfig.name ? props.uiConfig.name : "";
-                    effectName = (effectName === "ERROR") ? "" : effectName;
-                    return (React.createElement("div", { className: "autogen autogen-effectContainer" },
-                        React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
-                        React.createElement(react_bootstrap_1.Card, null, props.uiConfig.pages.map(function (page) {
-                            return React.createElement(React.Fragment, { key: page.name },
-                                React.createElement("div", { className: page.name },
-                                    React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-page-name" }, page.name),
-                                    React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: board.handleInputCommand, page: page })));
-                        }))));
-                }
-                else if (props.uiConfig.name) {
-                    var effectName = props.uiConfig.name ? props.uiConfig.name : "";
-                    effectName = (effectName === "ERROR") ? "" : effectName;
-                    return (React.createElement("div", { className: "autogen autogen-effectContainer autogen-error" }));
-                }
-            }
-        } // End Get Autogen
-        function getUploadIcon() {
-            return (React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "float-right btn-simple btn-icon" },
-                React.createElement("i", { className: "fa fa-upload large-icon" })));
-        }
         function disableIfNotChosen(choice, itemNumber) {
             if (choice === itemNumber) {
                 return false;
@@ -458,13 +408,11 @@ var DoctorView = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Modal.Header, null,
                             React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" }, "Controls"),
                             React.createElement("div", { className: "flex-right" },
-                                React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
-                                    React.createElement("i", { className: "fa fa-refresh large-icon" })),
                                 React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "float-right btn-simple btn-icon", onClick: this.handleDownloadDemosJSON },
                                     React.createElement("i", { className: "fa fa-save large-icon" })),
                                 React.createElement(FileUploaderPresentationalComponent_1.FileUploaderPresentationalComponent, { dragging: this.state.dragging, file: this.state.file, onSelectFileClick: this.onSelectFileClick, onDrag: this.overrideEventDefaults, onDragStart: this.overrideEventDefaults, onDragEnd: this.overrideEventDefaults, onDragOver: this.overrideEventDefaults, onDragEnter: this.dragenterListener, onDragLeave: this.dragleaveListener, onDrop: this.dropListener },
-                                    React.createElement("input", { ref: function (el) { return (_this.fileUploaderInput = el); }, type: "file", className: "file-uploader-hidden file-uploader__input", onChange: this.onFileChanged })))),
-                        getAutogen(this, this.props))),
+                                    React.createElement("input", { ref: function (el) { return (_this.fileUploaderInput = el); }, type: "file", className: "file-uploader-hidden file-uploader__input", onChange: this.onFileChanged })))))),
+                React.createElement(AutoGenControls_1.AutoGenControls, __assign({}, this.props)),
                 React.createElement("script", { src: "~/js/signalr/dist/browser/signalr.js" }),
                 React.createElement("script", { src: "~/js/chat.js" }))));
     }; //End Render

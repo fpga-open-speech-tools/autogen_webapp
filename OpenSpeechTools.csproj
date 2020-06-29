@@ -33,7 +33,9 @@
     <None Remove="ClientApp\src\Components\FileManagement\FIleUploaderPresentationalComponent.tsx" />
     <None Remove="ClientApp\src\Views\Auto-Gen-View.tsx" />
     <None Remove="ClientApp\src\Views\Doctor-View.tsx" />
-    <None Remove="ClientApp\src\Views\FunctionalElements\Auto-Gen-Elements.tsx" />
+    <None Remove="ClientApp\src\Views\FunctionalElements\AutoGenControls.tsx" />
+    <None Remove="ClientApp\src\Views\FunctionalElements\AutogenDemos.tsx" />
+    <None Remove="ClientApp\src\Views\FunctionalElements\AutoGenDeviceAddress.tsx" />
     <None Remove="ClientApp\src\Views\Patient-View.tsx" />
   </ItemGroup>
 
@@ -44,7 +46,9 @@
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\Components\FileManagement\FileUploaderPresentationalComponent.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Doctor-View.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\Auto-Gen-Elements.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\AutoGenDeviceAddress.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\AutoGenDemos.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\AutoGenControls.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Patient-View.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Auto-Gen-View.tsx" />
   </ItemGroup>
