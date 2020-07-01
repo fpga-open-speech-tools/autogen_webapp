@@ -333,7 +333,6 @@ var DoctorView = /** @class */ (function (_super) {
     DoctorView.prototype.doNothing = function () {
     };
     DoctorView.prototype.render = function () {
-        var _this = this;
         function disableIfNotChosen(choice, itemNumber) {
             if (choice === itemNumber) {
                 return false;
@@ -346,8 +345,13 @@ var DoctorView = /** @class */ (function (_super) {
             return (React.createElement(react_bootstrap_1.Modal.Dialog, { className: "" },
                 React.createElement(react_bootstrap_1.Modal.Header, null,
                     React.createElement(react_bootstrap_1.Modal.Title, null, "Patient Feedback"),
-                    React.createElement(react_bootstrap_1.Button, { onClick: props.sendFeedbackRequestToServer, className: "btn-simple btn-icon" },
-                        React.createElement("i", { className: "fa fa-pencil-square-o large-icon" }))),
+                    React.createElement("div", { className: "flex-right" },
+                        React.createElement(react_bootstrap_1.Button, { onClick: props.sendFeedbackRequestToServer, className: "btn-simple btn-icon" },
+                            React.createElement("i", { className: "fa fa-pencil-square-o large-icon" })),
+                        React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "float-right btn-simple btn-icon", onClick: props.handleDownloadDemosJSON },
+                            React.createElement("i", { className: "fa fa-save large-icon" })),
+                        React.createElement(FileUploaderPresentationalComponent_1.FileUploaderPresentationalComponent, { dragging: props.state.dragging, file: props.state.file, onSelectFileClick: props.onSelectFileClick, onDrag: props.overrideEventDefaults, onDragStart: props.overrideEventDefaults, onDragEnd: props.overrideEventDefaults, onDragOver: props.overrideEventDefaults, onDragEnter: props.dragenterListener, onDragLeave: props.dragleaveListener, onDrop: props.dropListener },
+                            React.createElement("input", { ref: function (el) { return (props.fileUploaderInput = el); }, type: "file", className: "file-uploader-hidden file-uploader__input", onChange: props.onFileChanged })))),
                 React.createElement(react_bootstrap_1.Form, { className: "display-em" },
                     React.createElement(react_bootstrap_1.FormControl, { className: "patient-first-name", placeholder: "First name", value: state.patientFirstName, onChange: props.handlePatientFirstNameChange }),
                     React.createElement(react_bootstrap_1.FormControl, { className: "patient-last-name", placeholder: "Last name", value: state.patientLastName, onChange: props.handlePatientLastNameChange })),
@@ -403,15 +407,6 @@ var DoctorView = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Row, null,
                             React.createElement("h4", { className: "centered-header" }, this.state.groupID)))),
                 React.createElement(react_bootstrap_1.Row, null, feedbackUI(this, this.state)),
-                React.createElement(react_bootstrap_1.Row, null,
-                    React.createElement(react_bootstrap_1.Modal.Dialog, { id: "controls" },
-                        React.createElement(react_bootstrap_1.Modal.Header, null,
-                            React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" }, "Controls"),
-                            React.createElement("div", { className: "flex-right" },
-                                React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "float-right btn-simple btn-icon", onClick: this.handleDownloadDemosJSON },
-                                    React.createElement("i", { className: "fa fa-save large-icon" })),
-                                React.createElement(FileUploaderPresentationalComponent_1.FileUploaderPresentationalComponent, { dragging: this.state.dragging, file: this.state.file, onSelectFileClick: this.onSelectFileClick, onDrag: this.overrideEventDefaults, onDragStart: this.overrideEventDefaults, onDragEnd: this.overrideEventDefaults, onDragOver: this.overrideEventDefaults, onDragEnter: this.dragenterListener, onDragLeave: this.dragleaveListener, onDrop: this.dropListener },
-                                    React.createElement("input", { ref: function (el) { return (_this.fileUploaderInput = el); }, type: "file", className: "file-uploader-hidden file-uploader__input", onChange: this.onFileChanged })))))),
                 React.createElement(AutoGenControls_1.AutoGenControls, __assign({}, this.props)),
                 React.createElement("script", { src: "~/js/signalr/dist/browser/signalr.js" }),
                 React.createElement("script", { src: "~/js/chat.js" }))));

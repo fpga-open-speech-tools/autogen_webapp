@@ -37,7 +37,6 @@ interface IState {
   user: string,
   message: string,
 
-
   patientFirstName: string,
   patientLastName: string,
   patientFeedback: number,
@@ -443,12 +442,39 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
         <Modal.Dialog className="">
           <Modal.Header>
             <Modal.Title>Patient Feedback</Modal.Title>
-            <Button
-              onClick={props.sendFeedbackRequestToServer}
-              className="btn-simple btn-icon"
-            >
-              <i className="fa fa-pencil-square-o large-icon" />
-            </Button></Modal.Header>
+            <div className="flex-right">
+              <Button
+                onClick={props.sendFeedbackRequestToServer}
+                className="btn-simple btn-icon"
+              >
+                <i className="fa fa-pencil-square-o large-icon" />
+              </Button>
+              <Button
+                variant="primary"
+                className="float-right btn-simple btn-icon"
+                onClick={props.handleDownloadDemosJSON}>
+                <i className="fa fa-save large-icon" />
+              </Button>
+              <FileUploaderPresentationalComponent
+                dragging={props.state.dragging}
+                file={props.state.file}
+                onSelectFileClick={props.onSelectFileClick}
+                onDrag={props.overrideEventDefaults}
+                onDragStart={props.overrideEventDefaults}
+                onDragEnd={props.overrideEventDefaults}
+                onDragOver={props.overrideEventDefaults}
+                onDragEnter={props.dragenterListener}
+                onDragLeave={props.dragleaveListener}
+                onDrop={props.dropListener}
+              >
+                <input
+                  ref={el => (props.fileUploaderInput = el)}
+                  type="file"
+                  className="file-uploader-hidden file-uploader__input"
+                  onChange={props.onFileChanged}
+                />
+              </FileUploaderPresentationalComponent>
+            </div></Modal.Header>
           <Form className = "display-em">
             <FormControl
               className="patient-first-name"
@@ -573,41 +599,6 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
             </Modal.Dialog>
           </Row>
           <Row>{feedbackUI(this,this.state)}</Row>
-          <Row>
-            <Modal.Dialog id="controls">
-              <Modal.Header>
-                <Modal.Title className="float-left">
-                  Controls
-                </Modal.Title>
-                <div className="flex-right">
-                  <Button
-                    variant="primary"
-                    className="float-right btn-simple btn-icon"
-                    onClick={this.handleDownloadDemosJSON}>
-                    <i className="fa fa-save large-icon" />
-                  </Button>
-                  <FileUploaderPresentationalComponent
-                    dragging={this.state.dragging}
-                    file={this.state.file}
-                    onSelectFileClick={this.onSelectFileClick}
-                    onDrag={this.overrideEventDefaults}
-                    onDragStart={this.overrideEventDefaults}
-                    onDragEnd={this.overrideEventDefaults}
-                    onDragOver={this.overrideEventDefaults}
-                    onDragEnter={this.dragenterListener}
-                    onDragLeave={this.dragleaveListener}
-                    onDrop={this.dropListener}
-                  >
-                    <input
-                      ref={el => (this.fileUploaderInput = el)}
-                      type="file"
-                      className="file-uploader-hidden file-uploader__input"
-                      onChange={this.onFileChanged}
-                    />
-                  </FileUploaderPresentationalComponent>
-              </div></Modal.Header>
-            </Modal.Dialog>
-          </Row>
           <AutoGenControls
             {...this.props}
           />

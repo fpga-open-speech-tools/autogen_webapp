@@ -22,30 +22,16 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   constructor(props: OpenSpeechProps){
     super(props);
   }
-  componentDidMount() {
-    
-  }
-  componentDidUpdate() {
-
-  }
 
   render() {
     return (
       <div>
-        <AddressManager
-          {...this.props}
-          />
-        <AvailableDemos
-          {...this.props}
-        />
-        <AutoGenControls
-          {...this.props}
-        />
+        <AddressManager {...this.props} />
+        <AvailableDemos {...this.props} />
+        <AutoGenControls  {...this.props} />
       </div>
       );
   }
-  
-  
 
 }
 

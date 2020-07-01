@@ -321,7 +321,7 @@ export const openSpeechDataActionCreators = {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
-  deviceAddress: { ipAddress: {ip1:'127',ip2:'0',ip3:'0',ip4:'1'},port:'3355' },
+  deviceAddress: { ipAddress: {ip1:'192',ip2:'168',ip3:'0',ip4:'120'},port:'3355' },
   availableDemos: [],
   isLoading: false,
   isDeviceDownloading: false
