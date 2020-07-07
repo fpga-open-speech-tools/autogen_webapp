@@ -7,7 +7,8 @@ import { ApplicationState } from '..';
 
 import { AutoGenControls } from './FunctionalElements/AutoGenControls';
 import { AvailableDemos } from './FunctionalElements/AutoGenDemos';
-import { AddressManager} from './FunctionalElements/AutoGenDeviceAddress';
+import { AddressManager } from './FunctionalElements/AutoGenDeviceAddress';
+import { BeamformingWrapper } from '../Components/Autogen/Inputs/BeamformingWrapper';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -26,6 +27,7 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   render() {
     return (
       <div>
+        <BeamformingWrapper />
         <AddressManager {...this.props} />
         <AvailableDemos {...this.props} />
         <AutoGenControls  {...this.props} />
@@ -34,7 +36,6 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   }
 
 }
-
 
 export default connect(
   (state: ApplicationState) => state.openSpeechData,

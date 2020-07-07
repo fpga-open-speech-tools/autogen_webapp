@@ -30,6 +30,7 @@ var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
 var AutoGenControls_1 = require("./FunctionalElements/AutoGenControls");
 var AutoGenDemos_1 = require("./FunctionalElements/AutoGenDemos");
 var AutoGenDeviceAddress_1 = require("./FunctionalElements/AutoGenDeviceAddress");
+var BeamformingWrapper_1 = require("../Components/Autogen/Inputs/BeamformingWrapper");
 var AutogenView = /** @class */ (function (_super) {
     __extends(AutogenView, _super);
     function AutogenView(props) {
@@ -37,6 +38,7 @@ var AutogenView = /** @class */ (function (_super) {
     }
     AutogenView.prototype.render = function () {
         return (React.createElement("div", null,
+            React.createElement(BeamformingWrapper_1.BeamformingWrapper, null),
             React.createElement(AutoGenDeviceAddress_1.AddressManager, __assign({}, this.props)),
             React.createElement(AutoGenDemos_1.AvailableDemos, __assign({}, this.props)),
             React.createElement(AutoGenControls_1.AutoGenControls, __assign({}, this.props))));

@@ -339,3 +339,29 @@ h1 {
 .session-active {
   border: 1px solid lawngreen;
 }
+
+.smol-item{
+  width:30px;
+  height:30px;
+  font-size: 3rem;
+  padding-top:0px;
+  margin-top:0px;
+}
+
+.array {
+  display: table;
+  width: 30px;
+  height: 30px;
+  line-height: 0rem;
+  border-style: inset;
+  border: blue;
+  border-width: 1px;
+  box-shadow: 1px 1px 3px #b4aeae;
+  border-color: #ccc9c9;
+}
+
+.mic {
+  //display:grid;
+  display: inline flow-root;
+  width: 10px;
+}
