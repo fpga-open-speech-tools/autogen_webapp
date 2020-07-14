@@ -30,7 +30,19 @@ namespace OpenSpeechTools.Hubs
     {
       await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
       await Clients.Client(Context.ConnectionId).SendAsync("AddedToGroup", "You have joined the session: " + groupName);
-      await Clients.Group(groupName).SendAsync("GroupMessage", $"{Context.ConnectionId} has joined the group {groupName}.");
+      await Clients.Group(groupName).SendAsync("GroupMessage", $"{Context.ConnectionId} has joined the session {groupName}.");
+    }
+
+    public async Task RequestToJoinGroup(string groupName)
+    {
+      await Clients.Group(groupName).SendAsync("RequestToJoin", $"{Context.ConnectionId}");
+    }
+
+    public async Task AcceptRequestToJoinGroup(string groupName, string userId)
+    {
+      await Groups.AddToGroupAsync(userId, groupName);
+      await Clients.Client(userId).SendAsync("AddedToGroup", "You have joined the session: " + groupName);
+      await Clients.Client(Context.ConnectionId).SendAsync("GroupMessage","Patient has joined the session");
     }
 
     public async Task RemoveFromGroup(string groupName)
@@ -87,7 +99,6 @@ namespace OpenSpeechTools.Hubs
         }
       }
     }
-
 
   }
   public class Group

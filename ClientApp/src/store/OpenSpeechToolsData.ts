@@ -24,7 +24,7 @@ export interface OpenSpeechToolsState {
   //Device Controls info
   deviceAddress: DeviceAddress;
 
-  command?: Command;
+  command?: Register;
 }
 
 export interface DeviceAddress {
@@ -41,23 +41,12 @@ export interface RegisterConfig {
   registers: Register[];
 }
 
-export interface Register {
-  module: string;
-  link: string;
-  value: string;
-}
-
 export interface S3DownloadProgress {
   name: string;
   progress: number;
   status: string;
 }
 
-export interface Command {
-  link: string;
-  value: string;
-  module: string;
-}
 
 export interface Demo {
   name: string;
@@ -90,16 +79,27 @@ export interface Panel {
 }
 
 export interface Control {
-  module:       string;
-  style:        string;
-  linkerName:   string;
-  min:          number;
-  max:          number;
-  title:        string;
-  dataType:     string;
-  defaultValue: number;
-  units:        string;
-  type:         string;
+  displayName: string,
+  controlType: string,
+  configuration: RegisterConfiguration[],
+}
+
+export interface RegisterConfiguration {
+  registers: Register,
+  configuration: ControlConfiguration
+}
+
+export interface Register {
+  name: string;
+  device: string;
+  value: number | string;
+}
+
+export interface ControlConfiguration {
+  min:    number | undefined | null,
+  max:    number | undefined | null,
+  step:   number | undefined | null,
+  units:  string | undefined | null,
 }
 
 
@@ -179,7 +179,7 @@ interface ReceiveGetRegisterConfigResponse {
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   deviceAddress: DeviceAddress;
-  command: Command;
+  command: Register;
 }
 
 interface ReceiveSendCommandResponse {
@@ -243,9 +243,9 @@ export const openSpeechDataActionCreators = {
     },
 
   requestSendCommand: (
-    link: string, value: string, module: string,
+    device: string, value: string, name: string,
     address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`command/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${link}/${value}/${module}`)
+      fetch(`command/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${device}/${value}/${name}`)
         .then(() => {
           dispatch({
             type: 'RECEIVE_SEND_COMMAND_RESPONSE'
@@ -253,7 +253,7 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_SEND_COMMAND',
-        deviceAddress:address, command: { link: link, value: value, module: module }
+        deviceAddress:address, command: { device: device, value: value, name: name }
       });
     },
 

@@ -71,6 +71,7 @@ namespace OpenSpeechTools
                   name: "default",
                   pattern: "{controller}/{action=Index}/{id?}");
         endpoints.MapHub<DoctorPatient>("/doctor-patient");
+        endpoints.MapHub<Controls>("/controls");
       });
 
       app.UseSpa(spa =>

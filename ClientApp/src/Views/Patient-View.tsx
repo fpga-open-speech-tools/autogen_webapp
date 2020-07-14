@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
 import * as signalR from "@microsoft/signalr";
+import PinInput from "react-pin-input";
 
 
 // At runtime, Redux will merge together...
@@ -53,8 +54,8 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
 
       outboundMessage: "message",
       user: "user", 
-      groupID: "",
-      pinEntry: "",
+      groupID: "-----",
+      pinEntry: "-----",
       sessionIsActive: false,
 
       userFeedback: null,
@@ -83,6 +84,7 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
     this.handleGroupUpdate = this.handleGroupUpdate.bind(this);
 
     this.joinGroupByID = this.joinGroupByID.bind(this);
+    this.leaveGroupByID = this.leaveGroupByID.bind(this);
   }
 
 
@@ -129,8 +131,8 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
     this.setState({ groupID: this.state.pinEntry});
   }
 
-  handlePinEntryUpdate(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ pinEntry: e.target.value });
+  handlePinEntryUpdate(value: string) {
+    this.setState({ pinEntry: value });
   }
 
   addMessageToMessageList(incomingMessage: string) {
@@ -147,6 +149,14 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
         connectedToServer:true,
         notificationLevel:"success",
         notificationText: msg
+      });
+    });
+
+    connection.on("Disconnected", () => {
+      this.setState({
+        connectedToServer: false,
+        notificationLevel: "error",
+        notificationText: "Disconnected."
       });
     });
 
@@ -192,11 +202,19 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
 
     connection.on("GroupMessage", (message) => {
       var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      var encodedMsg = msg;
+      if (msg === "Session Ended") {
+        this.setState({
+          userFeedback: null,
+          userFeedbackNotes: "",
+          feedbackRequested: false
+        })
+        window.location.reload(false);
+      }
       this.setState({
         notificationLevel: "info",
         notificationText: msg
       })
+
     });
 
     connection.on("GroupEnded", (message) => {
@@ -232,7 +250,14 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
 
   joinGroupByID() {
     this.handleGroupUpdate();
-    connection.invoke("AddToGroup", this.state.pinEntry).catch(function (err) {
+    connection.invoke("RequestToJoinGroup", this.state.pinEntry).catch(function (err) {
+      //Add Handling for SessionJoinFailure
+      return console.error(err.toString());
+    });
+  }
+
+  leaveGroupByID() {
+    connection.invoke("RemoveFromGroup", this.state.pinEntry).catch(function (err) {
       //Add Handling for SessionJoinFailure
       return console.error(err.toString());
     });
@@ -257,7 +282,7 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
                 onClick={() => props.setFeedback(1,state.userFeedbackNotes)}
                 className="btn-simple btn-icon btn-success"
               >
-                <i className="fa fa-smile-o large-icon"/>
+                <i className="fa fa-smile-o large-icon patient-feedback-lg"/>
               </Button>
               <Button
                 variant="light"
@@ -265,7 +290,7 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
                 onClick={() => props.setFeedback(0, state.userFeedbackNotes)}
                 className="btn-simple btn-icon btn-warning"
               >
-                <i className="far fa-meh large-icon" />
+                <i className="far fa-meh large-icon patient-feedback-lg" />
               </Button>
               <Button
                 variant="light"
@@ -273,19 +298,20 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
                 className="btn-simple btn-icon btn-danger"
                 onClick={() => props.setFeedback(-1, state.userFeedbackNotes)}
               >
-                <i className="far fa-frown large-icon" />
+                <i className="far fa-frown large-icon patient-feedback-lg" />
               </Button>
             </div>
             <div>
               <InputGroup>
                 <InputGroup.Prepend>
-                  <InputGroup.Text>Notes</InputGroup.Text>
+                  <InputGroup.Text className="patient-notes">Notes</InputGroup.Text>
                 </InputGroup.Prepend>
                 <FormControl
                   name="Note-Entry"
                   defaultValue={state.userFeedbackNotes}
                   onChange={props.setFeedbackNotes}
                   as="textarea"
+                  className="patient-notes"
                   aria-label="With textarea" />
               </InputGroup>
             </div>
@@ -305,34 +331,62 @@ class PatientView extends React.PureComponent<OpenSpeechProps, IState> {
       return sessionClassName;
     }
 
+    function getJoinSessionButton(props: PatientView, state: IState) {
+      if (state.connectedToServer && !state.sessionIsActive) {
+        return (
+          <Button
+            onClick={props.joinGroupByID}
+            className="btn-simple btn-icon float-right patient-button"
+          >
+            <i className="fa fa-sign-in icon-large" />
+          </Button>
+      );
+      }
+      else if (state.connectedToServer && state.sessionIsActive) {
+        return (
+          <Button
+            onClick={props.leaveGroupByID}
+            className="btn-simple btn-icon float-right patient-button"
+          >
+            <i className="fa fa-sign-out icon-large" />
+          </Button>
+        );
+      }
+      else {
+        return (
+          <Button
+            className="flex-right btn-simple btn-icon"
+          >
+            <Spinner animation="border" variant="primary" />
+          </Button>
+        );
+      }
+    }
+
     return (
       <div className="content">
         <NotificationWrapper
           pushText={this.state.notificationText}
           level={this.state.notificationLevel}
+          position="bc"
         />
         <Container fluid>
           <div>
             <Modal.Dialog className="patient-session">
-              <Modal.Header className={isSessionActive(this.state)}><Modal.Title>Session</Modal.Title></Modal.Header>
-                <InputGroup className="mb-3">
-                  <InputGroup.Prepend>
-                    <InputGroup.Text id="inputGroup-sizing-default">Pin</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <FormControl
-                    name="PinEntry"
-                    defaultValue={this.state.groupID}
-                    onChange={this.handlePinEntryUpdate}
-                    aria-label="Pin"
-                    aria-describedby="inputGroup-sizing-default"
-                  />
-                  <Button
-                  onClick={this.joinGroupByID}
-                  className="btn-simple btn-icon"
-                >
-                  <i className="fa fa-sign-in icon-large" />
-                  </Button>
-                </InputGroup>
+              <Modal.Header className={isSessionActive(this.state)}>
+                <Modal.Title>Session</Modal.Title>
+                {getJoinSessionButton(this,this.state)}
+              </Modal.Header>
+              <PinInput
+                length={4}
+                initialValue={this.state.groupID}
+                onChange={(value, index) => { this.handlePinEntryUpdate(value) }}
+                type="numeric"
+                style={{ padding: '10px' }}
+                inputStyle={{ borderColor: 'gray' }}
+                inputFocusStyle={{ borderColor: 'blue' }}
+                onComplete={(value, index) => { }}
+              />
             </Modal.Dialog>
             {feedbackUI(this,this.state)}
 

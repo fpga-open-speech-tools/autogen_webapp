@@ -13,7 +13,8 @@ class NotificationWrapper extends Component {
       level: 'success',
       width: 0,
       height: 0,
-      pushText:""
+      pushText: "",
+      position: "tr"
     };
     this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
   }
@@ -36,6 +37,9 @@ class NotificationWrapper extends Component {
   }
 
   componentDidUpdate() {
+    if (this.props.position && this.props.position != this.state.position) {
+      this.setState({position: this.props.position})
+    }
 
     if (this.props.pushText != this.state.pushText) {
       this.setState({ pushText: this.props.pushText });
@@ -51,7 +55,7 @@ class NotificationWrapper extends Component {
           </div>
         ),
         level: level,
-        position: "tr",
+        position: this.state.position,
         autoDismiss: 4
       });
     }

@@ -40,8 +40,8 @@ exports.openSpeechDataActionCreators = {
             deviceAddress: address
         });
     }; },
-    requestSendCommand: function (link, value, module, address) { return function (dispatch, getState) {
-        fetch("command/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + link + "/" + value + "/" + module)
+    requestSendCommand: function (device, value, name, address) { return function (dispatch, getState) {
+        fetch("command/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + device + "/" + value + "/" + name)
             .then(function () {
             dispatch({
                 type: 'RECEIVE_SEND_COMMAND_RESPONSE'
@@ -49,7 +49,7 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_SEND_COMMAND',
-            deviceAddress: address, command: { link: link, value: value, module: module }
+            deviceAddress: address, command: { device: device, value: value, name: name }
         });
     }; },
     requestSendRegisterConfig: function (registers, address) { return function (dispatch, getState) {

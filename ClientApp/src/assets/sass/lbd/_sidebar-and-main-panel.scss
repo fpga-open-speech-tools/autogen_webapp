@@ -346,6 +346,7 @@ h1 {
   font-size: 3rem;
   padding-top:0px;
   margin-top:0px;
+  line-height:0px;
 }
 
 .array {
@@ -364,4 +365,22 @@ h1 {
   //display:grid;
   display: inline flow-root;
   width: 10px;
+}
+
+.pincode-input-container{
+  display:inline-block;
+  text-align:center;
+}
+
+.pincode-input-text{
+  font-size:2rem;
+}
+
+.patient-notes{
+  font-size: 1.5rem;
+}
+
+
+.autogen-pages{
+  //flex-direction:row !important;
 }

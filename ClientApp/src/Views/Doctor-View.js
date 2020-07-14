@@ -253,6 +253,11 @@ var DoctorView = /** @class */ (function (_super) {
                 notificationText: message
             });
         });
+        connection.on("RequestToJoin", function (message) {
+            connection.invoke("AcceptRequestToJoinGroup", _this.state.groupID, message).catch(function (err) {
+                return console.error(err.toString());
+            });
+        });
         connection.on("LeftGroup", function (message) {
             _this.setState({
                 sessionStarted: false,
@@ -305,6 +310,7 @@ var DoctorView = /** @class */ (function (_super) {
             .then(function (val) {
         }).then(function (res) { return _this.verifyConnection(); })
             .catch(function (err) {
+            setTimeout(function () { return connection.start(); }, 5000);
             return console.error(err.toString());
         });
     }; //End Start Connection to SignalR Client hub

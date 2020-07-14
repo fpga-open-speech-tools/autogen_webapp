@@ -166,7 +166,7 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
           return (
             <div className="autogen autogen-effectContainer">
               <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
-              <Card>
+              <Card className="autogen-pages">
                 {props.uiConfig.pages.map((page) =>
                   <React.Fragment key={page.name}>
                     <div className={page.name}>

@@ -19,6 +19,7 @@ var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var NotificationWrapper_jsx_1 = require("../Components/Notifications/NotificationWrapper.jsx");
 var signalR = require("@microsoft/signalr");
+var react_pin_input_1 = require("react-pin-input");
 var connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 var PatientView = /** @class */ (function (_super) {
     __extends(PatientView, _super);
@@ -29,8 +30,8 @@ var PatientView = /** @class */ (function (_super) {
             testString: "test",
             outboundMessage: "message",
             user: "user",
-            groupID: "",
-            pinEntry: "",
+            groupID: "-----",
+            pinEntry: "-----",
             sessionIsActive: false,
             userFeedback: null,
             userFeedbackNotes: "",
@@ -50,6 +51,7 @@ var PatientView = /** @class */ (function (_super) {
         _this.handlePinEntryUpdate = _this.handlePinEntryUpdate.bind(_this);
         _this.handleGroupUpdate = _this.handleGroupUpdate.bind(_this);
         _this.joinGroupByID = _this.joinGroupByID.bind(_this);
+        _this.leaveGroupByID = _this.leaveGroupByID.bind(_this);
         return _this;
     }
     PatientView.prototype.componentDidMount = function () {
@@ -85,8 +87,8 @@ var PatientView = /** @class */ (function (_super) {
     PatientView.prototype.handleGroupUpdate = function () {
         this.setState({ groupID: this.state.pinEntry });
     };
-    PatientView.prototype.handlePinEntryUpdate = function (e) {
-        this.setState({ pinEntry: e.target.value });
+    PatientView.prototype.handlePinEntryUpdate = function (value) {
+        this.setState({ pinEntry: value });
     };
     PatientView.prototype.addMessageToMessageList = function (incomingMessage) {
         var newList = this.state.messages;
@@ -101,6 +103,13 @@ var PatientView = /** @class */ (function (_super) {
                 connectedToServer: true,
                 notificationLevel: "success",
                 notificationText: msg
+            });
+        });
+        connection.on("Disconnected", function () {
+            _this.setState({
+                connectedToServer: false,
+                notificationLevel: "error",
+                notificationText: "Disconnected."
             });
         });
         connection.on("ReceiveMessage", function (user, message) {
@@ -136,7 +145,14 @@ var PatientView = /** @class */ (function (_super) {
         });
         connection.on("GroupMessage", function (message) {
             var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            var encodedMsg = msg;
+            if (msg === "Session Ended") {
+                _this.setState({
+                    userFeedback: null,
+                    userFeedbackNotes: "",
+                    feedbackRequested: false
+                });
+                window.location.reload(false);
+            }
             _this.setState({
                 notificationLevel: "info",
                 notificationText: msg
@@ -170,12 +186,19 @@ var PatientView = /** @class */ (function (_super) {
     };
     PatientView.prototype.joinGroupByID = function () {
         this.handleGroupUpdate();
-        connection.invoke("AddToGroup", this.state.pinEntry).catch(function (err) {
+        connection.invoke("RequestToJoinGroup", this.state.pinEntry).catch(function (err) {
+            //Add Handling for SessionJoinFailure
+            return console.error(err.toString());
+        });
+    };
+    PatientView.prototype.leaveGroupByID = function () {
+        connection.invoke("RemoveFromGroup", this.state.pinEntry).catch(function (err) {
             //Add Handling for SessionJoinFailure
             return console.error(err.toString());
         });
     };
     PatientView.prototype.render = function () {
+        var _this = this;
         function feedbackUI(props, state) {
             var disabled = !state.feedbackRequested;
             return (React.createElement(react_bootstrap_1.Modal.Dialog, { className: "patient-feedback-modal" },
@@ -183,16 +206,16 @@ var PatientView = /** @class */ (function (_super) {
                     React.createElement(react_bootstrap_1.Modal.Title, null, "Feedback")),
                 React.createElement("div", { className: "patient-feedback-interface" },
                     React.createElement(react_bootstrap_1.Button, { variant: "light", disabled: disabled, onClick: function () { return props.setFeedback(1, state.userFeedbackNotes); }, className: "btn-simple btn-icon btn-success" },
-                        React.createElement("i", { className: "fa fa-smile-o large-icon" })),
+                        React.createElement("i", { className: "fa fa-smile-o large-icon patient-feedback-lg" })),
                     React.createElement(react_bootstrap_1.Button, { variant: "light", disabled: disabled, onClick: function () { return props.setFeedback(0, state.userFeedbackNotes); }, className: "btn-simple btn-icon btn-warning" },
-                        React.createElement("i", { className: "far fa-meh large-icon" })),
+                        React.createElement("i", { className: "far fa-meh large-icon patient-feedback-lg" })),
                     React.createElement(react_bootstrap_1.Button, { variant: "light", disabled: disabled, className: "btn-simple btn-icon btn-danger", onClick: function () { return props.setFeedback(-1, state.userFeedbackNotes); } },
-                        React.createElement("i", { className: "far fa-frown large-icon" }))),
+                        React.createElement("i", { className: "far fa-frown large-icon patient-feedback-lg" }))),
                 React.createElement("div", null,
                     React.createElement(react_bootstrap_1.InputGroup, null,
                         React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
-                            React.createElement(react_bootstrap_1.InputGroup.Text, null, "Notes")),
-                        React.createElement(react_bootstrap_1.FormControl, { name: "Note-Entry", defaultValue: state.userFeedbackNotes, onChange: props.setFeedbackNotes, as: "textarea", "aria-label": "With textarea" })))));
+                            React.createElement(react_bootstrap_1.InputGroup.Text, { className: "patient-notes" }, "Notes")),
+                        React.createElement(react_bootstrap_1.FormControl, { name: "Note-Entry", defaultValue: state.userFeedbackNotes, onChange: props.setFeedbackNotes, as: "textarea", className: "patient-notes", "aria-label": "With textarea" })))));
         }
         function isSessionActive(state) {
             var sessionClassName = "";
@@ -204,19 +227,29 @@ var PatientView = /** @class */ (function (_super) {
             }
             return sessionClassName;
         }
+        function getJoinSessionButton(props, state) {
+            if (state.connectedToServer && !state.sessionIsActive) {
+                return (React.createElement(react_bootstrap_1.Button, { onClick: props.joinGroupByID, className: "btn-simple btn-icon float-right patient-button" },
+                    React.createElement("i", { className: "fa fa-sign-in icon-large" })));
+            }
+            else if (state.connectedToServer && state.sessionIsActive) {
+                return (React.createElement(react_bootstrap_1.Button, { onClick: props.leaveGroupByID, className: "btn-simple btn-icon float-right patient-button" },
+                    React.createElement("i", { className: "fa fa-sign-out icon-large" })));
+            }
+            else {
+                return (React.createElement(react_bootstrap_1.Button, { className: "flex-right btn-simple btn-icon" },
+                    React.createElement(react_bootstrap_1.Spinner, { animation: "border", variant: "primary" })));
+            }
+        }
         return (React.createElement("div", { className: "content" },
-            React.createElement(NotificationWrapper_jsx_1.default, { pushText: this.state.notificationText, level: this.state.notificationLevel }),
+            React.createElement(NotificationWrapper_jsx_1.default, { pushText: this.state.notificationText, level: this.state.notificationLevel, position: "bc" }),
             React.createElement(react_bootstrap_1.Container, { fluid: true },
                 React.createElement("div", null,
                     React.createElement(react_bootstrap_1.Modal.Dialog, { className: "patient-session" },
                         React.createElement(react_bootstrap_1.Modal.Header, { className: isSessionActive(this.state) },
-                            React.createElement(react_bootstrap_1.Modal.Title, null, "Session")),
-                        React.createElement(react_bootstrap_1.InputGroup, { className: "mb-3" },
-                            React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
-                                React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "Pin")),
-                            React.createElement(react_bootstrap_1.FormControl, { name: "PinEntry", defaultValue: this.state.groupID, onChange: this.handlePinEntryUpdate, "aria-label": "Pin", "aria-describedby": "inputGroup-sizing-default" }),
-                            React.createElement(react_bootstrap_1.Button, { onClick: this.joinGroupByID, className: "btn-simple btn-icon" },
-                                React.createElement("i", { className: "fa fa-sign-in icon-large" })))),
+                            React.createElement(react_bootstrap_1.Modal.Title, null, "Session"),
+                            getJoinSessionButton(this, this.state)),
+                        React.createElement(react_pin_input_1.default, { length: 4, initialValue: this.state.groupID, onChange: function (value, index) { _this.handlePinEntryUpdate(value); }, type: "numeric", style: { padding: '10px' }, inputStyle: { borderColor: 'gray' }, inputFocusStyle: { borderColor: 'blue' }, onComplete: function (value, index) { } })),
                     feedbackUI(this, this.state)),
                 React.createElement("script", { src: "~/js/signalr/dist/browser/signalr.js" }),
                 React.createElement("script", { src: "~/js/chat.js" }))));

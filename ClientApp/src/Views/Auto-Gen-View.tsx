@@ -8,7 +8,7 @@ import { ApplicationState } from '..';
 import { AutoGenControls } from './FunctionalElements/AutoGenControls';
 import { AvailableDemos } from './FunctionalElements/AutoGenDemos';
 import { AddressManager } from './FunctionalElements/AutoGenDeviceAddress';
-import { BeamformingWrapper } from '../Components/Autogen/Inputs/BeamformingWrapper';
+import { SandboxView } from '../Components/Sandbox/SandboxController';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -27,7 +27,6 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   render() {
     return (
       <div>
-        <BeamformingWrapper />
         <AddressManager {...this.props} />
         <AvailableDemos {...this.props} />
         <AutoGenControls  {...this.props} />

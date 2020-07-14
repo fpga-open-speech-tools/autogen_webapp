@@ -31,6 +31,7 @@
   <ItemGroup>
     <None Remove="ClientApp\package.json" />
     <None Remove="ClientApp\src\Components\FileManagement\FIleUploaderPresentationalComponent.tsx" />
+    <None Remove="ClientApp\src\Components\SandboxController.tsx" />
     <None Remove="ClientApp\src\Views\Auto-Gen-View.tsx" />
     <None Remove="ClientApp\src\Views\Doctor-View.tsx" />
     <None Remove="ClientApp\src\Views\FunctionalElements\AutoGenControls.tsx" />
@@ -45,6 +46,7 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\Components\FileManagement\FileUploaderPresentationalComponent.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\Components\Sandbox\SandboxController.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Doctor-View.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\AutoGenDeviceAddress.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\AutoGenDemos.tsx" />

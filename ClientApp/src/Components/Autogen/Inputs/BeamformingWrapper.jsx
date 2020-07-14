@@ -3,7 +3,7 @@ import RangeSlider  from 'react-bootstrap-range-slider';
 import { Row, Col } from "react-bootstrap";
 import ReactDOM from 'react-dom';
 import Draggable from 'react-draggable';
-import LineTo from 'react-lineto';
+import Line from 'react-lineto';
 
 
 export class BeamformingWrapper extends Component {
@@ -89,6 +89,10 @@ export class BeamformingWrapper extends Component {
         }
       ]
     };
+
+    this.drawMicArrays = this.drawMicArrays.bind(this);
+    this.drawTargets = this.drawTargets.bind(this);
+    this.drawLines = this.drawLines.bind(this);
   }
 
   componentDidMount() {
@@ -97,7 +101,10 @@ export class BeamformingWrapper extends Component {
       y: this.props.yDefault,
       z: this.props.zDefault
     });
+  }
 
+  componentDidUpdate() {
+    
   }
 
   handleDrag = (e, ui) => {
@@ -144,33 +151,60 @@ export class BeamformingWrapper extends Component {
     this.onStop();
   };
 
+  drawMicArrays(props, micArrays) {
+    return (
+      micArrays.map((array) =>
+        <Draggable bounds="parent" {...props.dragHandlers} key={array.id}>
+          <div className={"box array " + array.id}>
+            {array.microphones.map((microphone) =>
+              <div className={"mic " + microphone.id} key={microphone.id}>
+                <i className={"fa fa-square-o mic " + microphone.id} aria-hidden="true"></i>
+              </div>
+            )}
+          </div>
+        </Draggable>
+    ));
+  }
+
+
+
+  drawTargets(props, beamTargets) {
+    return (
+      beamTargets.map((target) =>
+        <Draggable bounds="parent" {...props.dragHandlers} key={target.name}>
+        <div className="box smol-item">
+          <i className={"fa fa-circle-o " + target.name} aria-hidden="true"></i>
+        </div>
+      </Draggable>
+    ));
+  }
+
+  drawLines(micArrays) {
+    return (
+      micArrays.map((array) => {
+        array.microphones.map((microphone) =>
+          <Line
+            delay={100}
+            x0={this.state.controlledPosition.x}
+            y0={this.state.controlledPosition.y}
+            x1={this.state.deltaPosition.x}
+            y1={this.state.deltaPosition.y} />
+        )
+      }
+    ));
+  }
+
 
   render() {
     const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
     const { deltaPosition, controlledPosition } = this.state;
-    return (
-      <div>
-        <div className="box" style={{ height: '500px', width: '500px', position: 'relative', overflow: 'auto', padding: '0' }}>
 
-          {this.state.beamTargets.map((target) => 
-            <Draggable bounds="parent" {...dragHandlers}>
-              <div className="box smol-item">
-                <i class={"fa fa-circle-o " + target.name} aria-hidden="true"></i>
-              </div>
-            </Draggable>
-          )}
-          {this.state.micArrays.map((array) =>
-            <Draggable bounds="parent" {...dragHandlers}>
-              <div className={"box array " + array.id}>
-                {array.microphones.map((microphone) =>
-                  <div className="mic">
-                  <i class={"fa fa-square-o mic " + microphone.id} aria-hidden="true"></i>
-                    <LineTo from={microphone.id} to={microphone.beamTarget} />
-                  </div>
-                )}
-              </div>
-            </Draggable>
-          )}
+    return(
+      <div>
+        <div className="box" style={{ height: '500px', width: '500px', position: 'relative', overflow: 'auto', padding: '0', boxShadow:'1px 1px 3px gray' }}>
+          {this.drawTargets(this, this.state.beamTargets)}
+          {this.drawMicArrays(this, this.state.micArrays)}
+          {this.drawLines(this.state.micArrays)}
         </div>
       </div>
     );

@@ -9,7 +9,6 @@ import {
   FormControl, Button, Spinner,
   Card, Jumbotron, Modal,Form
 } from "react-bootstrap";
-import { EffectPageDiv } from "../Components/Autogen/Containers/EffectPageDiv.jsx";
 import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
 import { FileUploaderPresentationalComponent } from "../Components/FileManagement/FileUploaderPresentationalComponent";
 import { AutoGenControls } from './FunctionalElements/AutoGenControls';
@@ -336,6 +335,12 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
       })
     });
 
+    connection.on("RequestToJoin", (message) => {
+      connection.invoke("AcceptRequestToJoinGroup", this.state.groupID,message).catch(function (err) {
+        return console.error(err.toString());
+      });
+    });
+
     connection.on("LeftGroup", (message) => {
       this.setState({
         sessionStarted: false,
@@ -388,7 +393,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
         
     }).then(res => this.verifyConnection())
       .catch(function (err) {
-
+        setTimeout(() => connection.start(), 5000);
         return console.error(err.toString());
 
     });

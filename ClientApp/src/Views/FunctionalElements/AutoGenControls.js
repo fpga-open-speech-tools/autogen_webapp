@@ -123,7 +123,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                     effectName = (effectName === "ERROR") ? "" : effectName;
                     return (React.createElement("div", { className: "autogen autogen-effectContainer" },
                         React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
-                        React.createElement(react_bootstrap_1.Card, null, props.uiConfig.pages.map(function (page) {
+                        React.createElement(react_bootstrap_1.Card, { className: "autogen-pages" }, props.uiConfig.pages.map(function (page) {
                             return React.createElement(React.Fragment, { key: page.name },
                                 React.createElement("div", { className: page.name },
                                     React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-page-name" }, page.name),
