@@ -136,6 +136,7 @@ export class SandboxView extends React.PureComponent<OpenSpeechProps, IState> {
       });
 
   } //End Start Connection to SignalR Client hub
+
   render(){
     return (
       <div className="content">

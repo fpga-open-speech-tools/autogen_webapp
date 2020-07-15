@@ -47,7 +47,6 @@ export interface S3DownloadProgress {
   status: string;
 }
 
-
 export interface Demo {
   name: string;
   downloadurl: s3bucketurl;
@@ -56,51 +55,152 @@ export interface Demo {
   filesize: number;
 }
 
-//S3 bucket takes form "{devicename}/{projectname}"
+//S3 bucket takes the api form "{devicename}/{projectname}"
 export interface s3bucketurl {
   devicename: string;
   projectname: string;
 }
 
-export interface EffectContainer {
-  name: string;
-  pages: Page[];
+
+
+
+
+
+
+
+
+export interface ModelData {
+  references: DataReference[];
+  min: number | undefined | null;
+  max: number | undefined | null;
+  step: number | undefined | null;
+  value: number | number[] | string | string[];
+  enumeration: string[] | number[] | undefined | null;
+  units: string | undefined | null;
 }
 
-export interface Page {
-  name: string;
-  panels: Panel[];
-
-}
-
-export interface Panel {
-  name: string;
-  controls: Control[];
-}
-
-export interface Control {
-  displayName: string,
-  controlType: string,
-  configuration: RegisterConfiguration[],
-}
-
-export interface RegisterConfiguration {
-  registers: Register,
-  configuration: ControlConfiguration
+export interface DataReference {
+  reference: Register | LUT | any;
 }
 
 export interface Register {
   name: string;
   device: string;
-  value: number | string;
 }
 
-export interface ControlConfiguration {
-  min:    number | undefined | null,
-  max:    number | undefined | null,
-  step:   number | undefined | null,
-  units:  string | undefined | null,
+export interface LUT {
+
 }
+
+export interface DataPacket {
+  reference: DataReference;
+  value: number | number[] | string | string[];
+}
+
+
+{
+  name: "Sound Effects";
+  containers: [
+    {
+      name: "Echo",
+      views: [0,1,2,3],
+    },
+    {
+      name: "Flanger",
+      views:[4,5,6],
+    }
+  ];
+  views: [
+    {
+      name: "Delay",
+      type: {
+        component: "slider",
+        variant: "horizontal"
+      },
+      references:[0]
+    },
+    {
+      name: "Feedback",
+      type: "HorizontalSlider",
+      references:[1]
+    },
+    {
+      name: "Wet Dry Mix",
+      type: {
+        component: "slider",
+        variant: "horizontal"
+      },
+      references:[2]
+    },
+    {
+      name: "Enable",
+      type: {
+        component: "toggle",
+        variant: "it'sjustatoggle (tm)"
+      },
+      references:[3]
+    },
+    {
+      name: "Rate",
+      type: {
+        component: "slider",
+        variant: "horizontal"
+      },
+      references:[4]
+    }
+  ];
+  data: [
+    {
+      min: 0,
+      max: 24000,
+      step: 1,
+      value: 16000,
+      units: "samples",
+      reference: {
+        device: "Echo",
+        name:"Delay" 
+      }
+    },
+    {
+      min: 0,
+      max: 1,
+      step: 0.1,
+      value: 0.8,
+      reference: {
+        device: "Echo",
+        name: "Feedback" 
+      }
+    },
+    {
+      min: 0,
+      max: 1,
+      step: 0.1,
+      value: 0.5,
+      reference: {
+        device: "Echo",
+        name: "Wet Dry Mix" 
+      }
+    },
+    {
+      enumeration: ["Disable, Enable"],
+      value: 0,
+      reference: {
+        device: "Echo",
+        name: "Enable"
+      }
+    }
+  ];
+
+}
+
+
+
+
+
+
+
+
+
 
 
 
