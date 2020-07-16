@@ -169,21 +169,21 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
 
   componentDidUpdate() {
 
-    if (this.props.uiConfig) {
-      if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfigName) {
+    if (this.props.autogen) {
+      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.uiConfigName) {
         this.setNotificationLevel('error');
         this.setNotificationText('Demo Upload Failed');
-        this.setState({ uiConfigName: this.props.uiConfig.name });
+        this.setState({ uiConfigName: this.props.autogen.name });
       }
-      else if (this.props.uiConfig.name === "ERROR" && this.props.uiConfig.name != this.state.uiConfigName) {
+      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.uiConfigName) {
         this.setNotificationLevel('error');
         this.setNotificationText('Control Generation Failed');
-        this.setState({ uiConfigName: this.props.uiConfig.name });
+        this.setState({ uiConfigName: this.props.autogen.name });
       }
-      else if (this.props.uiConfig.name != this.state.uiConfigName){
+      else if (this.props.autogen.name != this.state.uiConfigName){
         this.setNotificationLevel('success');
-        this.setNotificationText('New Controls Generated: ' + this.props.uiConfig.name);
-        this.setState({ uiConfigName: this.props.uiConfig.name });
+        this.setNotificationText('New Controls Generated: ' + this.props.autogen.name);
+        this.setState({ uiConfigName: this.props.autogen.name });
       }
     }
   }//End ComponentDidUpdate
@@ -209,12 +209,23 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
 
   handleRequestGetRegisterConfig(callback: Function) {
 
-    this.props.requestGetRegisterConfig(this.props.deviceAddress,callback);
+    this.props.requestGetModelData(this.props.deviceAddress,callback);
   }
 
-  handleRequestSetRegisterConfig(registerConfig: OpenSpeechDataStore.RegisterConfig) {
-      this.props.requestSendRegisterConfig(registerConfig, this.props.deviceAddress);
-    
+  handleRequestSetRegisterConfig(configuration: OpenSpeechDataStore.ModelData[]) {
+    var output: OpenSpeechDataStore.DataPacket[] = [];
+    var packet: OpenSpeechDataStore.DataPacket;
+    for (var i = 0; i < configuration.length; i++) {
+      for (var j = 0; j < configuration[i].references.length; j++) {
+        packet = {
+          reference: configuration[i].references[j],
+           value : configuration[i].value
+        }
+        output.push(packet);
+      }
+    }
+
+    this.props.requestSendModelData(output, this.props.deviceAddress);
   }
 
   handleNewPatientConfigFile(configFile: File | null) {
@@ -234,7 +245,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
           doctorNotes: string,
           patientFirstName: string,
           patientLastName: string,
-          registerConfiguration: OpenSpeechDataStore.RegisterConfig | undefined
+          configuration: OpenSpeechDataStore.ModelData[] | undefined
         }
 
         var config: patientConfig = {
@@ -243,7 +254,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
           doctorNotes: obj.doctorNotes,
           patientFirstName: obj.patientFirstName,
           patientLastName: obj.patientLastName,
-          registerConfiguration: obj.registerConfiguration,
+          configuration: obj.registerConfiguration,
         };
         this.setState({
           patientFeedback: config.patientFeedback,
@@ -254,7 +265,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
           newFile: false
         });
 
-        this.handleRequestSetRegisterConfig(config.registerConfiguration as OpenSpeechDataStore.RegisterConfig);
+        this.handleRequestSetRegisterConfig(config.configuration as OpenSpeechDataStore.ModelData[]);
       });
     }
   }
@@ -271,7 +282,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
       doctorNotes: string,
       patientFirstName: string,
       patientLastName: string,
-      registerConfiguration: OpenSpeechDataStore.RegisterConfig | undefined
+      configuration: OpenSpeechDataStore.ModelData[] | undefined | null
     }
 
     var config: patientConfig = {
@@ -280,8 +291,11 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
       doctorNotes: this.state.doctorNotes,
       patientFirstName: this.state.patientFirstName,
       patientLastName: this.state.patientLastName,
-      registerConfiguration: this.props.currentRegisterConfig,
+      configuration: null
     };
+    if (this.props.autogen) {
+      config.configuration = this.props.autogen.data;
+    }
 
     downloadObjectAsJson(config, "patient_config");
   }

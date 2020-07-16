@@ -22,7 +22,7 @@ type OpenSpeechProps =
 
 export interface AutoGenState {
   downloadStatus: DownloadStatus,
-  uiConfig: UIConfig,
+  autogen: Autogen,
   notification: Notification
 }
 
@@ -31,9 +31,8 @@ interface DownloadStatus {
   lastDownloadProgress: number,
 }
 
-interface UIConfig {
+interface Autogen {
   name: string,
-  projectID: string,
 }
 
 interface Notification {
@@ -57,93 +56,51 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
         level: ""
       },
 
-      uiConfig: {
-        name: "",
-        projectID: "Example",
+      autogen: {
+        name: ""
       }
 
     };
 
 
-    this.handlelastDownloadProgressRequestTimeChange = this.handlelastDownloadProgressRequestTimeChange.bind(this);
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
-    this.handleRequestDownloadProgress = this.handleRequestDownloadProgress.bind(this);
-
     this.setNotification = this.setNotification.bind(this);
   }
 
 
   componentDidMount() {
     this.props.requestOpenSpeechS3Demos();
-
-    if (this.props.downloadProgress) {
-      if (this.state.downloadStatus.lastDownloadProgress !== this.props.downloadProgress.progress) {
-        this.setState({
-          downloadStatus: {
-            lastDownloadProgress: this.props.downloadProgress.progress,
-            lastDownloadProgressRequestTime: this.state.downloadStatus.lastDownloadProgressRequestTime
-          }
-        });
-        this.forceUpdate();
-      }
-    }
   }
   componentDidUpdate() {
 
-    if (this.props.uiConfig) {
-      if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfig.name) {
+    if (this.props.autogen) {
+      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Demo Upload Failed');
         this.setState({
-          uiConfig: {
-            name: this.props.uiConfig.name,
-            projectID: this.state.uiConfig.projectID
+          autogen: {
+            name: this.props.autogen.name,
           }
         });
       }
-      else if (this.props.uiConfig.name === "ERROR" && this.props.uiConfig.name != this.state.uiConfig.name) {
+      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Control Generation Failed')
         this.setState({
-          uiConfig: {
-            name: this.props.uiConfig.name,
-            projectID: this.state.uiConfig.projectID
+          autogen: {
+            name: this.props.autogen.name
           }
         });
       }
-      else if (this.props.uiConfig.name != this.state.uiConfig.name) {
+      else if (this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('success', 'New Controls Generated');
         this.setState({
-          uiConfig: {
-            name: this.props.uiConfig.name,
-            projectID: this.state.uiConfig.projectID
+          autogen: {
+            name: this.props.autogen.name
           }
         });
       }
     }
   }
 
-  handlePollDownloadProgress() {
-    if (this.props.isDeviceDownloading) {
-      var date = new Date();
-      var currentDateInMS = date.getTime();
-      var requestRateInMS = 100;
-
-      //if the current datetime in milliseconds is greater the last request log plus the request rate,
-      //Then set the new request datetime in milliseconds, and request the download progress.
-      if (currentDateInMS > (this.state.downloadStatus.lastDownloadProgressRequestTime + requestRateInMS)) {
-        this.handlelastDownloadProgressRequestTimeChange(currentDateInMS);
-        this.handleRequestDownloadProgress();
-      }
-    }
-  }
-
-  handlelastDownloadProgressRequestTimeChange(n: number) {
-    this.setState({
-      downloadStatus: {
-        lastDownloadProgress: n,
-        lastDownloadProgressRequestTime: this.state.downloadStatus.lastDownloadProgressRequestTime
-      }
-    });
-  }
 
 
 
@@ -151,18 +108,12 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
   handleDownloadDemo(device:string,project:string) {
     if (!this.props.isLoading) {
       this.setState({
-        uiConfig: {
-          projectID: project,
-          name: this.state.uiConfig.name
+        autogen: {
+          name: project
         }
       });
       this.props.requestDownloadS3Demo(this.props.deviceAddress,device, project);
     }
-  }
-
-  handleRequestDownloadProgress() {
-    this.props.requestS3DownloadProgress(
-      this.props.deviceAddress);
   }
 
 
@@ -179,7 +130,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
 
       function animateDownloadStatus(state: AutoGenState, props:OpenSpeechProps, projectID: string) {
       if (props.isDeviceDownloading === true) {
-        if (state.uiConfig.projectID === projectID) {
+        if (state.autogen.name === projectID) {
           return (
             <Spinner animation="border" variant="light" className="open-speech-loading-anim"/>
             );
@@ -189,8 +140,8 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
             <i className="fas fa-info large-icon open-speech-accent-icon" />);
         }
       }
-      if (props.uiConfig && props.currentDemo) {
-        if (props.uiConfig.name === "Demo Upload Failed" && props.currentDemo === projectID) {
+        if (props.autogen && props.currentDemo) {
+          if (props.autogen.name === "Demo Upload Failed" && props.currentDemo === projectID) {
           return (< i className="fa fa-times open-speech-accent-font" />);
         }
         else {
@@ -208,8 +159,8 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
      function highlightIfDownloaded(state: AutoGenState, props: OpenSpeechProps, projectID: string) {
       if (!props.isDeviceDownloading) {
         if (props.currentDemo === projectID) {
-          if (props.uiConfig) {
-            if (props.uiConfig.name === "Demo Upload Failed") {
+          if (props.autogen) {
+            if (props.autogen.name === "Demo Upload Failed") {
               return ("card card-stats open-speech-is-error-highlighted");
             }//[End]If Demo upload failed
             else {

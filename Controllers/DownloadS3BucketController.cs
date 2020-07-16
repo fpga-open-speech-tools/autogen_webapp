@@ -5,7 +5,7 @@ using System.Net;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace UIConfig.Controllers
+namespace Autogen.Controllers
 {
   [ApiController]
   [Route("[controller]")]

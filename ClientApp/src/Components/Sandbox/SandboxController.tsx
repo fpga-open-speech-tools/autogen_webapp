@@ -70,12 +70,7 @@ export class SandboxView extends React.PureComponent<OpenSpeechProps, IState> {
   }//End ComponentDidUpdate
 
   handleRequestGetRegisterConfig(callback: Function) {
-    this.props.requestGetRegisterConfig(this.props.deviceAddress, callback);
-  }
-
-  handleRequestSetRegisterConfig(registerConfig: OpenSpeechDataStore.RegisterConfig) {
-    this.props.requestSendRegisterConfig(registerConfig, this.props.deviceAddress);
-
+    this.props.requestGetModelData(this.props.deviceAddress, callback);
   }
 
   setNotificationText(text: string) {

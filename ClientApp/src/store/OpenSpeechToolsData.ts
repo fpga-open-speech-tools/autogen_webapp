@@ -9,13 +9,9 @@ export interface OpenSpeechToolsState {
   isDeviceDownloading: boolean;
   currentDemo?: string;
   //Interface for UI JSON
-  uiConfig?: EffectContainer | null;
-  currentRegisterConfig?: RegisterConfig;
+  autogen?: Autogen | null;
   //Interface for Demos Array[]
   availableDemos: Demo[];
-
-  //For Downloading Demos
-  downloadProgress?: S3DownloadProgress;
 
   //S3Bucket Download info
   deviceFamily?: string;
@@ -24,7 +20,7 @@ export interface OpenSpeechToolsState {
   //Device Controls info
   deviceAddress: DeviceAddress;
 
-  command?: Register;
+  command?: DataPacket[];
 }
 
 export interface DeviceAddress {
@@ -39,12 +35,6 @@ export interface DeviceAddress {
 
 export interface RegisterConfig {
   registers: Register[];
-}
-
-export interface S3DownloadProgress {
-  name: string;
-  progress: number;
-  status: string;
 }
 
 export interface Demo {
@@ -64,9 +54,34 @@ export interface s3bucketurl {
 
 
 
+export interface Autogen {
+  name: string;
+  pages: Page[];
+  views: ComponentView[];
+  data: ModelData[];
+  containers: AutogenContainer[];
+}
 
+export interface Page {
+  name: string;
+}
 
+export interface AutogenContainer {
+  name: string;
+  viewReferences: number[];
+}
 
+export interface ComponentView {
+  name: string;
+  type: AutogenComponent;
+  dataReferences: number[];
+}
+
+export interface AutogenComponent {
+  component: string;
+  variant: string;
+  callback: string;
+}
 
 
 export interface ModelData {
@@ -80,7 +95,7 @@ export interface ModelData {
 }
 
 export interface DataReference {
-  reference: Register | LUT | any;
+  reference: Register;
 }
 
 export interface Register {
@@ -88,118 +103,10 @@ export interface Register {
   device: string;
 }
 
-export interface LUT {
-
-}
-
 export interface DataPacket {
   reference: DataReference;
   value: number | number[] | string | string[];
 }
-
-
-{
-  name: "Sound Effects";
-  containers: [
-    {
-      name: "Echo",
-      views: [0,1,2,3],
-    },
-    {
-      name: "Flanger",
-      views:[4,5,6],
-    }
-  ];
-  views: [
-    {
-      name: "Delay",
-      type: {
-        component: "slider",
-        variant: "horizontal"
-      },
-      references:[0]
-    },
-    {
-      name: "Feedback",
-      type: "HorizontalSlider",
-      references:[1]
-    },
-    {
-      name: "Wet Dry Mix",
-      type: {
-        component: "slider",
-        variant: "horizontal"
-      },
-      references:[2]
-    },
-    {
-      name: "Enable",
-      type: {
-        component: "toggle",
-        variant: "it'sjustatoggle (tm)"
-      },
-      references:[3]
-    },
-    {
-      name: "Rate",
-      type: {
-        component: "slider",
-        variant: "horizontal"
-      },
-      references:[4]
-    }
-  ];
-  data: [
-    {
-      min: 0,
-      max: 24000,
-      step: 1,
-      value: 16000,
-      units: "samples",
-      reference: {
-        device: "Echo",
-        name:"Delay" 
-      }
-    },
-    {
-      min: 0,
-      max: 1,
-      step: 0.1,
-      value: 0.8,
-      reference: {
-        device: "Echo",
-        name: "Feedback" 
-      }
-    },
-    {
-      min: 0,
-      max: 1,
-      step: 0.1,
-      value: 0.5,
-      reference: {
-        device: "Echo",
-        name: "Wet Dry Mix" 
-      }
-    },
-    {
-      enumeration: ["Disable, Enable"],
-      value: 0,
-      reference: {
-        device: "Echo",
-        name: "Enable"
-      }
-    }
-  ];
-
-}
-
-
-
-
-
-
-
-
 
 
 
@@ -233,29 +140,20 @@ interface RequestOpenSpeechS3DownloadAction {
 
 interface ReceiveOpenSpeechS3DownloadAction {
   type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO';
-  uiConfig: EffectContainer;
+  autogen: Autogen;
   currentDemo: string;
   isDeviceDownloading: boolean;
 }
 
-interface RequestS3DownloadProgressAction {
-  type: 'REQUEST_S3_DOWNLOAD_PROGRESS';
+
+interface RequestOpenSpeechAutogenConfig {
+  type: 'REQUEST_OPENSPEECH_AUTOGEN';
   deviceAddress: DeviceAddress;
 }
 
-interface ReceiveS3DownloadProgressAction {
-  type: 'RECEIVE_S3_DOWNLOAD_PROGRESS';
-  downloadProgress: S3DownloadProgress;
-}
-
-interface RequestOpenSpeechUIConfig {
-  type: 'REQUEST_OPENSPEECH_UI';
-  deviceAddress: DeviceAddress;
-}
-
-interface ReceiveOpenSpeechUIConfig {
-  type: 'RECEIVE_OPENSPEECH_UI';
-  uiConfig: EffectContainer;
+interface ReceiveOpenSpeechAutogenConfig {
+  type: 'RECEIVE_OPENSPEECH_AUTOGEN';
+  autogen: Autogen;
 }
 
 interface RequestSetRegisterConfigAction {
@@ -279,7 +177,7 @@ interface ReceiveGetRegisterConfigResponse {
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   deviceAddress: DeviceAddress;
-  command: Register;
+  command: DataPacket[];
 }
 
 interface ReceiveSendCommandResponse {
@@ -289,11 +187,10 @@ interface ReceiveSendCommandResponse {
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 type KnownAction =
-  RequestOpenSpeechUIConfig | ReceiveOpenSpeechUIConfig |
+  RequestOpenSpeechAutogenConfig | ReceiveOpenSpeechAutogenConfig |
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
-  RequestS3DownloadProgressAction | ReceiveS3DownloadProgressAction |
   RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse |
   SetDeviceAddress;
 
@@ -304,7 +201,7 @@ type KnownAction =
 export const openSpeechDataActionCreators = {
 
   requestOpenSpeechS3Demos: (): AppThunkAction<KnownAction> => (dispatch) => {
-    fetch(`availabledemos`)
+    fetch(`available-demos`)
       .then(response => response.json() as Promise<Demo[]>)
       .then(data => {
         dispatch({
@@ -314,38 +211,38 @@ export const openSpeechDataActionCreators = {
     dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
   },
 
-  requestS3DownloadProgress: (address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch) => {
-      fetch(`downloadprogress/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}`)
-        .then(response => response.json() as Promise<S3DownloadProgress>)
+  requestAutogenConfiguration: (address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    var data = new FormData();
+    data.append('ip1', address.ipAddress.ip1);
+    data.append('ip2', address.ipAddress.ip2);
+    data.append('ip3', address.ipAddress.ip3);
+    data.append('ip4', address.ipAddress.ip4);
+    data.append('port', address.port);
+    fetch(`configuration`, { method: "PUT", body: data })
+        .then(response => response.json() as Promise<Autogen>)
         .then(data => {
           dispatch({
-            type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data
+            type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
           });
         });
       dispatch({
-        type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
+        type: 'REQUEST_OPENSPEECH_AUTOGEN',
         deviceAddress:address
       });
     },
 
-  requestOpenSpeechUI: (address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`uiconfig/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}`)
-        .then(response => response.json() as Promise<EffectContainer>)
-        .then(data => {
-          dispatch({
-            type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
-          });
-        });
-      dispatch({
-        type: 'REQUEST_OPENSPEECH_UI',
-        deviceAddress:address
-      });
-    },
-
-  requestSendCommand: (
-    device: string, value: string, name: string,
-    address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      fetch(`command/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${device}/${value}/${name}`)
+  requestSendModelData: (
+    input: DataPacket[], address: DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
+      var data = new FormData();
+      data.append('ip1', address.ipAddress.ip1);
+      data.append('ip2', address.ipAddress.ip2);
+      data.append('ip3', address.ipAddress.ip3);
+      data.append('ip4', address.ipAddress.ip4);
+      data.append('port', address.port);
+      var inputString = JSON.stringify(input);
+      data.append('modelData', JSON.stringify(inputString));
+     
+      fetch(`model-data`, { method: "PUT", body: data })
         .then(() => {
           dispatch({
             type: 'RECEIVE_SEND_COMMAND_RESPONSE'
@@ -353,35 +250,18 @@ export const openSpeechDataActionCreators = {
         });
       dispatch({
         type: 'REQUEST_SEND_COMMAND',
-        deviceAddress:address, command: { device: device, value: value, name: name }
+        deviceAddress:address, command: input 
       });
     },
 
-  requestSendRegisterConfig: (
-    registers: RegisterConfig,address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
-      var data = new FormData();
-      data.append('ip1', address.ipAddress.ip1);
-      data.append('ip2', address.ipAddress.ip2);
-      data.append('ip3', address.ipAddress.ip3);
-      data.append('ip4', address.ipAddress.ip4);
-      data.append('port', address.port);
-      var registersAsString = JSON.stringify(registers);
-      data.append('registers', JSON.stringify(registers));
-      fetch(`setregisterconfig`, { method: "PUT", body: data })
-        .then(response => response.json() as Promise<EffectContainer>)
-        .then(data => {
-          dispatch({
-            type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
-          });
-        });
-      dispatch({
-        type: 'REQUEST_SET_REGISTER_CONFIG',
-        deviceAddress:address, registerConfigString: registersAsString
-      });
-    },
-
-  requestGetRegisterConfig: (address: DeviceAddress, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
-    fetch(`getregisterconfig/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}`)
+  requestGetModelData: (address: DeviceAddress, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
+    var data = new FormData();
+    data.append('ip1', address.ipAddress.ip1);
+    data.append('ip2', address.ipAddress.ip2);
+    data.append('ip3', address.ipAddress.ip3);
+    data.append('ip4', address.ipAddress.ip4);
+    data.append('port', address.port);
+    fetch(`model-data`, { method: "PUT", body: data })
         .then(response => response.json() as Promise<RegisterConfig>)
         .then(data => {
           dispatch({
@@ -397,10 +277,10 @@ export const openSpeechDataActionCreators = {
 
   requestDownloadS3Demo: (address:DeviceAddress,devicename: string, projectname: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
     fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${devicename}/${projectname}`)
-      .then(response => response.json() as Promise<EffectContainer>)
+      .then(response => response.json() as Promise<Autogen>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',uiConfig:data, isDeviceDownloading: false,currentDemo:projectname
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',autogen:data, isDeviceDownloading: false,currentDemo:projectname
         });
       });
       dispatch({
@@ -434,28 +314,27 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
-    case 'REQUEST_OPENSPEECH_UI':
+    case 'REQUEST_OPENSPEECH_AUTOGEN':
       return {
         deviceAddress:state.deviceAddress,
-        uiConfig: null,
+        autogen: null,
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
       };
-    case 'RECEIVE_OPENSPEECH_UI':
+    case 'RECEIVE_OPENSPEECH_AUTOGEN':
       return {
         deviceAddress: state.deviceAddress,
         availableDemos: state.availableDemos,
-        uiConfig: action.uiConfig,
+        autogen: action.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
     case 'REQUEST_SEND_COMMAND':
       return {
         deviceAddress: state.deviceAddress,
-        currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         availableDemos: state.availableDemos,
         command: state.command,
         isDeviceDownloading: state.isDeviceDownloading,
@@ -464,10 +343,9 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
       return {
         deviceAddress: state.deviceAddress,
-        currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
@@ -476,7 +354,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
       };
@@ -485,7 +363,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: action.availableDemos,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
@@ -495,7 +373,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         deviceFamily: action.deviceFamily,
         availableDemos: state.availableDemos,
         isDeviceDownloading: true,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         currentDemo: action.currentDemo,
         isLoading: true
       };
@@ -504,26 +382,16 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         deviceAddress: state.deviceAddress,
         availableDemos: state.availableDemos,
         currentDemo: action.currentDemo,
-        uiConfig: action.uiConfig,
+        autogen: action.autogen,
         isDeviceDownloading: false,
-        isLoading: false
-      };
-    case 'REQUEST_S3_DOWNLOAD_PROGRESS':
-      return {
-        deviceAddress: state.deviceAddress,
-        currentDemo: state.currentDemo,
-        availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
-        isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
     case 'REQUEST_SET_REGISTER_CONFIG':
       return {
         deviceAddress: state.deviceAddress,
-        currentRegisterConfig: state.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        uiConfig: null,
+        autogen: null,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
@@ -533,7 +401,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
@@ -541,29 +409,18 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
     case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
       return {
         deviceAddress: state.deviceAddress,
-        currentRegisterConfig: action.currentRegisterConfig,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };
 
-    case 'RECEIVE_S3_DOWNLOAD_PROGRESS':  
-      return {
-        deviceAddress: state.deviceAddress,
-        currentDemo: state.currentDemo,
-        downloadProgress: action.downloadProgress,
-        availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
-        isDeviceDownloading: state.isDeviceDownloading,
-        isLoading: false
-      };
     case 'SET_DEVICE_ADDRESS':
       return {
         deviceAddress: action.address,
         availableDemos: state.availableDemos,
-        uiConfig: state.uiConfig,
+        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       }

@@ -46,10 +46,7 @@ var SandboxView = /** @class */ (function (_super) {
     SandboxView.prototype.componentDidUpdate = function () {
     }; //End ComponentDidUpdate
     SandboxView.prototype.handleRequestGetRegisterConfig = function (callback) {
-        this.props.requestGetRegisterConfig(this.props.deviceAddress, callback);
-    };
-    SandboxView.prototype.handleRequestSetRegisterConfig = function (registerConfig) {
-        this.props.requestSendRegisterConfig(registerConfig, this.props.deviceAddress);
+        this.props.requestGetModelData(this.props.deviceAddress, callback);
     };
     SandboxView.prototype.setNotificationText = function (text) {
         this.setState({ notificationText: text });

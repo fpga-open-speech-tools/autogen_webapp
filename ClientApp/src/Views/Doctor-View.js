@@ -132,21 +132,21 @@ var DoctorView = /** @class */ (function (_super) {
         });
     }; // End ComponentDidMount
     DoctorView.prototype.componentDidUpdate = function () {
-        if (this.props.uiConfig) {
-            if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfigName) {
+        if (this.props.autogen) {
+            if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.uiConfigName) {
                 this.setNotificationLevel('error');
                 this.setNotificationText('Demo Upload Failed');
-                this.setState({ uiConfigName: this.props.uiConfig.name });
+                this.setState({ uiConfigName: this.props.autogen.name });
             }
-            else if (this.props.uiConfig.name === "ERROR" && this.props.uiConfig.name != this.state.uiConfigName) {
+            else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.uiConfigName) {
                 this.setNotificationLevel('error');
                 this.setNotificationText('Control Generation Failed');
-                this.setState({ uiConfigName: this.props.uiConfig.name });
+                this.setState({ uiConfigName: this.props.autogen.name });
             }
-            else if (this.props.uiConfig.name != this.state.uiConfigName) {
+            else if (this.props.autogen.name != this.state.uiConfigName) {
                 this.setNotificationLevel('success');
-                this.setNotificationText('New Controls Generated: ' + this.props.uiConfig.name);
-                this.setState({ uiConfigName: this.props.uiConfig.name });
+                this.setNotificationText('New Controls Generated: ' + this.props.autogen.name);
+                this.setState({ uiConfigName: this.props.autogen.name });
             }
         }
     }; //End ComponentDidUpdate
@@ -166,10 +166,21 @@ var DoctorView = /** @class */ (function (_super) {
         this.setState({ patientLastName: e.target.value });
     };
     DoctorView.prototype.handleRequestGetRegisterConfig = function (callback) {
-        this.props.requestGetRegisterConfig(this.props.deviceAddress, callback);
+        this.props.requestGetModelData(this.props.deviceAddress, callback);
     };
-    DoctorView.prototype.handleRequestSetRegisterConfig = function (registerConfig) {
-        this.props.requestSendRegisterConfig(registerConfig, this.props.deviceAddress);
+    DoctorView.prototype.handleRequestSetRegisterConfig = function (configuration) {
+        var output = [];
+        var packet;
+        for (var i = 0; i < configuration.length; i++) {
+            for (var j = 0; j < configuration[i].references.length; j++) {
+                packet = {
+                    reference: configuration[i].references[j],
+                    value: configuration[i].value
+                };
+                output.push(packet);
+            }
+        }
+        this.props.requestSendModelData(output, this.props.deviceAddress);
     };
     DoctorView.prototype.handleNewPatientConfigFile = function (configFile) {
         var _this = this;
@@ -187,7 +198,7 @@ var DoctorView = /** @class */ (function (_super) {
                     doctorNotes: obj.doctorNotes,
                     patientFirstName: obj.patientFirstName,
                     patientLastName: obj.patientLastName,
-                    registerConfiguration: obj.registerConfiguration,
+                    configuration: obj.registerConfiguration,
                 };
                 _this.setState({
                     patientFeedback: config.patientFeedback,
@@ -197,7 +208,7 @@ var DoctorView = /** @class */ (function (_super) {
                     patientLastName: config.patientLastName,
                     newFile: false
                 });
-                _this.handleRequestSetRegisterConfig(config.registerConfiguration);
+                _this.handleRequestSetRegisterConfig(config.configuration);
             });
         }
     };
@@ -208,8 +219,11 @@ var DoctorView = /** @class */ (function (_super) {
             doctorNotes: this.state.doctorNotes,
             patientFirstName: this.state.patientFirstName,
             patientLastName: this.state.patientLastName,
-            registerConfiguration: this.props.currentRegisterConfig,
+            configuration: null
         };
+        if (this.props.autogen) {
+            config.configuration = this.props.autogen.data;
+        }
         downloadObjectAsJson(config, "patient_config");
     };
     DoctorView.prototype.setNotificationText = function (text) {

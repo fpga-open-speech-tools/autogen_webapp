@@ -32,7 +32,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                 text: "",
                 level: ""
             },
-            uiConfig: {
+            autogen: {
                 name: "",
                 projectID: "Example",
             }
@@ -46,31 +46,31 @@ var AutoGenControls = /** @class */ (function (_super) {
         this.handleRequestUI();
     };
     AutoGenControls.prototype.componentDidUpdate = function () {
-        if (this.props.uiConfig) {
-            if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfig.name) {
+        if (this.props.autogen) {
+            if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('error', 'Demo Upload Failed');
                 this.setState({
-                    uiConfig: {
-                        name: this.props.uiConfig.name,
-                        projectID: this.state.uiConfig.projectID
+                    autogen: {
+                        name: this.props.autogen.name,
+                        projectID: this.state.autogen.projectID
                     }
                 });
             }
-            else if (this.props.uiConfig.name === "ERROR" && this.props.uiConfig.name != this.state.uiConfig.name) {
+            else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('error', 'Control Generation Failed');
                 this.setState({
-                    uiConfig: {
-                        name: this.props.uiConfig.name,
-                        projectID: this.state.uiConfig.projectID
+                    autogen: {
+                        name: this.props.autogen.name,
+                        projectID: this.state.autogen.projectID
                     }
                 });
             }
-            else if (this.props.uiConfig.name != this.state.uiConfig.name) {
+            else if (this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('success', 'New Controls Generated');
                 this.setState({
-                    uiConfig: {
-                        name: this.props.uiConfig.name,
-                        projectID: this.state.uiConfig.projectID
+                    autogen: {
+                        name: this.props.autogen.name,
+                        projectID: this.state.autogen.projectID
                     }
                 });
             }
@@ -100,11 +100,11 @@ var AutoGenControls = /** @class */ (function (_super) {
         this.props.setDeviceAddress(deviceAddress);
     };
     AutoGenControls.prototype.handleRequestUI = function () {
-        this.props.requestOpenSpeechUI(this.props.deviceAddress);
+        this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
     AutoGenControls.prototype.handleInputCommand = function (module, link, value) {
-        if (!this.props.isLoading) {
-            this.props.requestSendCommand(link, value, module, this.props.deviceAddress);
+        if (!this.props.isLoading && this.props.command) {
+            this.props.requestSendModelData(this.props.command, this.props.deviceAddress);
         }
     };
     AutoGenControls.prototype.setNotification = function (level, text) {
@@ -117,21 +117,21 @@ var AutoGenControls = /** @class */ (function (_super) {
     };
     AutoGenControls.prototype.render = function () {
         function getAutogen(state, props) {
-            if (props.uiConfig) {
-                if (props.uiConfig.pages) {
-                    var effectName = props.uiConfig.name ? props.uiConfig.name : "";
+            if (props.autogen) {
+                if (props.autogen.pages) {
+                    var effectName = props.autogen.name ? props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
                     return (React.createElement("div", { className: "autogen autogen-effectContainer" },
                         React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
-                        React.createElement(react_bootstrap_1.Card, { className: "autogen-pages" }, props.uiConfig.pages.map(function (page) {
+                        React.createElement(react_bootstrap_1.Card, { className: "autogen-pages" }, props.autogen.pages.map(function (page) {
                             return React.createElement(React.Fragment, { key: page.name },
                                 React.createElement("div", { className: page.name },
                                     React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-page-name" }, page.name),
                                     React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: state.handleInputCommand, module: module, page: page })));
                         }))));
                 }
-                else if (props.uiConfig.name) {
-                    var effectName = props.uiConfig.name ? props.uiConfig.name : "";
+                else if (props.autogen.name) {
+                    var effectName = props.autogen.name ? props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
                     return (React.createElement("div", { className: "autogen autogen-effectContainer autogen-error" }));
                 }

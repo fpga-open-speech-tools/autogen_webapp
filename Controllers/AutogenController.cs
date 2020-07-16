@@ -6,34 +6,34 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace UIConfig.Controllers
+namespace Autogen.Controllers
 {
   [ApiController]
   [Route("[controller]")]
-  public class SetRegisterConfigController : ControllerBase
+  public class AutogenController : ControllerBase
   {
-    private readonly ILogger<SetRegisterConfigController> _logger;
+    private readonly ILogger<AutogenController> _logger;
 
-    public SetRegisterConfigController(ILogger<SetRegisterConfigController> logger)
+    public AutogenController(ILogger<AutogenController> logger)
     {
       _logger = logger;
     }
 
-    private static T _download_serialized_json_data<T>(string url,string json_post_data) where T : new()
+    private static T _download_serialized_json_data<T>(string url) where T : new()
     {
 
         var json_data = string.Empty;
         // attempt to download JSON data as a string
         try
         {
-          json_data = HTTP_POST(url,json_post_data).Output;
+          json_data = HTTP_GET(url).Output;
         }
         catch (Exception) { }
         if (json_data == "")
         {
         json_data = "{\"name\":\"ERROR\"}";
         }
-        //System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
+        System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
 
         // if string with JSON data is not empty, deserialize it to class and return its instance 
         return !string.IsNullOrEmpty(json_data) ? JsonConvert.DeserializeObject<T>(json_data) : new T();
@@ -48,7 +48,7 @@ namespace UIConfig.Controllers
       public string Output { get; set; }
     }
 
-    public static JsonResultModel HTTP_POST(string Url, string PostData)
+    public static JsonResultModel HTTP_GET(string Url)
     {
       JsonResultModel model = new JsonResultModel();
       string Out = String.Empty;
@@ -57,14 +57,9 @@ namespace UIConfig.Controllers
 
       try
       {
-        req.Method = "PUT";
+        req.Method = "GET";
         req.Timeout = 1000;
         req.ContentType = "application/json";
-
-        using (var streamWriter = new StreamWriter(req.GetRequestStream()))
-        {
-          streamWriter.Write(PostData);
-        }
 
 
         WebResponse res = req.GetResponse();
@@ -107,30 +102,25 @@ namespace UIConfig.Controllers
       return model;
     }
 
-    /// <summary>
-    /// Requests the given IP/Port UI Config over HTTP.
-    /// </summary>
-    /// <param name="ip">FormatDesired(aaabbbcccdddd, ex: 192.168.0.1 --> 192168000001)</param>
-    /// <param name="port">Format Desired(xxxx, ex: 8001)</param>
-    /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    //[HttpPut("{ip1}/{ip2}/{ip3}/{ip4}/{port}")]
+
     [HttpPut]
+    [Route("~/configuration")]
     public AutogenConfig.EffectContainer Put(
-      [FromForm]string ip1, 
-      [FromForm]string ip2, 
-      [FromForm]string ip3, 
-      [FromForm]string ip4, 
-      [FromForm]string port, 
-      [FromForm]string registers)
+      [FromForm]string ip1,
+      [FromForm]string ip2,
+      [FromForm]string ip3,
+      [FromForm]string ip4,
+      [FromForm]string port
+      )
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
       AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer()
-      {
+      {name="Error"
       };
 
-      var url = "http://" + deviceIP + ":" + port + "/set-register-config";
-      //System.Diagnostics.Debug.WriteLine("Attempting to Set Register Configuration @: " + url + "\nPostedJSON: " + registers);
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url,registers);
+      var url = "http://" + deviceIP + ":" + port + "/configuration";
+      System.Diagnostics.Debug.WriteLine("Attempting to Get UI @: " + url);
+      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
       return result;
     }
   }

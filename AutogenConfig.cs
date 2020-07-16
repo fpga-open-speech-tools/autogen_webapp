@@ -1,6 +1,6 @@
 using System;
 
-namespace UIConfig
+namespace Autogen
 {
   public class AutogenConfig
   {

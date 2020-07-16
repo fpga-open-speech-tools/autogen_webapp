@@ -22,7 +22,7 @@ type OpenSpeechProps =
 
 export interface AutoGenState {
   downloadStatus: DownloadStatus,
-  uiConfig: UIConfig,
+  autogen: Autogen,
   notification: Notification
 }
 
@@ -32,7 +32,7 @@ interface DownloadStatus {
   lastDownloadProgress: number,
 }
 
-interface UIConfig {
+interface Autogen {
   name: string,
   projectID: string,
 }
@@ -58,7 +58,7 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
         level: ""
       },
 
-      uiConfig: {
+      autogen: {
         name: "",
         projectID: "Example",
       }
@@ -77,31 +77,31 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
   }
   componentDidUpdate() {
 
-    if (this.props.uiConfig) {
-      if (this.props.uiConfig.name === 'Demo Upload Failed' && this.props.uiConfig.name != this.state.uiConfig.name) {
+    if (this.props.autogen) {
+      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Demo Upload Failed');
         this.setState({
-          uiConfig: {
-            name: this.props.uiConfig.name,
-            projectID: this.state.uiConfig.projectID
+          autogen: {
+            name: this.props.autogen.name,
+            projectID: this.state.autogen.projectID
           }
         });
       }
-      else if (this.props.uiConfig.name === "ERROR" && this.props.uiConfig.name != this.state.uiConfig.name) {
+      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Control Generation Failed')
         this.setState({
-          uiConfig: {
-            name: this.props.uiConfig.name,
-            projectID: this.state.uiConfig.projectID
+          autogen: {
+            name: this.props.autogen.name,
+            projectID: this.state.autogen.projectID
           }
         });
       }
-      else if (this.props.uiConfig.name != this.state.uiConfig.name) {
+      else if (this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('success', 'New Controls Generated');
         this.setState({
-          uiConfig: {
-            name: this.props.uiConfig.name,
-            projectID: this.state.uiConfig.projectID
+          autogen: {
+            name: this.props.autogen.name,
+            projectID: this.state.autogen.projectID
           }
         });
       }
@@ -138,12 +138,12 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
   }
 
   handleRequestUI() {
-    this.props.requestOpenSpeechUI(this.props.deviceAddress);
+    this.props.requestAutogenConfiguration(this.props.deviceAddress);
   }
 
   handleInputCommand(module: string, link: string, value: string) {
-    if (!this.props.isLoading) {
-      this.props.requestSendCommand(link, value, module,this.props.deviceAddress);
+    if (!this.props.isLoading && this.props.command) {
+      this.props.requestSendModelData(this.props.command, this.props.deviceAddress);
     }
   }
 
@@ -159,15 +159,15 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
   render() {
 
     function getAutogen(state: AutoGenControls, props: OpenSpeechProps) {
-      if (props.uiConfig) {
-        if (props.uiConfig.pages) {
-          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
+      if (props.autogen) {
+        if (props.autogen.pages) {
+          var effectName = props.autogen.name ? props.autogen.name : "";
           effectName = (effectName === "ERROR") ? "" : effectName;
           return (
             <div className="autogen autogen-effectContainer">
               <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
               <Card className="autogen-pages">
-                {props.uiConfig.pages.map((page) =>
+                {props.autogen.pages.map((page) =>
                   <React.Fragment key={page.name}>
                     <div className={page.name}>
                       <Jumbotron className="autogen-page-name">{page.name}</Jumbotron>
@@ -181,8 +181,8 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
               </Card>
             </div>);
         }
-        else if (props.uiConfig.name) {
-          var effectName = props.uiConfig.name ? props.uiConfig.name : "";
+        else if (props.autogen.name) {
+          var effectName = props.autogen.name ? props.autogen.name : "";
           effectName = (effectName === "ERROR") ? "" : effectName;
           return (
             <div className="autogen autogen-effectContainer autogen-error">

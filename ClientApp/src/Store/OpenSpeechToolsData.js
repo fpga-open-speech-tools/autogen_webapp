@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 exports.openSpeechDataActionCreators = {
     requestOpenSpeechS3Demos: function () { return function (dispatch) {
-        fetch("availabledemos")
+        fetch("available-demos")
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -14,34 +14,35 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
     }; },
-    requestS3DownloadProgress: function (address) { return function (dispatch) {
-        fetch("downloadprogress/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port)
+    requestAutogenConfiguration: function (address) { return function (dispatch, getState) {
+        var data = new FormData();
+        data.append('ip1', address.ipAddress.ip1);
+        data.append('ip2', address.ipAddress.ip2);
+        data.append('ip3', address.ipAddress.ip3);
+        data.append('ip4', address.ipAddress.ip4);
+        data.append('port', address.port);
+        fetch("configuration", { method: "PUT", body: data })
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
-                type: 'RECEIVE_S3_DOWNLOAD_PROGRESS', downloadProgress: data
+                type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
             });
         });
         dispatch({
-            type: 'REQUEST_S3_DOWNLOAD_PROGRESS',
+            type: 'REQUEST_OPENSPEECH_AUTOGEN',
             deviceAddress: address
         });
     }; },
-    requestOpenSpeechUI: function (address) { return function (dispatch, getState) {
-        fetch("uiconfig/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port)
-            .then(function (response) { return response.json(); })
-            .then(function (data) {
-            dispatch({
-                type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
-            });
-        });
-        dispatch({
-            type: 'REQUEST_OPENSPEECH_UI',
-            deviceAddress: address
-        });
-    }; },
-    requestSendCommand: function (device, value, name, address) { return function (dispatch, getState) {
-        fetch("command/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + device + "/" + value + "/" + name)
+    requestSendModelData: function (input, address) { return function (dispatch, getState) {
+        var data = new FormData();
+        data.append('ip1', address.ipAddress.ip1);
+        data.append('ip2', address.ipAddress.ip2);
+        data.append('ip3', address.ipAddress.ip3);
+        data.append('ip4', address.ipAddress.ip4);
+        data.append('port', address.port);
+        var inputString = JSON.stringify(input);
+        data.append('modelData', JSON.stringify(inputString));
+        fetch("model-data", { method: "PUT", body: data })
             .then(function () {
             dispatch({
                 type: 'RECEIVE_SEND_COMMAND_RESPONSE'
@@ -49,32 +50,17 @@ exports.openSpeechDataActionCreators = {
         });
         dispatch({
             type: 'REQUEST_SEND_COMMAND',
-            deviceAddress: address, command: { device: device, value: value, name: name }
+            deviceAddress: address, command: input
         });
     }; },
-    requestSendRegisterConfig: function (registers, address) { return function (dispatch, getState) {
+    requestGetModelData: function (address, callback) { return function (dispatch, getState) {
         var data = new FormData();
         data.append('ip1', address.ipAddress.ip1);
         data.append('ip2', address.ipAddress.ip2);
         data.append('ip3', address.ipAddress.ip3);
         data.append('ip4', address.ipAddress.ip4);
         data.append('port', address.port);
-        var registersAsString = JSON.stringify(registers);
-        data.append('registers', JSON.stringify(registers));
-        fetch("setregisterconfig", { method: "PUT", body: data })
-            .then(function (response) { return response.json(); })
-            .then(function (data) {
-            dispatch({
-                type: 'RECEIVE_OPENSPEECH_UI', uiConfig: data
-            });
-        });
-        dispatch({
-            type: 'REQUEST_SET_REGISTER_CONFIG',
-            deviceAddress: address, registerConfigString: registersAsString
-        });
-    }; },
-    requestGetRegisterConfig: function (address, callback) { return function (dispatch, getState) {
-        fetch("getregisterconfig/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port)
+        fetch("model-data", { method: "PUT", body: data })
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -92,7 +78,7 @@ exports.openSpeechDataActionCreators = {
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
-                type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO', uiConfig: data, isDeviceDownloading: false, currentDemo: projectname
+                type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO', autogen: data, isDeviceDownloading: false, currentDemo: projectname
             });
         });
         dispatch({
@@ -122,28 +108,27 @@ exports.reducer = function (state, incomingAction) {
     }
     var action = incomingAction;
     switch (action.type) {
-        case 'REQUEST_OPENSPEECH_UI':
+        case 'REQUEST_OPENSPEECH_AUTOGEN':
             return {
                 deviceAddress: state.deviceAddress,
-                uiConfig: null,
+                autogen: null,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: true
             };
-        case 'RECEIVE_OPENSPEECH_UI':
+        case 'RECEIVE_OPENSPEECH_AUTOGEN':
             return {
                 deviceAddress: state.deviceAddress,
                 availableDemos: state.availableDemos,
-                uiConfig: action.uiConfig,
+                autogen: action.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
         case 'REQUEST_SEND_COMMAND':
             return {
                 deviceAddress: state.deviceAddress,
-                currentRegisterConfig: state.currentRegisterConfig,
                 currentDemo: state.currentDemo,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 availableDemos: state.availableDemos,
                 command: state.command,
                 isDeviceDownloading: state.isDeviceDownloading,
@@ -152,10 +137,9 @@ exports.reducer = function (state, incomingAction) {
         case 'RECEIVE_SEND_COMMAND_RESPONSE':
             return {
                 deviceAddress: state.deviceAddress,
-                currentRegisterConfig: state.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
@@ -164,7 +148,7 @@ exports.reducer = function (state, incomingAction) {
                 deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: true
             };
@@ -173,7 +157,7 @@ exports.reducer = function (state, incomingAction) {
                 deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: action.availableDemos,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
@@ -183,7 +167,7 @@ exports.reducer = function (state, incomingAction) {
                 deviceFamily: action.deviceFamily,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: true,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 currentDemo: action.currentDemo,
                 isLoading: true
             };
@@ -192,26 +176,16 @@ exports.reducer = function (state, incomingAction) {
                 deviceAddress: state.deviceAddress,
                 availableDemos: state.availableDemos,
                 currentDemo: action.currentDemo,
-                uiConfig: action.uiConfig,
+                autogen: action.autogen,
                 isDeviceDownloading: false,
-                isLoading: false
-            };
-        case 'REQUEST_S3_DOWNLOAD_PROGRESS':
-            return {
-                deviceAddress: state.deviceAddress,
-                currentDemo: state.currentDemo,
-                availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
-                isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
         case 'REQUEST_SET_REGISTER_CONFIG':
             return {
                 deviceAddress: state.deviceAddress,
-                currentRegisterConfig: state.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
-                uiConfig: null,
+                autogen: null,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
@@ -220,27 +194,16 @@ exports.reducer = function (state, incomingAction) {
                 deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
         case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
             return {
                 deviceAddress: state.deviceAddress,
-                currentRegisterConfig: action.currentRegisterConfig,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
-                isDeviceDownloading: state.isDeviceDownloading,
-                isLoading: false
-            };
-        case 'RECEIVE_S3_DOWNLOAD_PROGRESS':
-            return {
-                deviceAddress: state.deviceAddress,
-                currentDemo: state.currentDemo,
-                downloadProgress: action.downloadProgress,
-                availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
@@ -248,7 +211,7 @@ exports.reducer = function (state, incomingAction) {
             return {
                 deviceAddress: action.address,
                 availableDemos: state.availableDemos,
-                uiConfig: state.uiConfig,
+                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };
