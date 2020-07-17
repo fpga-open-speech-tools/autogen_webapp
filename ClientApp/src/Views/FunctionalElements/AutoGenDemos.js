@@ -145,7 +145,7 @@ var AvailableDemos = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Modal.Header, null,
                             React.createElement(react_bootstrap_1.Modal.Title, null, "Available Demos")),
                         React.createElement(react_bootstrap_1.Modal.Body, null,
-                            React.createElement(react_bootstrap_1.Row, null, this.props.availableDemos.map(function (d) {
+                            React.createElement(react_bootstrap_1.Row, { className: "autogen-pages" }, this.props.availableDemos.map(function (d) {
                                 return React.createElement(React.Fragment, { key: d.name },
                                     React.createElement(OpenSpeechDemoCard_jsx_1.OpenSpeechDemoCard, { isSelected: highlightIfDownloaded(_this.state, _this.props, d.name), isDownloading: animateDownloadStatus(_this.state, _this.props, d.name), downloadDevice: d.downloadurl.devicename, downloadProject: d.downloadurl.projectname, headerTitle: d.name, callback: _this.handleDownloadDemo, statsValue: (d.filesize / 1000000).toFixed(2) + "MB", statsIcon: React.createElement("i", { className: "fa fa-folder-o" }), statsIconText: d.downloadurl.devicename + "/" + d.downloadurl.projectname }));
                             }))))))));

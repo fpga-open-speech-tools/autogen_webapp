@@ -57,14 +57,14 @@ namespace Autogen.Controllers
     /// <param name="projectname">Name of Project. ex, "passthrough"</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
     [HttpGet("{ip1}/{ip2}/{ip3}/{ip4}/{devicePort}/{devicename}/{projectname}")]
-    public AutogenConfig.EffectContainer 
+    public AutogenConfig.Configuration
       Get(string ip1,string ip2, string ip3, string ip4, string devicePort, string devicename, string projectname)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
       System.Diagnostics.Debug.WriteLine
         ("IP: " + deviceIP  + " Port: " + devicePort + " downloadURL: " + devicename + "/" + projectname);
 
-      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer();
+      AutogenConfig.Configuration result = new AutogenConfig.Configuration();
 
       string baseURL = "http://" + deviceIP + ":" + devicePort;
 
@@ -80,11 +80,11 @@ namespace Autogen.Controllers
         byte[] data = Encoding.ASCII.GetBytes(command);
         using var client = new WebClient();
         _ = client.UploadData(baseURL + "/download", "PUT", data);
-        result = _download_serialized_json_data<AutogenConfig.EffectContainer>(baseURL + "/ui");
+        result = _download_serialized_json_data<AutogenConfig.Configuration>(baseURL + "/ui");
       }
       catch(Exception e)
       {
-        result = new AutogenConfig.EffectContainer()
+        result = new AutogenConfig.Configuration()
         {
           name = "Demo Upload Failed"
         };

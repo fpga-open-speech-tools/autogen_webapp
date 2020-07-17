@@ -9,7 +9,7 @@ export interface OpenSpeechToolsState {
   isDeviceDownloading: boolean;
   currentDemo?: string;
   //Interface for UI JSON
-  autogen?: Autogen | null;
+  autogen: Autogen;
   //Interface for Demos Array[]
   availableDemos: Demo[];
 
@@ -29,7 +29,7 @@ export interface DeviceAddress {
     ip2: string;
     ip3: string;
     ip4: string;
-  };
+  }
   port: string;
 }
 
@@ -52,23 +52,16 @@ export interface s3bucketurl {
 }
 
 
-
-
 export interface Autogen {
   name: string;
-  pages: Page[];
   views: ComponentView[];
   data: ModelData[];
   containers: AutogenContainer[];
 }
 
-export interface Page {
-  name: string;
-}
-
 export interface AutogenContainer {
   name: string;
-  viewReferences: number[];
+  views: number[];
 }
 
 export interface ComponentView {
@@ -83,19 +76,23 @@ export interface AutogenComponent {
   callback: string;
 }
 
-
 export interface ModelData {
   references: DataReference[];
-  min: number | undefined | null;
-  max: number | undefined | null;
-  step: number | undefined | null;
+  properties: DataProperties;
   value: number | number[] | string | string[];
-  enumeration: string[] | number[] | undefined | null;
-  units: string | undefined | null;
 }
 
 export interface DataReference {
+  type: string;
   reference: Register;
+}
+
+export interface DataProperties {
+  min: number | undefined | null;
+  max: number | undefined | null;
+  step: number | undefined | null;
+  units: string | undefined | null;
+  enumeration: string[] | number[] | undefined | null;
 }
 
 export interface Register {
@@ -194,14 +191,24 @@ type KnownAction =
   RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse |
   SetDeviceAddress;
 
+
+function appendAddressToForm(data: FormData, address:DeviceAddress) {
+  data.append('ip1', address.ipAddress.ip1);
+  data.append('ip2', address.ipAddress.ip2);
+  data.append('ip3', address.ipAddress.ip3);
+  data.append('ip4', address.ipAddress.ip4);
+  data.append('port', address.port);
+}
+
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 
 export const openSpeechDataActionCreators = {
 
-  requestOpenSpeechS3Demos: (): AppThunkAction<KnownAction> => (dispatch) => {
-    fetch(`available-demos`)
+  requestOpenSpeechS3Demos: ():
+    AppThunkAction<KnownAction> => (dispatch) => {
+    fetch(`demos`)
       .then(response => response.json() as Promise<Demo[]>)
       .then(data => {
         dispatch({
@@ -211,15 +218,12 @@ export const openSpeechDataActionCreators = {
     dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
   },
 
-  requestAutogenConfiguration: (address:DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
+  requestAutogenConfiguration: (address: DeviceAddress):
+    AppThunkAction<KnownAction> => (dispatch, getState) => {
     var data = new FormData();
-    data.append('ip1', address.ipAddress.ip1);
-    data.append('ip2', address.ipAddress.ip2);
-    data.append('ip3', address.ipAddress.ip3);
-    data.append('ip4', address.ipAddress.ip4);
-    data.append('port', address.port);
+    appendAddressToForm(data, address);
     fetch(`configuration`, { method: "PUT", body: data })
-        .then(response => response.json() as Promise<Autogen>)
+        .then(response => response.json() as Promise<any>)
         .then(data => {
           dispatch({
             type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
@@ -231,15 +235,11 @@ export const openSpeechDataActionCreators = {
       });
     },
 
-  requestSendModelData: (
-    input: DataPacket[], address: DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
+  requestSendModelData: (input: DataPacket[], address: DeviceAddress):
+    AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
-      data.append('ip1', address.ipAddress.ip1);
-      data.append('ip2', address.ipAddress.ip2);
-      data.append('ip3', address.ipAddress.ip3);
-      data.append('ip4', address.ipAddress.ip4);
-      data.append('port', address.port);
       var inputString = JSON.stringify(input);
+      appendAddressToForm(data, address);
       data.append('modelData', JSON.stringify(inputString));
      
       fetch(`model-data`, { method: "PUT", body: data })
@@ -256,10 +256,7 @@ export const openSpeechDataActionCreators = {
 
   requestGetModelData: (address: DeviceAddress, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
     var data = new FormData();
-    data.append('ip1', address.ipAddress.ip1);
-    data.append('ip2', address.ipAddress.ip2);
-    data.append('ip3', address.ipAddress.ip3);
-    data.append('ip4', address.ipAddress.ip4);
+    appendAddressToForm(data,address);
     data.append('port', address.port);
     fetch(`model-data`, { method: "PUT", body: data })
         .then(response => response.json() as Promise<RegisterConfig>)
@@ -275,7 +272,8 @@ export const openSpeechDataActionCreators = {
       });
     },
 
-  requestDownloadS3Demo: (address:DeviceAddress,devicename: string, projectname: string): AppThunkAction<KnownAction> => (dispatch, getState) => {
+  requestDownloadS3Demo: (address: DeviceAddress, devicename: string, projectname: string):
+    AppThunkAction<KnownAction> => (dispatch, getState) => {
     fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${devicename}/${projectname}`)
       .then(response => response.json() as Promise<Autogen>)
       .then(data => {
@@ -297,11 +295,18 @@ export const openSpeechDataActionCreators = {
     },
 };
 
+const emptyAutogen = {
+  containers: {},
+  data: {},
+  views: {},
+  name: ""
+} as Autogen
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
-  deviceAddress: { ipAddress: {ip1:'192',ip2:'168',ip3:'0',ip4:'120'},port:'3355' },
+  deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '0', ip4: '120' }, port: '3355' },
+  autogen: emptyAutogen,
   availableDemos: [],
   isLoading: false,
   isDeviceDownloading: false
@@ -317,7 +322,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
     case 'REQUEST_OPENSPEECH_AUTOGEN':
       return {
         deviceAddress:state.deviceAddress,
-        autogen: null,
+        autogen: emptyAutogen,
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true
@@ -391,7 +396,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         deviceAddress: state.deviceAddress,
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
-        autogen: null,
+        autogen: emptyAutogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
       };

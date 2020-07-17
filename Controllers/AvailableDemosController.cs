@@ -24,6 +24,7 @@ namespace AvailableDemos.Controllers
 
 
     [HttpGet]
+    [Route("~/demos")]
     public IEnumerable<Demo> Get()
     {
       List<Demo> ret = new List<Demo>();

@@ -110,7 +110,7 @@ namespace Autogen.Controllers
 
     [HttpPut]
     [Route("~/model-data")]
-    public AutogenConfig.EffectContainer Put(
+    public AutogenConfig.Configuration Put(
       [FromForm]string ip1, 
       [FromForm]string ip2, 
       [FromForm]string ip3, 
@@ -119,7 +119,7 @@ namespace Autogen.Controllers
       [FromForm]string modelData)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-      var url = "http://" + deviceIP + ":" + port + "/register-config";
+      var url = "http://" + deviceIP + ":" + port + "/model-data";
       var method = "GET";
       //set url to get model data
       if (modelData.Length > 0)
@@ -127,12 +127,12 @@ namespace Autogen.Controllers
         method = "POST";
       }
  
-      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer()
+      AutogenConfig.Configuration result = new AutogenConfig.Configuration()
       {
       };
 
-      //System.Diagnostics.Debug.WriteLine("Attempting to Set Register Configuration @: " + url + "\nPostedJSON: " + registers);
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url,method,modelData);
+      System.Diagnostics.Debug.WriteLine("Attempting to " + method + " Model @: " + url + "\nPostedJSON: " + modelData);
+      result = _download_serialized_json_data<AutogenConfig.Configuration>(url,method,modelData);
       return result;
     }
   }

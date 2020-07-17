@@ -19,6 +19,22 @@ namespace Autogen.Controllers
       _logger = logger;
     }
 
+
+    private static string _download_json_data(string url){
+      var json_data = string.Empty;
+      // attempt to download JSON data as a string
+      try
+      {
+        json_data = HTTP_GET(url).Output;
+      }
+      catch (Exception) { }
+      if (json_data == "")
+      {
+        json_data = "{\"name\":\"ERROR\"}";
+      }
+      System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
+      return json_data;
+    }
     private static T _download_serialized_json_data<T>(string url) where T : new()
     {
 
@@ -31,12 +47,13 @@ namespace Autogen.Controllers
         catch (Exception) { }
         if (json_data == "")
         {
-        json_data = "{\"name\":\"ERROR\"}";
+          json_data = "{\"name\":\"ERROR\"}";
         }
         System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
 
-        // if string with JSON data is not empty, deserialize it to class and return its instance 
-        return !string.IsNullOrEmpty(json_data) ? JsonConvert.DeserializeObject<T>(json_data) : new T();
+      // if string with JSON data is not empty, deserialize it to class and return its instance 
+      return !string.IsNullOrEmpty(json_data) ? JsonConvert.DeserializeObject<T>(json_data) : new T();
+
       
     }
 
@@ -105,7 +122,7 @@ namespace Autogen.Controllers
 
     [HttpPut]
     [Route("~/configuration")]
-    public AutogenConfig.EffectContainer Put(
+    public string Put(
       [FromForm]string ip1,
       [FromForm]string ip2,
       [FromForm]string ip3,
@@ -114,15 +131,13 @@ namespace Autogen.Controllers
       )
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-      AutogenConfig.EffectContainer result = new AutogenConfig.EffectContainer()
-      {name="Error"
-      };
-
       var url = "http://" + deviceIP + ":" + port + "/configuration";
       System.Diagnostics.Debug.WriteLine("Attempting to Get UI @: " + url);
-      result = _download_serialized_json_data<AutogenConfig.EffectContainer>(url);
+      //r = _download_serialized_json_data<object>(url);
+      string result  = _download_json_data(url);
       return result;
     }
+
   }
 
 }

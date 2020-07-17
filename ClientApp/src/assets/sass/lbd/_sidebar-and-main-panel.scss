@@ -382,5 +382,15 @@ h1 {
 
 
 .autogen-pages{
-  //flex-direction:row !important;
+  //justify-content:space-evenly;
+}
+
+.autogen-effectContainer{
+  flex:auto;
+  flex-wrap:wrap;
+  float:left;
+}
+
+.autogen-panel{
+  height:100%;
 }

@@ -5,41 +5,57 @@ namespace Autogen
   public class AutogenConfig
   {
     [Serializable]
-    public class EffectContainer
+    public class Configuration
     {
       public string name { get; set; }
-      public Page[] pages { get; set; }
+      public Container[] containers { get; set; }
+      public Data[] data { get; set; }
+      public View[] views { get; set; }
+
     }
 
     [Serializable]
-    public class Page
+    public class Container
     {
       public string name { get; set; }
-      public Panel[] panels { get; set; }
+      public View[] views { get; set; }
     }
 
     [Serializable]
-    public class Panel
+    public class Data
     {
-      public string name { get; set; }
-      public Control[] controls { get; set; }
-    }
-
-    [Serializable]
-    public class Control
-    {
-      public string style { get; set; }
-      public string linkerName { get; set; }
       public float min { get; set; }
       public float max { get; set; }
-      public string title { get; set; }
-      public string dataType { get; set; }
-      public float defaultValue { get; set; }
+      public float step { get; set; }
+      public float value { get; set; }
       public string units { get; set; }
-      public string type { get; set; }
-      public string module { get; set; }
+      public string[] enumeration { get; set; }
+      public DataReference reference { get; set; }
     }
 
+
+
+    [Serializable]
+    public class View
+    {
+      public string name { get; set; }
+      public ViewType type { get; set; }
+      public int[] references { get; set; }
+
+    }
+    [Serializable]
+    public class ViewType
+    {
+      public string component { get; set; }
+      public string variant { get; set; }
+    }
+
+    [Serializable]
+    public class DataReference
+    {
+      public string device { get; set; }
+      public string name { get; set; }
+    }
   }
 }
 

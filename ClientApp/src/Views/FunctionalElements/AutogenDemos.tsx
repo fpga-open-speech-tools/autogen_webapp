@@ -10,7 +10,6 @@ import {
   Card, Jumbotron, Modal
 } from "react-bootstrap";
 import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
-import { EffectPageDiv } from "../../Components/Autogen/Containers/EffectPageDiv.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 
 
@@ -193,7 +192,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
                 <Modal.Title>Available Demos</Modal.Title>
               </Modal.Header>
               <Modal.Body>
-                <Row>
+                <Row className="autogen-pages">
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
                 <OpenSpeechDemoCard

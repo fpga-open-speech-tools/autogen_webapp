@@ -17,17 +17,13 @@ var React = require("react");
 var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
-var EffectPageDiv_jsx_1 = require("../../Components/Autogen/Containers/EffectPageDiv.jsx");
 var NotificationWrapper_jsx_1 = require("../../Components/Notifications/NotificationWrapper.jsx");
+var AutogenContainer_jsx_1 = require("../../Components/Autogen/Containers/AutogenContainer.jsx");
 var AutoGenControls = /** @class */ (function (_super) {
     __extends(AutoGenControls, _super);
     function AutoGenControls(props) {
         var _this = _super.call(this, props) || this;
         _this.state = {
-            downloadStatus: {
-                lastDownloadProgressRequestTime: 0,
-                lastDownloadProgress: 0,
-            },
             notification: {
                 text: "",
                 level: ""
@@ -102,9 +98,9 @@ var AutoGenControls = /** @class */ (function (_super) {
     AutoGenControls.prototype.handleRequestUI = function () {
         this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
-    AutoGenControls.prototype.handleInputCommand = function (module, link, value) {
-        if (!this.props.isLoading && this.props.command) {
-            this.props.requestSendModelData(this.props.command, this.props.deviceAddress);
+    AutoGenControls.prototype.handleInputCommand = function (command) {
+        if (!this.props.isLoading) {
+            this.props.requestSendModelData(command, this.props.deviceAddress);
         }
     };
     AutoGenControls.prototype.setNotification = function (level, text) {
@@ -118,16 +114,16 @@ var AutoGenControls = /** @class */ (function (_super) {
     AutoGenControls.prototype.render = function () {
         function getAutogen(state, props) {
             if (props.autogen) {
-                if (props.autogen.pages) {
+                if (props.autogen.containers.length > 0 &&
+                    props.autogen.data.length > 0 &&
+                    props.autogen.views.length > 0) {
                     var effectName = props.autogen.name ? props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
-                    return (React.createElement("div", { className: "autogen autogen-effectContainer" },
+                    return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
                         React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
-                        React.createElement(react_bootstrap_1.Card, { className: "autogen-pages" }, props.autogen.pages.map(function (page) {
-                            return React.createElement(React.Fragment, { key: page.name },
-                                React.createElement("div", { className: page.name },
-                                    React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-page-name" }, page.name),
-                                    React.createElement(EffectPageDiv_jsx_1.EffectPageDiv, { callback: state.handleInputCommand, module: module, page: page })));
+                        React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, props.autogen.containers.map(function (container) {
+                            return React.createElement(React.Fragment, { key: container.name },
+                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: props.autogen.views, data: props.autogen.data, callback: state.handleInputCommand }));
                         }))));
                 }
                 else if (props.autogen.name) {

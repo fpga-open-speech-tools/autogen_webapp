@@ -1,11 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+function appendAddressToForm(data, address) {
+    data.append('ip1', address.ipAddress.ip1);
+    data.append('ip2', address.ipAddress.ip2);
+    data.append('ip3', address.ipAddress.ip3);
+    data.append('ip4', address.ipAddress.ip4);
+    data.append('port', address.port);
+}
 // ----------------
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 exports.openSpeechDataActionCreators = {
     requestOpenSpeechS3Demos: function () { return function (dispatch) {
-        fetch("available-demos")
+        fetch("demos")
             .then(function (response) { return response.json(); })
             .then(function (data) {
             dispatch({
@@ -16,11 +23,7 @@ exports.openSpeechDataActionCreators = {
     }; },
     requestAutogenConfiguration: function (address) { return function (dispatch, getState) {
         var data = new FormData();
-        data.append('ip1', address.ipAddress.ip1);
-        data.append('ip2', address.ipAddress.ip2);
-        data.append('ip3', address.ipAddress.ip3);
-        data.append('ip4', address.ipAddress.ip4);
-        data.append('port', address.port);
+        appendAddressToForm(data, address);
         fetch("configuration", { method: "PUT", body: data })
             .then(function (response) { return response.json(); })
             .then(function (data) {
@@ -35,12 +38,8 @@ exports.openSpeechDataActionCreators = {
     }; },
     requestSendModelData: function (input, address) { return function (dispatch, getState) {
         var data = new FormData();
-        data.append('ip1', address.ipAddress.ip1);
-        data.append('ip2', address.ipAddress.ip2);
-        data.append('ip3', address.ipAddress.ip3);
-        data.append('ip4', address.ipAddress.ip4);
-        data.append('port', address.port);
         var inputString = JSON.stringify(input);
+        appendAddressToForm(data, address);
         data.append('modelData', JSON.stringify(inputString));
         fetch("model-data", { method: "PUT", body: data })
             .then(function () {
@@ -55,10 +54,7 @@ exports.openSpeechDataActionCreators = {
     }; },
     requestGetModelData: function (address, callback) { return function (dispatch, getState) {
         var data = new FormData();
-        data.append('ip1', address.ipAddress.ip1);
-        data.append('ip2', address.ipAddress.ip2);
-        data.append('ip3', address.ipAddress.ip3);
-        data.append('ip4', address.ipAddress.ip4);
+        appendAddressToForm(data, address);
         data.append('port', address.port);
         fetch("model-data", { method: "PUT", body: data })
             .then(function (response) { return response.json(); })
@@ -94,10 +90,17 @@ exports.openSpeechDataActionCreators = {
         });
     }; },
 };
+var emptyAutogen = {
+    containers: {},
+    data: {},
+    views: {},
+    name: ""
+};
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 var unloadedState = {
     deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '0', ip4: '120' }, port: '3355' },
+    autogen: emptyAutogen,
     availableDemos: [],
     isLoading: false,
     isDeviceDownloading: false
@@ -111,7 +114,7 @@ exports.reducer = function (state, incomingAction) {
         case 'REQUEST_OPENSPEECH_AUTOGEN':
             return {
                 deviceAddress: state.deviceAddress,
-                autogen: null,
+                autogen: emptyAutogen,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: true
@@ -185,7 +188,7 @@ exports.reducer = function (state, incomingAction) {
                 deviceAddress: state.deviceAddress,
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
-                autogen: null,
+                autogen: emptyAutogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };

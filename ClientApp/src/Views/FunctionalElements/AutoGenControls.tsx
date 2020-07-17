@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
@@ -9,10 +8,8 @@ import {
   FormControl, Button, Spinner,
   Card, Jumbotron, Modal
 } from "react-bootstrap";
-import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
-import { EffectPageDiv } from "../../Components/Autogen/Containers/EffectPageDiv.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
-
+import AutogenContainer from "../../Components/Autogen/Containers/AutogenContainer.jsx";
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -21,15 +18,8 @@ type OpenSpeechProps =
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 export interface AutoGenState {
-  downloadStatus: DownloadStatus,
   autogen: Autogen,
   notification: Notification
-}
-
-
-interface DownloadStatus {
-  lastDownloadProgressRequestTime: number,
-  lastDownloadProgress: number,
 }
 
 interface Autogen {
@@ -48,10 +38,6 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     super(props);
 
     this.state = {
-      downloadStatus: {
-        lastDownloadProgressRequestTime: 0,
-        lastDownloadProgress: 0,
-      },
 
       notification: {
         text: "",
@@ -141,9 +127,9 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     this.props.requestAutogenConfiguration(this.props.deviceAddress);
   }
 
-  handleInputCommand(module: string, link: string, value: string) {
-    if (!this.props.isLoading && this.props.command) {
-      this.props.requestSendModelData(this.props.command, this.props.deviceAddress);
+  handleInputCommand(command:OpenSpeechDataStore.DataPacket[]) {
+    if (!this.props.isLoading) {
+      this.props.requestSendModelData(command, this.props.deviceAddress);
     }
   }
 
@@ -160,25 +146,28 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
 
     function getAutogen(state: AutoGenControls, props: OpenSpeechProps) {
       if (props.autogen) {
-        if (props.autogen.pages) {
+        if (
+          props.autogen.containers.length > 0 &&
+          props.autogen.data.length > 0 &&
+          props.autogen.views.length > 0) {
           var effectName = props.autogen.name ? props.autogen.name : "";
           effectName = (effectName === "ERROR") ? "" : effectName;
           return (
-            <div className="autogen autogen-effectContainer">
+            <div className="autogen autogen-effectContainer modal-body">
               <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
-              <Card className="autogen-pages">
-                {props.autogen.pages.map((page) =>
-                  <React.Fragment key={page.name}>
-                    <div className={page.name}>
-                      <Jumbotron className="autogen-page-name">{page.name}</Jumbotron>
-                      <EffectPageDiv
-                        callback={state.handleInputCommand}
-                        module={module}
-                        page={page} />
-                    </div>
+              <Row className="autogen-pages row">
+                {props.autogen.containers.map((container) =>
+                  <React.Fragment key={container.name}>
+                    <AutogenContainer
+                      references={container.views}
+                      headerTitle={container.name}
+                      views={...props.autogen.views}
+                      data={...props.autogen.data}
+                      callback={state.handleInputCommand}
+                    />
                   </React.Fragment>)
                 }
-              </Card>
+              </Row>
             </div>);
         }
         else if (props.autogen.name) {
@@ -190,7 +179,6 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
         }
       }
     }
-
 
     return (
       <div className="content">
@@ -213,7 +201,7 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
               </div></Modal.Header>
             {getAutogen(this, this.props)}
             </Modal.Dialog>
-            </Row>
+          </Row>
         </Container>
       </div>
     );

@@ -10,26 +10,38 @@ export class ToggleWrapper extends Component {
       currentValue: 1,
     };
   }
-
+  componentDidMount() {
+    this.setState({ currentValue: this.props.data.value });
+  }
   render() {
+
+    function dataPacket(dataReference, value) {
+      return (
+        [{
+          reference: dataReference,
+          value: value
+        }]
+      );
+    }
+
     return (
       <div className="autogen autogen-toggle">
         <ToggleButtonGroup
           type="radio" name="options"
-          defaultValue={1}>
+          defaultValue={this.state.currentValue}>
           <ToggleButton
             onClick={
-              () => this.props.callback(this.props.module, this.props.link, "1")
+              () => this.props.callback(dataPacket(this.props.data.references[0], 1))
             }
             value={1}>
-            Enabled
+            {this.props.data.properties.enumeration[1]}
           </ToggleButton>
           <ToggleButton
             onClick={
-              () => this.props.callback(this.props.module, this.props.link, "0")
+              () => this.props.callback(dataPacket(this.props.data.references[0], 0))
             }
             value={2}>
-            Disabled
+            {this.props.data.properties.enumeration[0]}
          </ToggleButton>
         </ToggleButtonGroup>
         </div>

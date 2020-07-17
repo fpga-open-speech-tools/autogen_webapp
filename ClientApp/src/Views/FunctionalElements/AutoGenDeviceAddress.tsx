@@ -9,7 +9,6 @@ import {
   FormControl, Button, Spinner,
   Card, Jumbotron, Modal
 } from "react-bootstrap";
-import { EffectPageDiv } from "../../Components/Autogen/Containers/EffectPageDiv.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 
 
