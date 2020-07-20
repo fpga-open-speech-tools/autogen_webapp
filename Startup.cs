@@ -32,6 +32,12 @@ namespace OpenSpeechTools
         configuration.RootPath = "ClientApp/build";
       });
 
+      services.AddCors(
+        options => options.AddPolicy("CorsPolicy",
+          builder =>{
+            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+      }));
+
       services.AddSignalR();
     }
 
@@ -65,14 +71,14 @@ namespace OpenSpeechTools
       app.UseSpaStaticFiles();
 
       app.UseRouting();
-
+      app.UseCors("CorsPolicy");
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllerRoute(
                   name: "default",
                   pattern: "{controller}/{action=Index}/{id?}");
         endpoints.MapHub<DoctorPatient>("/doctor-patient");
-        endpoints.MapHub<Controls>("/controls");
+        endpoints.MapHub<ModelData>("/model-data");
       });
 
       app.UseSpa(spa =>

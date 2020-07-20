@@ -13,44 +13,31 @@ export class SliderWrapper extends Component {
   }
 
   componentDidMount() {
-    this.setState({ currentValue: this.props.data.value });
+    this.setState({ currentValue: this.props.value });
   }
 
   componentWillReceiveProps() {
-    this.setState({currentValue:this.props.data.value});
+    this.setState({ currentValue: this.props.value });
   }
 
   render() {
-
-    function dataPacket(index,value) {
-      return (
-        [{
-          index: index,
-          value:value
-        }]
-        );
-    }
-
     return (
       <div className="autogen autogen-slider">
         <Row className ="centered-row">
           <Col sm={12} md={12} lg={12} className="autogen-control-name">
-            {this.props.title}
           </Col>
         </Row>
         <Row className="autogen-value-row">
-          <div className="autogen-value">{this.state.currentValue}</div>
-          <div className="autogen-units">{this.props.data.properties.units}</div>
         </Row>
         <RangeSlider
           tooltip="off"
-          step={this.props.data.properties.step}
-          min={this.props.data.properties.min}
-          max={this.props.data.properties.max}
+          step={1}
+          min={0}
+          max={10}
           value={this.state.currentValue}
           onChange={
             changeEvent => {
-              { this.props.callback(dataPacket(this.props.index, changeEvent.target.value)) }
+              { this.props.callback(this.props.index, changeEvent.target.value) }
               this.setState({
                 currentValue: changeEvent.target.value
               })

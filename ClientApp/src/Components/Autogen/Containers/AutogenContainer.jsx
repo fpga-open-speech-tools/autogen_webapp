@@ -4,7 +4,6 @@ import SliderWrapper from '../Inputs/SliderWrapper';
 import ToggleWrapper from '../Inputs/ToggleWrapper';
 
 export class AutogenContainer extends Component {
-
   render() {
     return (
       <div className={"autogen + autogen-panel card" + (this.props.plain ? " card-plain" : "")}>
@@ -49,6 +48,7 @@ export class AutogenContainer extends Component {
 
 function InputComponent(props) {
   var dataList = [];
+
   for (var i = 0; i < props.view.references.length; i++) {
     dataList.push(props.data[props.view.references[i]]);
   }
@@ -58,6 +58,7 @@ function InputComponent(props) {
       <SliderWrapper
         title={props.view.name}
         data={dataList[0]}
+        index={props.view.references[0]}
         callback={props.callback}
 
       />
@@ -66,6 +67,7 @@ function InputComponent(props) {
     return (
       <ToggleWrapper
         data={dataList[0]}
+        index={props.view.references[0]}
         callback={props.callback}
       />
     );

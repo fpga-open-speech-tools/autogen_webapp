@@ -101,7 +101,7 @@ export interface Register {
 }
 
 export interface DataPacket {
-  reference: DataReference;
+  index: number;
   value: number | number[] | string | string[];
 }
 
@@ -181,6 +181,11 @@ interface ReceiveSendCommandResponse {
   type: 'RECEIVE_SEND_COMMAND_RESPONSE';
 }
 
+interface UpdateModelData {
+  type: 'UPDATE_MODEL_DATA';
+  autogen: Autogen;
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 type KnownAction =
@@ -189,7 +194,7 @@ type KnownAction =
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
   RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse |
-  SetDeviceAddress;
+  SetDeviceAddress | UpdateModelData;
 
 
 function appendAddressToForm(data: FormData, address:DeviceAddress) {
@@ -205,7 +210,10 @@ function appendAddressToForm(data: FormData, address:DeviceAddress) {
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 
 export const openSpeechDataActionCreators = {
-
+  updateModelData: (autogen: Autogen):
+    AppThunkAction<KnownAction> => (dispatch) => {
+      dispatch({ type: 'UPDATE_MODEL_DATA', autogen});
+    },
   requestOpenSpeechS3Demos: ():
     AppThunkAction<KnownAction> => (dispatch) => {
     fetch(`demos`)
@@ -428,7 +436,15 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: false
-      }
+      };
+    case 'UPDATE_MODEL_DATA':
+      return {
+        deviceAddress: state.deviceAddress,
+        availableDemos: state.availableDemos,
+        autogen: action.autogen,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: false
+      };
     default:
       return state as OpenSpeechToolsState;
 

@@ -101,7 +101,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
     this.handleDownloadDemosJSON = this.handleDownloadDemosJSON.bind(this);
     this.downloadPatientConfig = this.downloadPatientConfig.bind(this);
     this.handleNewPatientConfigFile = this.handleNewPatientConfigFile.bind(this);
-
+    
     this.doNothing = this.doNothing.bind(this);
   }//End Constructor 
 
@@ -218,7 +218,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
     for (var i = 0; i < configuration.length; i++) {
       for (var j = 0; j < configuration[i].references.length; j++) {
         packet = {
-          reference: configuration[i].references[j],
+           index: i,
            value : configuration[i].value
         }
         output.push(packet);

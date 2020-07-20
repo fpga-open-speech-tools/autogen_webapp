@@ -10,6 +10,7 @@ import {
 } from "react-bootstrap";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 import AutogenContainer from "../../Components/Autogen/Containers/AutogenContainer.jsx";
+import * as signalR from "@microsoft/signalr";
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -19,7 +20,9 @@ type OpenSpeechProps =
 
 export interface AutoGenState {
   autogen: Autogen,
-  notification: Notification
+  notification: Notification,
+  data: OpenSpeechDataStore.ModelData[],
+  connected: boolean,
 }
 
 interface Autogen {
@@ -32,12 +35,16 @@ interface Notification {
   level: string
 }
 
+let connection = new signalR.HubConnectionBuilder().withUrl("/model-data").build();
+
 export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGenState>{
 
   constructor(props: OpenSpeechProps) {
     super(props);
 
     this.state = {
+
+      connected: false,
 
       notification: {
         text: "",
@@ -47,7 +54,8 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
       autogen: {
         name: "",
         projectID: "Example",
-      }
+      },
+      data:[]
 
     };
 
@@ -55,11 +63,17 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     this.handleInputCommand = this.handleInputCommand.bind(this);
 
     this.setNotification = this.setNotification.bind(this);
+    this.sendDataPackets = this.sendDataPackets.bind(this);
+    this.updateModelData = this.updateModelData.bind(this);
   }
 
+  componentWillReceiveProps() {
+    this.setState({ data: this.props.autogen.data });
+  }
 
   componentDidMount() {
     this.handleRequestUI();
+    this.startSession();
   }
   componentDidUpdate() {
 
@@ -92,6 +106,56 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
         });
       }
     }
+  }
+
+  sendDataPackets(dataPackets: OpenSpeechDataStore.DataPacket[]) {
+      if (this.state.connected) {
+        connection.invoke("SendDataPacket", dataPackets).catch(function (err) {
+          return console.error(err.toString());
+        });
+      }
+  }
+
+  verifyConnection() {
+    connection.invoke("AfterConnected").catch(function (err) {
+      return console.error(err.toString());
+    });
+  }
+
+  startSession() {
+
+    connection.on("Connected", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      this.setState({
+        connected: true,
+        notification: {
+          level: "success",
+          text:msg
+          }
+      });
+    });
+
+    connection.on("Update", (obj) => {
+      this.updateModelData(obj);
+      this.forceUpdate();
+    });
+
+    connection.start()
+      .then(function (val) {
+      }).then(res => this.verifyConnection())
+      .catch(function (err) {
+        setTimeout(() => connection.start(), 5000);
+        return console.error(err.toString());
+      });
+
+  } //End Start Connection to SignalR Client hub
+
+  updateModelData (dataPackets: OpenSpeechDataStore.DataPacket[]) {
+    var model = this.state.data;
+    for (var p = 0; p < dataPackets.length; p++) {
+      model[dataPackets[p].index].value = dataPackets[p].value;
+    }
+    this.setState({ data: model });
   }
 
   handleDeviceAddressChange(e: React.ChangeEvent<HTMLInputElement>, key: string) {
@@ -129,7 +193,9 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
 
   handleInputCommand(command:OpenSpeechDataStore.DataPacket[]) {
     if (!this.props.isLoading) {
+      this.updateModelData(command);
       this.props.requestSendModelData(command, this.props.deviceAddress);
+      this.sendDataPackets(command);
     }
   }
 
@@ -144,11 +210,11 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
 
   render() {
 
-    function getAutogen(state: AutoGenControls, props: OpenSpeechProps) {
-      if (props.autogen) {
+    function getAutogen(controls: AutoGenControls, props: OpenSpeechProps, state:AutoGenState) {
+      if (props.autogen && state.data) {
         if (
           props.autogen.containers.length > 0 &&
-          props.autogen.data.length > 0 &&
+          state.data.length > 0 &&
           props.autogen.views.length > 0) {
           var effectName = props.autogen.name ? props.autogen.name : "";
           effectName = (effectName === "ERROR") ? "" : effectName;
@@ -162,8 +228,8 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
                       references={container.views}
                       headerTitle={container.name}
                       views={...props.autogen.views}
-                      data={...props.autogen.data}
-                      callback={state.handleInputCommand}
+                      data={...state.data}
+                      callback={controls.handleInputCommand}
                     />
                   </React.Fragment>)
                 }
@@ -199,7 +265,7 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
                   <i className="fa fa-refresh large-icon" />
                 </Button>
               </div></Modal.Header>
-            {getAutogen(this, this.props)}
+            {getAutogen(this, this.props,this.state)}
             </Modal.Dialog>
           </Row>
         </Container>

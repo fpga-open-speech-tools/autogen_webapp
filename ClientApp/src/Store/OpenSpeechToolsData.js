@@ -11,6 +11,9 @@ function appendAddressToForm(data, address) {
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 exports.openSpeechDataActionCreators = {
+    updateModelData: function (autogen) { return function (dispatch) {
+        dispatch({ type: 'UPDATE_MODEL_DATA', autogen: autogen });
+    }; },
     requestOpenSpeechS3Demos: function () { return function (dispatch) {
         fetch("demos")
             .then(function (response) { return response.json(); })
@@ -215,6 +218,14 @@ exports.reducer = function (state, incomingAction) {
                 deviceAddress: action.address,
                 availableDemos: state.availableDemos,
                 autogen: state.autogen,
+                isDeviceDownloading: state.isDeviceDownloading,
+                isLoading: false
+            };
+        case 'UPDATE_MODEL_DATA':
+            return {
+                deviceAddress: state.deviceAddress,
+                availableDemos: state.availableDemos,
+                autogen: action.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: false
             };

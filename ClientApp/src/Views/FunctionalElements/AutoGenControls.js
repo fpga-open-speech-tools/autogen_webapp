@@ -19,11 +19,14 @@ var OpenSpeechDataStore = require("../../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var NotificationWrapper_jsx_1 = require("../../Components/Notifications/NotificationWrapper.jsx");
 var AutogenContainer_jsx_1 = require("../../Components/Autogen/Containers/AutogenContainer.jsx");
+var signalR = require("@microsoft/signalr");
+var connection = new signalR.HubConnectionBuilder().withUrl("/model-data").build();
 var AutoGenControls = /** @class */ (function (_super) {
     __extends(AutoGenControls, _super);
     function AutoGenControls(props) {
         var _this = _super.call(this, props) || this;
         _this.state = {
+            connected: false,
             notification: {
                 text: "",
                 level: ""
@@ -31,15 +34,22 @@ var AutoGenControls = /** @class */ (function (_super) {
             autogen: {
                 name: "",
                 projectID: "Example",
-            }
+            },
+            data: []
         };
         _this.handleRequestUI = _this.handleRequestUI.bind(_this);
         _this.handleInputCommand = _this.handleInputCommand.bind(_this);
         _this.setNotification = _this.setNotification.bind(_this);
+        _this.sendDataPackets = _this.sendDataPackets.bind(_this);
+        _this.updateModelData = _this.updateModelData.bind(_this);
         return _this;
     }
+    AutoGenControls.prototype.componentWillReceiveProps = function () {
+        this.setState({ data: this.props.autogen.data });
+    };
     AutoGenControls.prototype.componentDidMount = function () {
         this.handleRequestUI();
+        this.startSession();
     };
     AutoGenControls.prototype.componentDidUpdate = function () {
         if (this.props.autogen) {
@@ -72,6 +82,49 @@ var AutoGenControls = /** @class */ (function (_super) {
             }
         }
     };
+    AutoGenControls.prototype.sendDataPackets = function (dataPackets) {
+        if (this.state.connected) {
+            connection.invoke("SendDataPacket", dataPackets).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+    };
+    AutoGenControls.prototype.verifyConnection = function () {
+        connection.invoke("AfterConnected").catch(function (err) {
+            return console.error(err.toString());
+        });
+    };
+    AutoGenControls.prototype.startSession = function () {
+        var _this = this;
+        connection.on("Connected", function (message) {
+            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            _this.setState({
+                connected: true,
+                notification: {
+                    level: "success",
+                    text: msg
+                }
+            });
+        });
+        connection.on("Update", function (obj) {
+            _this.updateModelData(obj);
+            _this.forceUpdate();
+        });
+        connection.start()
+            .then(function (val) {
+        }).then(function (res) { return _this.verifyConnection(); })
+            .catch(function (err) {
+            setTimeout(function () { return connection.start(); }, 5000);
+            return console.error(err.toString());
+        });
+    }; //End Start Connection to SignalR Client hub
+    AutoGenControls.prototype.updateModelData = function (dataPackets) {
+        var model = this.state.data;
+        for (var p = 0; p < dataPackets.length; p++) {
+            model[dataPackets[p].index].value = dataPackets[p].value;
+        }
+        this.setState({ data: model });
+    };
     AutoGenControls.prototype.handleDeviceAddressChange = function (e, key) {
         var deviceAddress = this.props.deviceAddress;
         switch (key) {
@@ -100,7 +153,9 @@ var AutoGenControls = /** @class */ (function (_super) {
     };
     AutoGenControls.prototype.handleInputCommand = function (command) {
         if (!this.props.isLoading) {
+            this.updateModelData(command);
             this.props.requestSendModelData(command, this.props.deviceAddress);
+            this.sendDataPackets(command);
         }
     };
     AutoGenControls.prototype.setNotification = function (level, text) {
@@ -112,10 +167,10 @@ var AutoGenControls = /** @class */ (function (_super) {
         });
     };
     AutoGenControls.prototype.render = function () {
-        function getAutogen(state, props) {
-            if (props.autogen) {
+        function getAutogen(controls, props, state) {
+            if (props.autogen && state.data) {
                 if (props.autogen.containers.length > 0 &&
-                    props.autogen.data.length > 0 &&
+                    state.data.length > 0 &&
                     props.autogen.views.length > 0) {
                     var effectName = props.autogen.name ? props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
@@ -123,7 +178,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
                         React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, props.autogen.containers.map(function (container) {
                             return React.createElement(React.Fragment, { key: container.name },
-                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: props.autogen.views, data: props.autogen.data, callback: state.handleInputCommand }));
+                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: props.autogen.views, data: state.data, callback: controls.handleInputCommand }));
                         }))));
                 }
                 else if (props.autogen.name) {
@@ -143,7 +198,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                             React.createElement("div", { className: "float-right" },
                                 React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
                                     React.createElement("i", { className: "fa fa-refresh large-icon" })))),
-                        getAutogen(this, this.props))))));
+                        getAutogen(this, this.props, this.state))))));
     };
     return AutoGenControls;
 }(React.PureComponent));

@@ -174,7 +174,7 @@ var DoctorView = /** @class */ (function (_super) {
         for (var i = 0; i < configuration.length; i++) {
             for (var j = 0; j < configuration[i].references.length; j++) {
                 packet = {
-                    reference: configuration[i].references[j],
+                    index: i,
                     value: configuration[i].value
                 };
                 output.push(packet);
