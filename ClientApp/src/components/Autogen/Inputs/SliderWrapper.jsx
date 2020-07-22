@@ -22,12 +22,13 @@ export class SliderWrapper extends Component {
 
   render() {
 
-    function dataPacket(index,value) {
+    function dataPacketArray(index,value) {
       return (
-        [{
-          index: index,
-          value:value
-        }]
+        {dataPackets:
+          [{
+            index: index,
+            value: value
+          }]}
         );
     }
 
@@ -50,7 +51,7 @@ export class SliderWrapper extends Component {
           value={this.state.currentValue}
           onChange={
             changeEvent => {
-              { this.props.callback(dataPacket(this.props.index, changeEvent.target.value)) }
+              { this.props.callback(dataPacketArray(this.props.index, changeEvent.target.value)) }
               this.setState({
                 currentValue: changeEvent.target.value
               })

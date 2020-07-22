@@ -104,6 +104,7 @@ var emptyAutogen = {
 var unloadedState = {
     deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '0', ip4: '120' }, port: '3355' },
     autogen: emptyAutogen,
+    newAutogen: false,
     availableDemos: [],
     isLoading: false,
     isDeviceDownloading: false
@@ -120,7 +121,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: emptyAutogen,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: state.isDeviceDownloading,
-                isLoading: true
+                isLoading: true,
+                newAutogen: false,
             };
         case 'RECEIVE_OPENSPEECH_AUTOGEN':
             return {
@@ -128,6 +130,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: action.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: true,
                 isLoading: false
             };
         case 'REQUEST_SEND_COMMAND':
@@ -138,6 +141,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 command: state.command,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: true
             };
         case 'RECEIVE_SEND_COMMAND_RESPONSE':
@@ -147,6 +151,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         case 'REQUEST_OPENSPEECH_DEMOS':
@@ -156,6 +161,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: true
             };
         case 'RECEIVE_OPENSPEECH_DEMOS':
@@ -165,6 +171,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: action.availableDemos,
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
@@ -175,6 +182,7 @@ exports.reducer = function (state, incomingAction) {
                 isDeviceDownloading: true,
                 autogen: state.autogen,
                 currentDemo: action.currentDemo,
+                newAutogen: false,
                 isLoading: true
             };
         case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
@@ -184,6 +192,7 @@ exports.reducer = function (state, incomingAction) {
                 currentDemo: action.currentDemo,
                 autogen: action.autogen,
                 isDeviceDownloading: false,
+                newAutogen: false,
                 isLoading: false
             };
         case 'REQUEST_SET_REGISTER_CONFIG':
@@ -193,6 +202,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: emptyAutogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
@@ -202,6 +212,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
@@ -211,6 +222,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         case 'SET_DEVICE_ADDRESS':
@@ -219,6 +231,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         case 'UPDATE_MODEL_DATA':
@@ -227,6 +240,7 @@ exports.reducer = function (state, incomingAction) {
                 availableDemos: state.availableDemos,
                 autogen: action.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
                 isLoading: false
             };
         default:

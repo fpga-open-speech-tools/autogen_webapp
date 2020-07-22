@@ -19,8 +19,9 @@ var OpenSpeechDataStore = require("../../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var NotificationWrapper_jsx_1 = require("../../Components/Notifications/NotificationWrapper.jsx");
 var AutogenContainer_jsx_1 = require("../../Components/Autogen/Containers/AutogenContainer.jsx");
-var signalR = require("@microsoft/signalr");
-var connection = new signalR.HubConnectionBuilder().withUrl("/model-data").build();
+var immutability_helper_1 = require("immutability-helper");
+var ModelDataClient_1 = require("../../SignalR/ModelDataClient");
+var modelDataClient = new ModelDataClient_1.ModelDataClient();
 var AutoGenControls = /** @class */ (function (_super) {
     __extends(AutoGenControls, _super);
     function AutoGenControls(props) {
@@ -42,14 +43,20 @@ var AutoGenControls = /** @class */ (function (_super) {
         _this.setNotification = _this.setNotification.bind(_this);
         _this.sendDataPackets = _this.sendDataPackets.bind(_this);
         _this.updateModelData = _this.updateModelData.bind(_this);
+        _this.receiveDataPackets = _this.receiveDataPackets.bind(_this);
+        _this.handleMessage = _this.handleMessage.bind(_this);
         return _this;
     }
     AutoGenControls.prototype.componentWillReceiveProps = function () {
-        this.setState({ data: this.props.autogen.data });
+        if (this.props.newAutogen) {
+            this.setState({ data: this.props.autogen.data });
+        }
     };
     AutoGenControls.prototype.componentDidMount = function () {
         this.handleRequestUI();
-        this.startSession();
+        modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
+        modelDataClient.callbacks.incomingDataListener = this.receiveDataPackets;
+        modelDataClient.startSession();
     };
     AutoGenControls.prototype.componentDidUpdate = function () {
         if (this.props.autogen) {
@@ -83,47 +90,25 @@ var AutoGenControls = /** @class */ (function (_super) {
         }
     };
     AutoGenControls.prototype.sendDataPackets = function (dataPackets) {
-        if (this.state.connected) {
-            connection.invoke("SendDataPacket", dataPackets).catch(function (err) {
-                return console.error(err.toString());
-            });
-        }
+        modelDataClient.sendObject(dataPackets);
     };
-    AutoGenControls.prototype.verifyConnection = function () {
-        connection.invoke("AfterConnected").catch(function (err) {
-            return console.error(err.toString());
-        });
+    AutoGenControls.prototype.receiveDataPackets = function (object) {
+        this.updateModelData(object);
+        this.forceUpdate();
     };
-    AutoGenControls.prototype.startSession = function () {
-        var _this = this;
-        connection.on("Connected", function (message) {
-            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            _this.setState({
-                connected: true,
-                notification: {
-                    level: "success",
-                    text: msg
-                }
-            });
-        });
-        connection.on("Update", function (obj) {
-            _this.updateModelData(obj);
-            _this.forceUpdate();
-        });
-        connection.start()
-            .then(function (val) {
-        }).then(function (res) { return _this.verifyConnection(); })
-            .catch(function (err) {
-            setTimeout(function () { return connection.start(); }, 5000);
-            return console.error(err.toString());
-        });
-    }; //End Start Connection to SignalR Client hub
     AutoGenControls.prototype.updateModelData = function (dataPackets) {
-        var model = this.state.data;
-        for (var p = 0; p < dataPackets.length; p++) {
-            model[dataPackets[p].index].value = dataPackets[p].value;
+        var _a;
+        for (var i = 0; i < dataPackets.dataPackets.length; i++) {
+            var index = dataPackets.dataPackets[i].index;
+            var value = dataPackets.dataPackets[i].value;
+            var model = immutability_helper_1.default(this.state.data, (_a = {},
+                _a[index] = {
+                    value: { $set: value }
+                },
+                _a));
+            this.setState({ data: model });
         }
-        this.setState({ data: model });
+        //this.forceUpdate();
     };
     AutoGenControls.prototype.handleDeviceAddressChange = function (e, key) {
         var deviceAddress = this.props.deviceAddress;
@@ -152,11 +137,23 @@ var AutoGenControls = /** @class */ (function (_super) {
         this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
     AutoGenControls.prototype.handleInputCommand = function (command) {
+        this.updateModelData(command);
         if (!this.props.isLoading) {
-            this.updateModelData(command);
-            this.props.requestSendModelData(command, this.props.deviceAddress);
-            this.sendDataPackets(command);
+            if (modelDataClient.state.connected) {
+                this.sendDataPackets(command);
+            }
+            else {
+                this.props.requestSendModelData(command, this.props.deviceAddress);
+            }
         }
+    };
+    AutoGenControls.prototype.handleMessage = function (text) {
+        this.setState({
+            notification: {
+                level: "success",
+                text: text
+            }
+        });
     };
     AutoGenControls.prototype.setNotification = function (level, text) {
         this.setState({

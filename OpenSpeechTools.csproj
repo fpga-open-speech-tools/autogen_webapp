@@ -32,6 +32,7 @@
     <None Remove="ClientApp\package.json" />
     <None Remove="ClientApp\src\Components\FileManagement\FIleUploaderPresentationalComponent.tsx" />
     <None Remove="ClientApp\src\Components\SandboxController.tsx" />
+    <None Remove="ClientApp\src\SignalR\ModelDataClient.ts" />
     <None Remove="ClientApp\src\Views\Auto-Gen-View.tsx" />
     <None Remove="ClientApp\src\Views\ControlSync.tsx" />
     <None Remove="ClientApp\src\Views\Doctor-View.tsx" />
@@ -48,6 +49,7 @@
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\Components\FileManagement\FileUploaderPresentationalComponent.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Components\Sandbox\SandboxController.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\SignalR\ModelDataClient.ts" />
     <TypeScriptCompile Include="ClientApp\src\Views\ControlSync.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Doctor-View.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\FunctionalElements\AutoGenDeviceAddress.tsx" />

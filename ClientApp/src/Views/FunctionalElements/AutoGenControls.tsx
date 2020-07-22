@@ -10,7 +10,8 @@ import {
 } from "react-bootstrap";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 import AutogenContainer from "../../Components/Autogen/Containers/AutogenContainer.jsx";
-import * as signalR from "@microsoft/signalr";
+import update from 'immutability-helper';
+import {ModelDataClient} from '../../SignalR/ModelDataClient';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -35,10 +36,10 @@ interface Notification {
   level: string
 }
 
-let connection = new signalR.HubConnectionBuilder().withUrl("/model-data").build();
+let modelDataClient = new ModelDataClient();
 
 export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGenState>{
-
+  
   constructor(props: OpenSpeechProps) {
     super(props);
 
@@ -65,16 +66,24 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     this.setNotification = this.setNotification.bind(this);
     this.sendDataPackets = this.sendDataPackets.bind(this);
     this.updateModelData = this.updateModelData.bind(this);
+    this.receiveDataPackets = this.receiveDataPackets.bind(this);
+    this.handleMessage = this.handleMessage.bind(this);
   }
 
   componentWillReceiveProps() {
-    this.setState({ data: this.props.autogen.data });
+    if (this.props.newAutogen) {
+      this.setState({ data: this.props.autogen.data });
+    }
   }
 
   componentDidMount() {
     this.handleRequestUI();
-    this.startSession();
+    
+    modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
+    modelDataClient.callbacks.incomingDataListener = this.receiveDataPackets;
+    modelDataClient.startSession();
   }
+
   componentDidUpdate() {
 
     if (this.props.autogen) {
@@ -108,54 +117,31 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     }
   }
 
-  sendDataPackets(dataPackets: OpenSpeechDataStore.DataPacket[]) {
-      if (this.state.connected) {
-        connection.invoke("SendDataPacket", dataPackets).catch(function (err) {
-          return console.error(err.toString());
-        });
-      }
+  sendDataPackets(dataPackets: OpenSpeechDataStore.DataPacketArray) {
+    modelDataClient.sendObject(dataPackets);
   }
 
-  verifyConnection() {
-    connection.invoke("AfterConnected").catch(function (err) {
-      return console.error(err.toString());
-    });
+  receiveDataPackets(object:any) {
+    this.updateModelData(object);
+    this.forceUpdate();
   }
 
-  startSession() {
+  updateModelData (dataPackets: OpenSpeechDataStore.DataPacketArray) {
+    for (var i = 0; i < dataPackets.dataPackets.length; i++) {
 
-    connection.on("Connected", (message) => {
-      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      this.setState({
-        connected: true,
-        notification: {
-          level: "success",
-          text:msg
+      const index = dataPackets.dataPackets[i].index;
+      const value = dataPackets.dataPackets[i].value;
+
+      let model = update(this.state.data,
+        {
+          [index]: {
+            value: { $set: value }
           }
-      });
-    });
-
-    connection.on("Update", (obj) => {
-      this.updateModelData(obj);
-      this.forceUpdate();
-    });
-
-    connection.start()
-      .then(function (val) {
-      }).then(res => this.verifyConnection())
-      .catch(function (err) {
-        setTimeout(() => connection.start(), 5000);
-        return console.error(err.toString());
-      });
-
-  } //End Start Connection to SignalR Client hub
-
-  updateModelData (dataPackets: OpenSpeechDataStore.DataPacket[]) {
-    var model = this.state.data;
-    for (var p = 0; p < dataPackets.length; p++) {
-      model[dataPackets[p].index].value = dataPackets[p].value;
+        }
+      );
+      this.setState({ data: model });
     }
-    this.setState({ data: model });
+    //this.forceUpdate();
   }
 
   handleDeviceAddressChange(e: React.ChangeEvent<HTMLInputElement>, key: string) {
@@ -191,12 +177,25 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     this.props.requestAutogenConfiguration(this.props.deviceAddress);
   }
 
-  handleInputCommand(command:OpenSpeechDataStore.DataPacket[]) {
-    if (!this.props.isLoading) {
-      this.updateModelData(command);
-      this.props.requestSendModelData(command, this.props.deviceAddress);
-      this.sendDataPackets(command);
+  handleInputCommand(command: OpenSpeechDataStore.DataPacketArray) {
+    this.updateModelData(command);
+    if(!this.props.isLoading){
+      if (modelDataClient.state.connected) {
+        this.sendDataPackets(command);
+      }
+      else {
+        this.props.requestSendModelData(command, this.props.deviceAddress);
+      }
     }
+  }
+
+  handleMessage(text:string) {
+    this.setState({
+      notification: {
+        level: "success",
+        text: text
+      }
+    });
   }
 
   setNotification(level: string, text: string) {

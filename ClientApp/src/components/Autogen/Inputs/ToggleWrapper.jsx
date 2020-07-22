@@ -18,12 +18,13 @@ export class ToggleWrapper extends Component {
   }
   render() {
 
-    function dataPacket(index, value) {
+    function dataPacketArray(index, value) {
       return (
-        [{
-          index: index,
-          value: value
-        }]
+        {dataPackets:
+          [{
+            index: index,
+            value: value
+          }]}
       );
     }
 
@@ -34,14 +35,14 @@ export class ToggleWrapper extends Component {
           value={this.state.currentValue}>
           <ToggleButton
             onClick={
-              () => this.props.callback(dataPacket(this.props.index, 1))
+              () => this.props.callback(dataPacketArray(this.props.index, 1))
             }
             value={1}>
             {this.props.data.properties.enumeration[1]}
           </ToggleButton>
           <ToggleButton
             onClick={
-              () => this.props.callback(dataPacket(this.props.index, 0))
+              () => this.props.callback(dataPacketArray(this.props.index, 0))
             }
             value={0}>
             {this.props.data.properties.enumeration[0]}

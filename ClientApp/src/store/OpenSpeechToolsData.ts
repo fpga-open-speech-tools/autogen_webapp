@@ -10,6 +10,7 @@ export interface OpenSpeechToolsState {
   currentDemo?: string;
   //Interface for UI JSON
   autogen: Autogen;
+  newAutogen: boolean;
   //Interface for Demos Array[]
   availableDemos: Demo[];
 
@@ -20,7 +21,7 @@ export interface OpenSpeechToolsState {
   //Device Controls info
   deviceAddress: DeviceAddress;
 
-  command?: DataPacket[];
+  command?: DataPacketArray;
 }
 
 export interface DeviceAddress {
@@ -105,6 +106,10 @@ export interface DataPacket {
   value: number | number[] | string | string[];
 }
 
+export interface DataPacketArray {
+  dataPackets: DataPacket[];
+}
+
 
 
 
@@ -174,7 +179,7 @@ interface ReceiveGetRegisterConfigResponse {
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   deviceAddress: DeviceAddress;
-  command: DataPacket[];
+  command: DataPacketArray;
 }
 
 interface ReceiveSendCommandResponse {
@@ -243,7 +248,7 @@ export const openSpeechDataActionCreators = {
       });
     },
 
-  requestSendModelData: (input: DataPacket[], address: DeviceAddress):
+  requestSendModelData: (input: DataPacketArray, address: DeviceAddress):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
       var inputString = JSON.stringify(input);
@@ -315,6 +320,7 @@ const emptyAutogen = {
 const unloadedState: OpenSpeechToolsState = {
   deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '0', ip4: '120' }, port: '3355' },
   autogen: emptyAutogen,
+  newAutogen: false,
   availableDemos: [],
   isLoading: false,
   isDeviceDownloading: false
@@ -333,7 +339,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: emptyAutogen,
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
-        isLoading: true
+        isLoading: true,
+        newAutogen:false,
       };
     case 'RECEIVE_OPENSPEECH_AUTOGEN':
       return {
@@ -341,6 +348,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: action.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: true,
         isLoading: false
       };
     case 'REQUEST_SEND_COMMAND':
@@ -351,6 +359,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         command: state.command,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: true
       };
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
@@ -360,6 +369,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
     case 'REQUEST_OPENSPEECH_DEMOS':  
@@ -369,6 +379,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: true
       };
     case 'RECEIVE_OPENSPEECH_DEMOS':
@@ -378,6 +389,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: action.availableDemos,
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
     case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
@@ -388,6 +400,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         isDeviceDownloading: true,
         autogen: state.autogen,
         currentDemo: action.currentDemo,
+        newAutogen: false,
         isLoading: true
       };
     case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
@@ -397,6 +410,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         currentDemo: action.currentDemo,
         autogen: action.autogen,
         isDeviceDownloading: false,
+        newAutogen: false,
         isLoading: false
       };
     case 'REQUEST_SET_REGISTER_CONFIG':
@@ -406,6 +420,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: emptyAutogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
 
@@ -416,6 +431,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
 
@@ -426,6 +442,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
 
@@ -435,6 +452,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
     case 'UPDATE_MODEL_DATA':
@@ -443,6 +461,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         autogen: action.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
         isLoading: false
       };
     default:

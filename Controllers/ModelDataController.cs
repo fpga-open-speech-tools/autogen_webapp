@@ -48,19 +48,18 @@ namespace Autogen.Controllers
       public string Output { get; set; }
     }
 
-    public static JsonResultModel HTTP_REQ(string Url,string method, string PostData)
+    public static JsonResultModel HTTP_REQ(string Url, string method, string PostData)
     {
       JsonResultModel model = new JsonResultModel();
       string Out = String.Empty;
       string Error = String.Empty;
       WebRequest req = WebRequest.Create(Url);
-
       try
       {
         req.Method = method;
         req.Timeout = 1000;
         req.ContentType = "application/json";
-
+        
         using (var streamWriter = new StreamWriter(req.GetRequestStream()))
         {
           streamWriter.Write(PostData);
@@ -121,18 +120,23 @@ namespace Autogen.Controllers
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
       var url = "http://" + deviceIP + ":" + port + "/model-data";
       var method = "GET";
-      //set url to get model data
-      if (modelData.Length > 0)
+      AutogenConfig.Configuration result = new AutogenConfig.Configuration(){};
+      object obj = JsonConvert.DeserializeObject(modelData);
+      if (modelData.Length < 1)
+      {
+        method = "GET";
+        result = _download_serialized_json_data<AutogenConfig.Configuration>(url, method, obj.ToString());
+      }
+      else
       {
         method = "POST";
+        HTTP_REQ(url, method, obj.ToString());
       }
  
-      AutogenConfig.Configuration result = new AutogenConfig.Configuration()
-      {
-      };
 
-      System.Diagnostics.Debug.WriteLine("Attempting to " + method + " Model @: " + url + "\nPostedJSON: " + modelData);
-      result = _download_serialized_json_data<AutogenConfig.Configuration>(url,method,modelData);
+
+      System.Diagnostics.Debug.WriteLine("Attempting to " + method + " Model @: " + url + "\nPostedJSON: " + obj);
+
       return result;
     }
   }
