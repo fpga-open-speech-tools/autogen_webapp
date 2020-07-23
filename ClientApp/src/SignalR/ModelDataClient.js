@@ -31,7 +31,12 @@ var ModelDataClient = /** @class */ (function () {
             _this.state.connected = true;
             _this.callbacks.incomingMessageListener(msg);
         });
+        connection.on("ModelUpdated", function (obj) {
+            //var newObj = { dataPackets: obj };
+            //return (this.callbacks.incomingDataListener(newObj));
+        });
         connection.on("Update", function (obj) {
+            //var newObj = { dataPackets: obj };
             return (_this.callbacks.incomingDataListener(obj));
         });
         connection.start()

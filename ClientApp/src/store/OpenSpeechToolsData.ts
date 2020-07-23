@@ -34,10 +34,6 @@ export interface DeviceAddress {
   port: string;
 }
 
-export interface RegisterConfig {
-  registers: Register[];
-}
-
 export interface Demo {
   name: string;
   downloadurl: s3bucketurl;
@@ -68,24 +64,21 @@ export interface AutogenContainer {
 export interface ComponentView {
   name: string;
   type: AutogenComponent;
-  dataReferences: number[];
+  references: number[];
 }
 
 export interface AutogenComponent {
   component: string;
   variant: string;
-  callback: string;
+  callback: string | undefined | null;
 }
 
 export interface ModelData {
-  references: DataReference[];
-  properties: DataProperties;
-  value: number | number[] | string | string[];
-}
-
-export interface DataReference {
   type: string;
-  reference: Register;
+  name: string;
+  device: string;
+  properties: DataProperties | any;
+  value: number | number[] | string | string[];
 }
 
 export interface DataProperties {
@@ -94,11 +87,6 @@ export interface DataProperties {
   step: number | undefined | null;
   units: string | undefined | null;
   enumeration: string[] | number[] | undefined | null;
-}
-
-export interface Register {
-  name: string;
-  device: string;
 }
 
 export interface DataPacket {
@@ -170,11 +158,6 @@ interface RequestGetRegisterConfigAction {
   deviceAddress: DeviceAddress;
 }
 
-interface ReceiveGetRegisterConfigResponse {
-  type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE';
-  currentRegisterConfig: RegisterConfig;
-}
-
 
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
@@ -198,7 +181,7 @@ type KnownAction =
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
-  RequestSetRegisterConfigAction | RequestGetRegisterConfigAction | ReceiveGetRegisterConfigResponse |
+  RequestSetRegisterConfigAction |
   SetDeviceAddress | UpdateModelData;
 
 
@@ -264,24 +247,6 @@ export const openSpeechDataActionCreators = {
       dispatch({
         type: 'REQUEST_SEND_COMMAND',
         deviceAddress:address, command: input 
-      });
-    },
-
-  requestGetModelData: (address: DeviceAddress, callback: Function): AppThunkAction<KnownAction> => (dispatch, getState) => {
-    var data = new FormData();
-    appendAddressToForm(data,address);
-    data.append('port', address.port);
-    fetch(`model-data`, { method: "PUT", body: data })
-        .then(response => response.json() as Promise<RegisterConfig>)
-        .then(data => {
-          dispatch({
-            type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE', currentRegisterConfig: data
-          });
-          callback();
-        });
-      dispatch({
-        type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
-        deviceAddress: address
       });
     },
 
@@ -419,28 +384,6 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         currentDemo: state.currentDemo,
         availableDemos: state.availableDemos,
         autogen: emptyAutogen,
-        isDeviceDownloading: state.isDeviceDownloading,
-        newAutogen: false,
-        isLoading: false
-      };
-
-    case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
-      return {
-        deviceAddress: state.deviceAddress,
-        currentDemo: state.currentDemo,
-        availableDemos: state.availableDemos,
-        autogen: state.autogen,
-        isDeviceDownloading: state.isDeviceDownloading,
-        newAutogen: false,
-        isLoading: false
-      };
-
-    case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
-      return {
-        deviceAddress: state.deviceAddress,
-        currentDemo: state.currentDemo,
-        availableDemos: state.availableDemos,
-        autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
         isLoading: false

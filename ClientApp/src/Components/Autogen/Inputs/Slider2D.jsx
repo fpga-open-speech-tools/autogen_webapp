@@ -6,7 +6,7 @@ import Draggable from 'react-draggable';
 import Line from 'react-lineto';
 
 
-export class BeamformingWrapper extends Component {
+export class Slider2D extends Component {
 
   eventLogger = (e, data) => {
     console.log('Event: ', e);
@@ -210,7 +210,7 @@ export class BeamformingWrapper extends Component {
     );
   }
 }
-export default BeamformingWrapper;
+export default Slider2D;
 
 
 

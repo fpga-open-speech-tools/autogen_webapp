@@ -73,12 +73,12 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
   componentWillReceiveProps() {
     if (this.props.newAutogen) {
       this.setState({ data: this.props.autogen.data });
+      this.forceUpdate();
     }
   }
-
+  
   componentDidMount() {
     this.handleRequestUI();
-    
     modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
     modelDataClient.callbacks.incomingDataListener = this.receiveDataPackets;
     modelDataClient.startSession();

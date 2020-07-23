@@ -45,9 +45,6 @@ var SandboxView = /** @class */ (function (_super) {
     }; // End ComponentDidMount
     SandboxView.prototype.componentDidUpdate = function () {
     }; //End ComponentDidUpdate
-    SandboxView.prototype.handleRequestGetRegisterConfig = function (callback) {
-        this.props.requestGetModelData(this.props.deviceAddress, callback);
-    };
     SandboxView.prototype.setNotificationText = function (text) {
         this.setState({ notificationText: text });
     };

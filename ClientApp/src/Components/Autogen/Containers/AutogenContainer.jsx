@@ -1,7 +1,5 @@
 import React, { Component} from "react";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
-import SliderWrapper from '../Inputs/SliderWrapper';
-import ToggleWrapper from '../Inputs/ToggleWrapper';
 
 export class AutogenContainer extends Component {
   render() {
@@ -44,35 +42,25 @@ export class AutogenContainer extends Component {
     );
   }
 }
-//onChange={changeEvent => this.setState({ currentValue: changeEvent.target.value })}
 
 function InputComponent(props) {
   var dataList = [];
-
   for (var i = 0; i < props.view.references.length; i++) {
     dataList.push(props.data[props.view.references[i]]);
   }
-      
-  if (props.view.type.component === "slider") {
-    return (
-      <SliderWrapper
-        title={props.view.name}
-        data={dataList[0]}
-        index={props.view.references[0]}
-        callback={props.callback}
 
-      />
-    );
-  } else if (props.view.type.component === "toggle") {
+  try {
+    let Component = require('../Inputs/' + props.view.type.component).default;
+    
     return (
-      <ToggleWrapper
-        data={dataList[0]}
-        index={props.view.references[0]}
+      <Component
+        view={props.view}
+        data={dataList}
         callback={props.callback}
       />
     );
   }
-  else {
+  catch{
     return (<div>Component Not Recognized!</div>);
   }
 }

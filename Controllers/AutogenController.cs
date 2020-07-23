@@ -30,7 +30,7 @@ namespace Autogen.Controllers
       catch (Exception) { }
       if (json_data == "")
       {
-        json_data = "{\"name\":\"ERROR\"}";
+        json_data = json_data = "{\"name\":\"ERROR\",\"views\":[],\"data\":[],\"containers\":[]}";
       }
       System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
       return json_data;
@@ -47,7 +47,7 @@ namespace Autogen.Controllers
         catch (Exception) { }
         if (json_data == "")
         {
-          json_data = "{\"name\":\"ERROR\"}";
+          json_data = "{\"name\":\"ERROR\",\"views\":[],\"data\":[],\"containers\":[]}";
         }
         System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
 

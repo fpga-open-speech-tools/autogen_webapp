@@ -55,23 +55,6 @@ exports.openSpeechDataActionCreators = {
             deviceAddress: address, command: input
         });
     }; },
-    requestGetModelData: function (address, callback) { return function (dispatch, getState) {
-        var data = new FormData();
-        appendAddressToForm(data, address);
-        data.append('port', address.port);
-        fetch("model-data", { method: "PUT", body: data })
-            .then(function (response) { return response.json(); })
-            .then(function (data) {
-            dispatch({
-                type: 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE', currentRegisterConfig: data
-            });
-            callback();
-        });
-        dispatch({
-            type: 'REQUEST_GET_REGISTER_CONFIG_ACTION',
-            deviceAddress: address
-        });
-    }; },
     requestDownloadS3Demo: function (address, devicename, projectname) { return function (dispatch, getState) {
         fetch("downloads3bucket/" + address.ipAddress.ip1 + "/" + address.ipAddress.ip2 + "/" + address.ipAddress.ip3 + "/" + address.ipAddress.ip4 + "/" + address.port + "/" + devicename + "/" + projectname)
             .then(function (response) { return response.json(); })
@@ -201,26 +184,6 @@ exports.reducer = function (state, incomingAction) {
                 currentDemo: state.currentDemo,
                 availableDemos: state.availableDemos,
                 autogen: emptyAutogen,
-                isDeviceDownloading: state.isDeviceDownloading,
-                newAutogen: false,
-                isLoading: false
-            };
-        case 'REQUEST_GET_REGISTER_CONFIG_ACTION':
-            return {
-                deviceAddress: state.deviceAddress,
-                currentDemo: state.currentDemo,
-                availableDemos: state.availableDemos,
-                autogen: state.autogen,
-                isDeviceDownloading: state.isDeviceDownloading,
-                newAutogen: false,
-                isLoading: false
-            };
-        case 'RECEIVE_GET_REGISTER_CONFIG_RESPONSE':
-            return {
-                deviceAddress: state.deviceAddress,
-                currentDemo: state.currentDemo,
-                availableDemos: state.availableDemos,
-                autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
                 isLoading: false

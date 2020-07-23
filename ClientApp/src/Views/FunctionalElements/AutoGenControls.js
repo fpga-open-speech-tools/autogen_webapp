@@ -50,6 +50,7 @@ var AutoGenControls = /** @class */ (function (_super) {
     AutoGenControls.prototype.componentWillReceiveProps = function () {
         if (this.props.newAutogen) {
             this.setState({ data: this.props.autogen.data });
+            this.forceUpdate();
         }
     };
     AutoGenControls.prototype.componentDidMount = function () {

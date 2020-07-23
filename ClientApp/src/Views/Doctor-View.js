@@ -166,19 +166,17 @@ var DoctorView = /** @class */ (function (_super) {
         this.setState({ patientLastName: e.target.value });
     };
     DoctorView.prototype.handleRequestGetRegisterConfig = function (callback) {
-        this.props.requestGetModelData(this.props.deviceAddress, callback);
+        this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
     DoctorView.prototype.handleRequestSetRegisterConfig = function (configuration) {
         var output = { dataPackets: [] };
         var packet;
         for (var i = 0; i < configuration.length; i++) {
-            for (var j = 0; j < configuration[i].references.length; j++) {
-                packet = {
-                    index: i,
-                    value: configuration[i].value
-                };
-                output.dataPackets.push(packet);
-            }
+            packet = {
+                index: i,
+                value: configuration[i].value
+            };
+            output.dataPackets.push(packet);
         }
         this.props.requestSendModelData(output, this.props.deviceAddress);
     };

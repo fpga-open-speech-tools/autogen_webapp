@@ -44,9 +44,15 @@ export class ModelDataClient{
         var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         this.state.connected = true;
         this.callbacks.incomingMessageListener(msg);
+      });
+
+    connection.on("ModelUpdated", (obj) => {
+      //var newObj = { dataPackets: obj };
+      //return (this.callbacks.incomingDataListener(newObj));
     });
 
     connection.on("Update", (obj) => {
+      //var newObj = { dataPackets: obj };
       return(this.callbacks.incomingDataListener(obj));
     });
     connection.start()
