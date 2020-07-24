@@ -7,8 +7,10 @@ export class Toggle extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentValue: 1,
+      currentValue: this.props.data[0].value,
     };
+
+    this.generatePayload = this.generatePayload.bind(this);
   }
 
   componentDidMount() {
@@ -16,27 +18,21 @@ export class Toggle extends Component {
   }
   componentWillReceiveProps() {
     this.setState({ currentValue: this.props.data[0].value });
+    this.forceUpdate();
   }
 
+  generatePayload = (value) => {
+  const payload = [];
+  this.props.view.references.map((reference) => {
+    (payload.push({
+      index: reference,
+      value: value
+    }));
+  });
+  return payload;
+}
+
   render() {
-
-    function getPayload(props, value) {
-      return (
-        {
-          dataPackets: formDataPackets(props.view.references, value)
-        }
-      );
-    }
-
-    function formDataPackets(references, value) {
-      return (
-        references.map((reference) => {
-          return ({
-            index: reference,
-            value: value
-          });
-        }));
-    }
 
     return (
       <div className="autogen autogen-toggle">
@@ -47,7 +43,7 @@ export class Toggle extends Component {
             onClick={
               () => {
                 this.setState({ currentValue: 1 });
-                this.props.callback(getPayload(this.props, 1));
+                this.props.callback(this.generatePayload(1));
                 this.forceUpdate();
               }
             }
@@ -58,7 +54,7 @@ export class Toggle extends Component {
             onClick={
               () => {
                 this.setState({ currentValue: 0 });
-                this.props.callback(getPayload(this.props, 0));
+                this.props.callback(this.generatePayload(0));
                 this.forceUpdate();
               }
             }

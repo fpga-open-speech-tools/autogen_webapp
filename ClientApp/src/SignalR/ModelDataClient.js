@@ -6,6 +6,8 @@ var ModelDataClient = /** @class */ (function () {
     function ModelDataClient() {
         this.state = {
             connected: false,
+            processing: false,
+            payload: null
         };
         this.callbacks = {
             incomingDataListener: this.doNothing,
@@ -32,12 +34,10 @@ var ModelDataClient = /** @class */ (function () {
             _this.callbacks.incomingMessageListener(msg);
         });
         connection.on("ModelUpdated", function (obj) {
-            //var newObj = { dataPackets: obj };
-            //return (this.callbacks.incomingDataListener(newObj));
+            //this.callbacks.incomingDataListener(obj);
         });
         connection.on("Update", function (obj) {
-            //var newObj = { dataPackets: obj };
-            return (_this.callbacks.incomingDataListener(obj));
+            _this.callbacks.incomingDataListener(obj);
         });
         connection.start()
             .then(function (val) {

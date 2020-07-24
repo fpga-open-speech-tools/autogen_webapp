@@ -8,7 +8,7 @@ namespace OpenSpeechTools.Hubs
   {
     public async Task SendDataPacket(object obj)
     {
-      await Clients.All.SendAsync("Update", obj);
+      await Clients.AllExcept(Context.ConnectionId).SendAsync("Update", obj);
     }
 
     public async Task ModelUpdated(object obj)

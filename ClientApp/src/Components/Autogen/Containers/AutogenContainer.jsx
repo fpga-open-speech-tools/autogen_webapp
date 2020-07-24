@@ -2,7 +2,9 @@ import React, { Component} from "react";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 
 export class AutogenContainer extends Component {
-  render() {
+
+
+  render = () => {
     return (
       <div className={"autogen + autogen-panel card" + (this.props.plain ? " card-plain" : "")}>
         <div className="open-speech-header open-speech-header-std open-speech-accent-color">
@@ -43,11 +45,11 @@ export class AutogenContainer extends Component {
   }
 }
 
-function InputComponent(props) {
-  var dataList = [];
-  for (var i = 0; i < props.view.references.length; i++) {
-    dataList.push(props.data[props.view.references[i]]);
-  }
+const InputComponent = (props) => {
+  const dataList = [];
+  props.view.references.map((reference) => {
+    dataList.push(props.data[reference]);
+  });
 
   try {
     let Component = require('../Inputs/' + props.view.type.component).default;

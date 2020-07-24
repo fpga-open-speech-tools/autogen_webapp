@@ -22,7 +22,9 @@ type OpenSpeechProps =
 export interface AutoGenState {
   autogen: Autogen,
   notification: Notification,
-  data: OpenSpeechDataStore.ModelData[],
+  //data: OpenSpeechDataStore.ModelData[],
+  newAutogen: boolean;
+  dataUpdated: boolean;
   connected: boolean,
 }
 
@@ -38,7 +40,7 @@ interface Notification {
 
 let modelDataClient = new ModelDataClient();
 
-export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGenState>{
+export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenState>{
   
   constructor(props: OpenSpeechProps) {
     super(props);
@@ -56,7 +58,9 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
         name: "",
         projectID: "Example",
       },
-      data:[]
+      //data: []
+      newAutogen: false,
+      dataUpdated:false
 
     };
 
@@ -68,15 +72,22 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     this.updateModelData = this.updateModelData.bind(this);
     this.receiveDataPackets = this.receiveDataPackets.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
+
+    this.updateModelFromProps = this.updateModelFromProps.bind(this);
+    this.getAutogen = this.getAutogen.bind(this);
   }
 
   componentWillReceiveProps() {
-    if (this.props.newAutogen) {
-      this.setState({ data: this.props.autogen.data });
-      this.forceUpdate();
-    }
+    this.updateModelFromProps();
   }
-  
+ 
+  shouldComponentUpdate(nextProps: OpenSpeechProps) {
+    if (nextProps.autogen.data.length>0) {
+      return true;
+    }
+    return false;
+  }
+
   componentDidMount() {
     this.handleRequestUI();
     modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
@@ -85,7 +96,11 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
   }
 
   componentDidUpdate() {
-
+    if (this.props.autogen && modelData) {
+      if (modelData != this.props.autogen.data) {
+        this.updateModelFromProps();
+      }
+    }
     if (this.props.autogen) {
       if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Demo Upload Failed');
@@ -117,31 +132,39 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     }
   }
 
-  sendDataPackets(dataPackets: OpenSpeechDataStore.DataPacketArray) {
+  sendDataPackets(dataPackets: OpenSpeechDataStore.DataPacket[]) {
     modelDataClient.sendObject(dataPackets);
   }
 
   receiveDataPackets(object:any) {
-    this.updateModelData(object);
-    this.forceUpdate();
+    this.updateModelData(object as OpenSpeechDataStore.DataPacket[]);
   }
 
-  updateModelData (dataPackets: OpenSpeechDataStore.DataPacketArray) {
-    for (var i = 0; i < dataPackets.dataPackets.length; i++) {
-
-      const index = dataPackets.dataPackets[i].index;
-      const value = dataPackets.dataPackets[i].value;
-
-      let model = update(this.state.data,
-        {
-          [index]: {
-            value: { $set: value }
-          }
-        }
-      );
-      this.setState({ data: model });
+  updateModelFromProps = () =>{
+    async function overwriteModel(controls: AutoGenControls) {
+      modelData = controls.props.autogen.data; 
     }
-    //this.forceUpdate();
+
+    async function updateModel(controls: AutoGenControls) {
+      controls.setState({ newAutogen: true });
+    }
+
+    async function modelUpdated(controls: AutoGenControls) {
+      controls.setState({ newAutogen: false });
+    }
+
+    async function update(controls: AutoGenControls) {
+      await overwriteModel(controls);
+      await updateModel(controls);
+      await modelUpdated(controls);
+    }
+    update(this);
+  }
+
+  updateModelData = (dataPackets: OpenSpeechDataStore.DataPacket[]) => {
+    dataPackets.map((packet) => {
+      process(this,packet,modelData);
+    });
   }
 
   handleDeviceAddressChange(e: React.ChangeEvent<HTMLInputElement>, key: string) {
@@ -177,7 +200,7 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     this.props.requestAutogenConfiguration(this.props.deviceAddress);
   }
 
-  handleInputCommand(command: OpenSpeechDataStore.DataPacketArray) {
+  handleInputCommand = (command: OpenSpeechDataStore.DataPacket[]) =>{
     this.updateModelData(command);
     if(!this.props.isLoading){
       if (modelDataClient.state.connected) {
@@ -207,44 +230,43 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     });
   }
 
-  render() {
-
-    function getAutogen(controls: AutoGenControls, props: OpenSpeechProps, state:AutoGenState) {
-      if (props.autogen && state.data) {
-        if (
-          props.autogen.containers.length > 0 &&
-          state.data.length > 0 &&
-          props.autogen.views.length > 0) {
-          var effectName = props.autogen.name ? props.autogen.name : "";
-          effectName = (effectName === "ERROR") ? "" : effectName;
-          return (
-            <div className="autogen autogen-effectContainer modal-body">
-              <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
-              <Row className="autogen-pages row">
-                {props.autogen.containers.map((container) =>
-                  <React.Fragment key={container.name}>
-                    <AutogenContainer
-                      references={container.views}
-                      headerTitle={container.name}
-                      views={...props.autogen.views}
-                      data={...state.data}
-                      callback={controls.handleInputCommand}
-                    />
-                  </React.Fragment>)
-                }
-              </Row>
-            </div>);
-        }
-        else if (props.autogen.name) {
-          var effectName = props.autogen.name ? props.autogen.name : "";
-          effectName = (effectName === "ERROR") ? "" : effectName;
-          return (
-            <div className="autogen autogen-effectContainer autogen-error">
-            </div>);
-        }
+  getAutogen = (controls: AutoGenControls, props: OpenSpeechProps) => {
+    if (props.autogen && modelData) {
+      if (
+        props.autogen.containers.length > 0 &&
+        modelData.length > 0 &&
+        props.autogen.views.length > 0) {
+        var effectName = props.autogen.name ? props.autogen.name : "";
+        effectName = (effectName === "ERROR") ? "" : effectName;
+        return (
+          <div className="autogen autogen-effectContainer modal-body">
+            <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
+            <Row className="autogen-pages row">
+              {props.autogen.containers.map((container) =>
+                <React.Fragment key={container.name}>
+                  <AutogenContainer
+                    references={container.views}
+                    headerTitle={container.name}
+                    views={this.props.autogen.views}
+                    data={modelData}
+                    callback={controls.handleInputCommand}
+                  />
+                </React.Fragment>)
+              }
+            </Row>
+          </div>);
+      }
+      else if (props.autogen.name) {
+        var effectName = props.autogen.name ? props.autogen.name : "";
+        effectName = (effectName === "ERROR") ? "" : effectName;
+        return (
+          <div className="autogen autogen-effectContainer autogen-error">
+          </div>);
       }
     }
+  }
 
+  render() {
     return (
       <div className="content">
         <NotificationWrapper
@@ -264,7 +286,7 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
                   <i className="fa fa-refresh large-icon" />
                 </Button>
               </div></Modal.Header>
-            {getAutogen(this, this.props,this.state)}
+            {this.getAutogen(this, this.props)}
             </Modal.Dialog>
           </Row>
         </Container>
@@ -272,6 +294,27 @@ export class AutoGenControls extends React.PureComponent<OpenSpeechProps,AutoGen
     );
   }
   
+}
+
+var modelData = [] as OpenSpeechDataStore.ModelData[];
+
+async function updateModelData(packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
+  oldModel[packet.index].value = packet.value;
+
+}
+
+async function updateModel(controls: AutoGenControls) {
+  controls.setState({ dataUpdated: true });
+}
+
+async function modelUpdated(controls: AutoGenControls) {
+  controls.setState({ dataUpdated: false });
+}
+
+async function process(controls: AutoGenControls, packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
+  await updateModelData(packet, oldModel);
+  await updateModel(controls);
+  await modelUpdated(controls);
 }
 
 export default connect(

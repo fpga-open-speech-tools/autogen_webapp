@@ -169,14 +169,14 @@ var DoctorView = /** @class */ (function (_super) {
         this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
     DoctorView.prototype.handleRequestSetRegisterConfig = function (configuration) {
-        var output = { dataPackets: [] };
+        var output = [];
         var packet;
         for (var i = 0; i < configuration.length; i++) {
             packet = {
                 index: i,
                 value: configuration[i].value
             };
-            output.dataPackets.push(packet);
+            output.push(packet);
         }
         this.props.requestSendModelData(output, this.props.deviceAddress);
     };

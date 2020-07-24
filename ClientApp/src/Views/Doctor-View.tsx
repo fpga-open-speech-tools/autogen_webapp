@@ -213,14 +213,14 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
   }
 
   handleRequestSetRegisterConfig(configuration: OpenSpeechDataStore.ModelData[]) {
-    var output: OpenSpeechDataStore.DataPacketArray = { dataPackets: [] };
+    var output: OpenSpeechDataStore.DataPacket[] = [];
     var packet: OpenSpeechDataStore.DataPacket;
     for (var i = 0; i < configuration.length; i++) {
         packet = {
            index: i,
            value : configuration[i].value
         }
-        output.dataPackets.push(packet);
+        output.push(packet);
       }
     this.props.requestSendModelData(output, this.props.deviceAddress);
   }

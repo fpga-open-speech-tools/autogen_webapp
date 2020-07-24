@@ -2,6 +2,8 @@
 
 interface ModelDataState {
   connected: boolean;
+  processing: boolean;
+  payload: any;
 }
 
 interface ModelDataCallbacks {
@@ -15,7 +17,9 @@ let connection = new signalR.HubConnectionBuilder().withUrl("/model-data").build
 export class ModelDataClient{
 
   public state: ModelDataState = {
-    connected: false,
+    connected:  false,
+    processing: false,
+    payload:    null
   }
   public callbacks: ModelDataCallbacks = {
     incomingDataListener: this.doNothing,
@@ -47,14 +51,14 @@ export class ModelDataClient{
       });
 
     connection.on("ModelUpdated", (obj) => {
-      //var newObj = { dataPackets: obj };
-      //return (this.callbacks.incomingDataListener(newObj));
+     //this.callbacks.incomingDataListener(obj);
     });
 
+
     connection.on("Update", (obj) => {
-      //var newObj = { dataPackets: obj };
-      return(this.callbacks.incomingDataListener(obj));
+      this.callbacks.incomingDataListener(obj);
     });
+
     connection.start()
       .then(function (val) {
       }).then(res => this.verifyConnection())

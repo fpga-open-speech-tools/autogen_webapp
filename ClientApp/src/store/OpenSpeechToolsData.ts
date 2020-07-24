@@ -21,7 +21,7 @@ export interface OpenSpeechToolsState {
   //Device Controls info
   deviceAddress: DeviceAddress;
 
-  command?: DataPacketArray;
+  command?: DataPacket[];
 }
 
 export interface DeviceAddress {
@@ -94,10 +94,6 @@ export interface DataPacket {
   value: number | number[] | string | string[];
 }
 
-export interface DataPacketArray {
-  dataPackets: DataPacket[];
-}
-
 
 
 
@@ -162,7 +158,7 @@ interface RequestGetRegisterConfigAction {
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   deviceAddress: DeviceAddress;
-  command: DataPacketArray;
+  command: DataPacket[];
 }
 
 interface ReceiveSendCommandResponse {
@@ -231,7 +227,7 @@ export const openSpeechDataActionCreators = {
       });
     },
 
-  requestSendModelData: (input: DataPacketArray, address: DeviceAddress):
+  requestSendModelData: (input: DataPacket[], address: DeviceAddress):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
       var inputString = JSON.stringify(input);
