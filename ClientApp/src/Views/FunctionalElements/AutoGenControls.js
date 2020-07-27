@@ -114,7 +114,7 @@ var AutoGenControls = /** @class */ (function (_super) {
         _this.handleInputCommand = function (command) {
             _this.updateModelData(command);
             if (!_this.props.isLoading) {
-                if (modelDataClient.state.connected) {
+                if (modelDataClient.state.connected && _this.props.rtcEnabled) {
                     _this.sendDataPackets(command);
                 }
                 else {
@@ -122,22 +122,22 @@ var AutoGenControls = /** @class */ (function (_super) {
                 }
             }
         };
-        _this.getAutogen = function (controls, props) {
-            if (props.autogen && modelData) {
-                if (props.autogen.containers.length > 0 &&
+        _this.getAutogen = function () {
+            if (_this.props.autogen && modelData) {
+                if (_this.props.autogen.containers.length > 0 &&
                     modelData.length > 0 &&
-                    props.autogen.views.length > 0) {
-                    var effectName = props.autogen.name ? props.autogen.name : "";
+                    _this.props.autogen.views.length > 0) {
+                    var effectName = _this.props.autogen.name ? _this.props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
                     return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
                         React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
-                        React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, props.autogen.containers.map(function (container) {
+                        React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, _this.props.autogen.containers.map(function (container) {
                             return React.createElement(React.Fragment, { key: container.name },
-                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: _this.props.autogen.views, data: modelData, callback: controls.handleInputCommand }));
+                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand }));
                         }))));
                 }
-                else if (props.autogen.name) {
-                    var effectName = props.autogen.name ? props.autogen.name : "";
+                else if (_this.props.autogen.name) {
+                    var effectName = _this.props.autogen.name ? _this.props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
                     return (React.createElement("div", { className: "autogen autogen-effectContainer autogen-error" }));
                 }
@@ -175,10 +175,14 @@ var AutoGenControls = /** @class */ (function (_super) {
         if (nextProps.autogen.data.length > 0) {
             return true;
         }
+        else if (nextProps.deviceAddress !== this.props.deviceAddress) {
+            return true;
+        }
         return false;
     };
     AutoGenControls.prototype.componentDidMount = function () {
         this.handleRequestUI();
+        this.props.requestRTCEnable(this.props.deviceAddress);
         modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
         modelDataClient.callbacks.incomingDataListener = this.receiveDataPackets;
         modelDataClient.startSession();
@@ -278,7 +282,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                             React.createElement("div", { className: "float-right" },
                                 React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
                                     React.createElement("i", { className: "fa fa-refresh large-icon" })))),
-                        this.getAutogen(this, this.props))))));
+                        this.getAutogen())))));
     };
     return AutoGenControls;
 }(React.Component));

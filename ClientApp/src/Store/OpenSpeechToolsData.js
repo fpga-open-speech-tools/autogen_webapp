@@ -14,6 +14,18 @@ exports.openSpeechDataActionCreators = {
     updateModelData: function (autogen) { return function (dispatch) {
         dispatch({ type: 'UPDATE_MODEL_DATA', autogen: autogen });
     }; },
+    requestRTCEnable: function (address) { return function (dispatch) {
+        var data = new FormData();
+        appendAddressToForm(data, address);
+        fetch("connect-rtc", { method: "PUT", body: data })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+            dispatch({
+                type: 'REQUEST_RTC_ENABLE', rtcEnabled: data
+            });
+        });
+        dispatch({ type: 'REQUEST_RTC_ENABLE', rtcEnabled: false });
+    }; },
     requestOpenSpeechS3Demos: function () { return function (dispatch) {
         fetch("demos")
             .then(function (response) { return response.json(); })
@@ -90,7 +102,8 @@ var unloadedState = {
     newAutogen: false,
     availableDemos: [],
     isLoading: false,
-    isDeviceDownloading: false
+    isDeviceDownloading: false,
+    rtcEnabled: false
 };
 exports.reducer = function (state, incomingAction) {
     if (state === undefined) {
@@ -106,6 +119,7 @@ exports.reducer = function (state, incomingAction) {
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: true,
                 newAutogen: false,
+                rtcEnabled: state.rtcEnabled
             };
         case 'RECEIVE_OPENSPEECH_AUTOGEN':
             return {
@@ -114,7 +128,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: action.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: true,
-                isLoading: false
+                isLoading: false,
+                rtcEnabled: state.rtcEnabled
             };
         case 'REQUEST_SEND_COMMAND':
             return {
@@ -125,7 +140,8 @@ exports.reducer = function (state, incomingAction) {
                 command: state.command,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
-                isLoading: true
+                isLoading: true,
+                rtcEnabled: state.rtcEnabled
             };
         case 'RECEIVE_SEND_COMMAND_RESPONSE':
             return {
@@ -135,7 +151,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
-                isLoading: false
+                isLoading: false,
+                rtcEnabled: state.rtcEnabled
             };
         case 'REQUEST_OPENSPEECH_DEMOS':
             return {
@@ -145,7 +162,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
-                isLoading: true
+                isLoading: true,
+                rtcEnabled: state.rtcEnabled
             };
         case 'RECEIVE_OPENSPEECH_DEMOS':
             return {
@@ -155,7 +173,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
-                isLoading: false
+                isLoading: false,
+                rtcEnabled: state.rtcEnabled
             };
         case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
             return {
@@ -166,7 +185,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: state.autogen,
                 currentDemo: action.currentDemo,
                 newAutogen: false,
-                isLoading: true
+                isLoading: true,
+                rtcEnabled: state.rtcEnabled
             };
         case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
             return {
@@ -176,17 +196,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: action.autogen,
                 isDeviceDownloading: false,
                 newAutogen: false,
-                isLoading: false
-            };
-        case 'REQUEST_SET_REGISTER_CONFIG':
-            return {
-                deviceAddress: state.deviceAddress,
-                currentDemo: state.currentDemo,
-                availableDemos: state.availableDemos,
-                autogen: emptyAutogen,
-                isDeviceDownloading: state.isDeviceDownloading,
-                newAutogen: false,
-                isLoading: false
+                isLoading: false,
+                rtcEnabled: state.rtcEnabled
             };
         case 'SET_DEVICE_ADDRESS':
             return {
@@ -195,7 +206,8 @@ exports.reducer = function (state, incomingAction) {
                 autogen: state.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
-                isLoading: false
+                isLoading: false,
+                rtcEnabled: state.rtcEnabled
             };
         case 'UPDATE_MODEL_DATA':
             return {
@@ -204,7 +216,18 @@ exports.reducer = function (state, incomingAction) {
                 autogen: action.autogen,
                 isDeviceDownloading: state.isDeviceDownloading,
                 newAutogen: false,
-                isLoading: false
+                isLoading: false,
+                rtcEnabled: state.rtcEnabled
+            };
+        case 'REQUEST_RTC_ENABLE':
+            return {
+                deviceAddress: state.deviceAddress,
+                availableDemos: state.availableDemos,
+                autogen: state.autogen,
+                isDeviceDownloading: state.isDeviceDownloading,
+                newAutogen: false,
+                isLoading: false,
+                rtcEnabled: action.rtcEnabled
             };
         default:
             return state;

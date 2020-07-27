@@ -48,7 +48,6 @@
 
   <ItemGroup>
     <TypeScriptCompile Include="ClientApp\src\Components\FileManagement\FileUploaderPresentationalComponent.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\Components\Sandbox\SandboxController.tsx" />
     <TypeScriptCompile Include="ClientApp\src\SignalR\ModelDataClient.ts" />
     <TypeScriptCompile Include="ClientApp\src\Views\ControlSync.tsx" />
     <TypeScriptCompile Include="ClientApp\src\Views\Doctor-View.tsx" />

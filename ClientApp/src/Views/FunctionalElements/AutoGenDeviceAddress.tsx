@@ -165,7 +165,7 @@ export class AddressManager extends React.PureComponent<OpenSpeechProps,AutoGenS
                 </InputGroup.Prepend>
                 <FormControl
                   name="port"
-                    value={this.props.deviceAddress.port}
+                    defaultValue={this.props.deviceAddress.port}
                   onChange={this.handleChangePort}
                   aria-label="Port"
                   aria-describedby="inputGroup-sizing-default"

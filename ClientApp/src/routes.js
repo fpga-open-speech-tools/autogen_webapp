@@ -1,7 +1,7 @@
 import AutoGenView from "./Views/Auto-Gen-View.tsx";
 import DoctorView from "./Views/Doctor-View.tsx";
 import PatientView from "./Views/Patient-View.tsx";
-import { ControlSyncView } from "./Views/ControlSync";
+import ControlSyncView  from "./Views/ControlSync";
 
 const dashboardRoutes = [
   {

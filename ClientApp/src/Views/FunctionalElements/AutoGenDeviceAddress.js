@@ -107,7 +107,7 @@ var AddressManager = /** @class */ (function (_super) {
                             React.createElement(react_bootstrap_1.InputGroup, { className: "mb-3" },
                                 React.createElement(react_bootstrap_1.InputGroup.Prepend, null,
                                     React.createElement(react_bootstrap_1.InputGroup.Text, { id: "inputGroup-sizing-default" }, "Port")),
-                                React.createElement(react_bootstrap_1.FormControl, { name: "port", value: this.props.deviceAddress.port, onChange: this.handleChangePort, "aria-label": "Port", "aria-describedby": "inputGroup-sizing-default" }))))))));
+                                React.createElement(react_bootstrap_1.FormControl, { name: "port", defaultValue: this.props.deviceAddress.port, onChange: this.handleChangePort, "aria-label": "Port", "aria-describedby": "inputGroup-sizing-default" }))))))));
     };
     return AddressManager;
 }(React.PureComponent));

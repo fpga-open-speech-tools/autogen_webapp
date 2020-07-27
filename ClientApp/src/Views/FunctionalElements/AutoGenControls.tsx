@@ -10,7 +10,6 @@ import {
 } from "react-bootstrap";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 import AutogenContainer from "../../Components/Autogen/Containers/AutogenContainer.jsx";
-import update from 'immutability-helper';
 import {ModelDataClient} from '../../SignalR/ModelDataClient';
 
 // At runtime, Redux will merge together...
@@ -82,7 +81,10 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
   }
  
   shouldComponentUpdate(nextProps: OpenSpeechProps) {
-    if (nextProps.autogen.data.length>0) {
+    if (nextProps.autogen.data.length > 0) {
+      return true;
+    }
+    else if (nextProps.deviceAddress !== this.props.deviceAddress) {
       return true;
     }
     return false;
@@ -90,6 +92,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
 
   componentDidMount() {
     this.handleRequestUI();
+    this.props.requestRTCEnable(this.props.deviceAddress);
     modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
     modelDataClient.callbacks.incomingDataListener = this.receiveDataPackets;
     modelDataClient.startSession();
@@ -203,7 +206,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
   handleInputCommand = (command: OpenSpeechDataStore.DataPacket[]) =>{
     this.updateModelData(command);
     if(!this.props.isLoading){
-      if (modelDataClient.state.connected) {
+      if (modelDataClient.state.connected && this.props.rtcEnabled) {
         this.sendDataPackets(command);
       }
       else {
@@ -230,34 +233,34 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     });
   }
 
-  getAutogen = (controls: AutoGenControls, props: OpenSpeechProps) => {
-    if (props.autogen && modelData) {
+  getAutogen = () => {
+    if (this.props.autogen && modelData) {
       if (
-        props.autogen.containers.length > 0 &&
+        this.props.autogen.containers.length > 0 &&
         modelData.length > 0 &&
-        props.autogen.views.length > 0) {
-        var effectName = props.autogen.name ? props.autogen.name : "";
+        this.props.autogen.views.length > 0) {
+        var effectName = this.props.autogen.name ? this.props.autogen.name : "";
         effectName = (effectName === "ERROR") ? "" : effectName;
         return (
           <div className="autogen autogen-effectContainer modal-body">
             <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
             <Row className="autogen-pages row">
-              {props.autogen.containers.map((container) =>
+              {this.props.autogen.containers.map((container) =>
                 <React.Fragment key={container.name}>
                   <AutogenContainer
                     references={container.views}
                     headerTitle={container.name}
                     views={this.props.autogen.views}
                     data={modelData}
-                    callback={controls.handleInputCommand}
+                    callback={this.handleInputCommand}
                   />
                 </React.Fragment>)
               }
             </Row>
           </div>);
       }
-      else if (props.autogen.name) {
-        var effectName = props.autogen.name ? props.autogen.name : "";
+      else if (this.props.autogen.name) {
+        var effectName = this.props.autogen.name ? this.props.autogen.name : "";
         effectName = (effectName === "ERROR") ? "" : effectName;
         return (
           <div className="autogen autogen-effectContainer autogen-error">
@@ -286,7 +289,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
                   <i className="fa fa-refresh large-icon" />
                 </Button>
               </div></Modal.Header>
-            {this.getAutogen(this, this.props)}
+            {this.getAutogen()}
             </Modal.Dialog>
           </Row>
         </Container>
@@ -300,7 +303,6 @@ var modelData = [] as OpenSpeechDataStore.ModelData[];
 
 async function updateModelData(packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
   oldModel[packet.index].value = packet.value;
-
 }
 
 async function updateModel(controls: AutoGenControls) {

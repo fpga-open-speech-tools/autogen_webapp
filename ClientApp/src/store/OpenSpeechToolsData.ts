@@ -20,6 +20,7 @@ export interface OpenSpeechToolsState {
 
   //Device Controls info
   deviceAddress: DeviceAddress;
+  rtcEnabled: boolean;
 
   command?: DataPacket[];
 }
@@ -142,19 +143,6 @@ interface ReceiveOpenSpeechAutogenConfig {
   autogen: Autogen;
 }
 
-interface RequestSetRegisterConfigAction {
-  type: 'REQUEST_SET_REGISTER_CONFIG';
-  deviceAddress: DeviceAddress;
-  registerConfigString: string;
-}
-
-
-interface RequestGetRegisterConfigAction {
-  type: 'REQUEST_GET_REGISTER_CONFIG_ACTION';
-  deviceAddress: DeviceAddress;
-}
-
-
 interface RequestSendCommand {
   type: 'REQUEST_SEND_COMMAND';
   deviceAddress: DeviceAddress;
@@ -170,6 +158,11 @@ interface UpdateModelData {
   autogen: Autogen;
 }
 
+interface ConnectRTC {
+  type: 'REQUEST_RTC_ENABLE';
+  rtcEnabled: boolean;
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 type KnownAction =
@@ -177,8 +170,7 @@ type KnownAction =
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
-  RequestSetRegisterConfigAction |
-  SetDeviceAddress | UpdateModelData;
+  SetDeviceAddress | UpdateModelData | ConnectRTC;
 
 
 function appendAddressToForm(data: FormData, address:DeviceAddress) {
@@ -198,6 +190,21 @@ export const openSpeechDataActionCreators = {
     AppThunkAction<KnownAction> => (dispatch) => {
       dispatch({ type: 'UPDATE_MODEL_DATA', autogen});
     },
+
+  requestRTCEnable: (address:DeviceAddress):
+    AppThunkAction<KnownAction> => (dispatch) => {
+      var data = new FormData();
+      appendAddressToForm(data, address);
+      fetch(`connect-rtc`, { method: "PUT", body: data })
+        .then(response => response.json() as Promise<boolean>)
+        .then(data => {
+          dispatch({
+            type: 'REQUEST_RTC_ENABLE', rtcEnabled: data
+          });
+        });
+      dispatch({ type: 'REQUEST_RTC_ENABLE', rtcEnabled:false });
+    },
+
   requestOpenSpeechS3Demos: ():
     AppThunkAction<KnownAction> => (dispatch) => {
     fetch(`demos`)
@@ -284,7 +291,8 @@ const unloadedState: OpenSpeechToolsState = {
   newAutogen: false,
   availableDemos: [],
   isLoading: false,
-  isDeviceDownloading: false
+  isDeviceDownloading: false,
+  rtcEnabled:false
   };
 
 export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsState | undefined, incomingAction: Action): OpenSpeechToolsState => {
@@ -301,7 +309,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true,
-        newAutogen:false,
+        newAutogen: false,
+        rtcEnabled: state.rtcEnabled
       };
     case 'RECEIVE_OPENSPEECH_AUTOGEN':
       return {
@@ -310,7 +319,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: action.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: true,
-        isLoading: false
+        isLoading: false,
+        rtcEnabled: state.rtcEnabled
       };
     case 'REQUEST_SEND_COMMAND':
       return {
@@ -321,7 +331,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         command: state.command,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
-        isLoading: true
+        isLoading: true,
+        rtcEnabled: state.rtcEnabled
       };
     case 'RECEIVE_SEND_COMMAND_RESPONSE':
       return {
@@ -331,7 +342,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
-        isLoading: false
+        isLoading: false,
+        rtcEnabled: state.rtcEnabled
       };
     case 'REQUEST_OPENSPEECH_DEMOS':  
       return {
@@ -341,7 +353,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
-        isLoading: true
+        isLoading: true,
+        rtcEnabled: state.rtcEnabled
       };
     case 'RECEIVE_OPENSPEECH_DEMOS':
       return {
@@ -351,7 +364,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
-        isLoading: false
+        isLoading: false,
+        rtcEnabled: state.rtcEnabled
       };
     case 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO':
       return {
@@ -362,7 +376,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: state.autogen,
         currentDemo: action.currentDemo,
         newAutogen: false,
-        isLoading: true
+        isLoading: true,
+        rtcEnabled: state.rtcEnabled
       };
     case 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO':
       return {
@@ -372,17 +387,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: action.autogen,
         isDeviceDownloading: false,
         newAutogen: false,
-        isLoading: false
-      };
-    case 'REQUEST_SET_REGISTER_CONFIG':
-      return {
-        deviceAddress: state.deviceAddress,
-        currentDemo: state.currentDemo,
-        availableDemos: state.availableDemos,
-        autogen: emptyAutogen,
-        isDeviceDownloading: state.isDeviceDownloading,
-        newAutogen: false,
-        isLoading: false
+        isLoading: false,
+        rtcEnabled: state.rtcEnabled
       };
 
     case 'SET_DEVICE_ADDRESS':
@@ -392,7 +398,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: state.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
-        isLoading: false
+        isLoading: false,
+        rtcEnabled: state.rtcEnabled
       };
     case 'UPDATE_MODEL_DATA':
       return {
@@ -401,7 +408,18 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         autogen: action.autogen,
         isDeviceDownloading: state.isDeviceDownloading,
         newAutogen: false,
-        isLoading: false
+        isLoading: false,
+        rtcEnabled: state.rtcEnabled
+      };
+    case 'REQUEST_RTC_ENABLE':
+      return {
+        deviceAddress: state.deviceAddress,
+        availableDemos: state.availableDemos,
+        autogen: state.autogen,
+        isDeviceDownloading: state.isDeviceDownloading,
+        newAutogen: false,
+        isLoading: false,
+        rtcEnabled: action.rtcEnabled
       };
     default:
       return state as OpenSpeechToolsState;

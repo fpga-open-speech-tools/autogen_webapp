@@ -8,7 +8,6 @@ import { ApplicationState } from '..';
 import { AutoGenControls } from './FunctionalElements/AutoGenControls';
 import { AvailableDemos } from './FunctionalElements/AutoGenDemos';
 import { AddressManager } from './FunctionalElements/AutoGenDeviceAddress';
-import { SandboxView } from '../Components/Sandbox/SandboxController';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
