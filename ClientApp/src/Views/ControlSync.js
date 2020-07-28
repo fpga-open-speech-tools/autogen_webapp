@@ -24,7 +24,7 @@ var ControlSyncView = /** @class */ (function (_super) {
         var _this = _super.call(this, props) || this;
         _this.getComponents = function () {
             if (_this.props.autogen) {
-                return (React.createElement(MapifyComponents_jsx_1.default, { data: _this.props.autogen.data }));
+                return (React.createElement(MapifyComponents_jsx_1.default, { data: _this.props.autogen.data, name: _this.props.autogen.name }));
             }
             else {
                 return (React.createElement("div", null, "No Autogen"));

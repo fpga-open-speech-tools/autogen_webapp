@@ -38,7 +38,8 @@ export class ControlSyncView extends React.Component<OpenSpeechProps> {
     if (this.props.autogen) {
       return (
         <ComponentLibary
-          data={this.props.autogen.data}>
+          data={this.props.autogen.data}
+          name={this.props.autogen.name}>
         </ComponentLibary>
       );
     }

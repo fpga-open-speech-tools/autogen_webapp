@@ -29,6 +29,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Slider.jsx" />
+    <Content Remove="wwwroot\Slider2D.jsx" />
+    <Content Remove="wwwroot\Toggle.jsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="ClientApp\package.json" />
     <None Remove="ClientApp\src\Components\FileManagement\FIleUploaderPresentationalComponent.tsx" />
     <None Remove="ClientApp\src\Components\SandboxController.tsx" />
@@ -44,6 +50,13 @@
 
   <ItemGroup>
     <Content Include="ClientApp\package.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\Components.json" />
+    <None Include="wwwroot\Slider.jsx" />
+    <None Include="wwwroot\Slider2D.jsx" />
+    <None Include="wwwroot\Toggle.jsx" />
   </ItemGroup>
 
   <ItemGroup>

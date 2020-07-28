@@ -1,0 +1,26 @@
+{
+  "components": [
+    {
+      "name": "Slider",
+      "variants": ["vertical"],
+      "properties": {
+        "data": {
+          "required": [ "min", "max", "step" ],
+          "optional": ["units"],
+          "type": "number"
+        }
+      }
+    },
+    {
+      "name": "Toggle",
+      "variants": [],
+      "properties": {
+        "data": {
+          "required": [ "enumeration" ],
+          "optional": [],
+          "type": "number"
+        }
+      }
+    }
+  ]
+}
