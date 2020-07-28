@@ -2,7 +2,10 @@ import React, { Component} from "react";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 
 export class AutogenContainer extends Component {
-
+  constructor(props) {
+    super(props);
+    this.editable = this.props.editable;
+  }
 
   render = () => {
     return (

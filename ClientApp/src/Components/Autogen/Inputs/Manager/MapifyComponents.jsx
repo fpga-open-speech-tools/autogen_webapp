@@ -134,6 +134,19 @@ const MatchDataToComponent = (data) => {
   return match;
 }
 
+//Add View to container. Needs the autogen object.
+export function AddViewToContainer(autogen, container, containerIndex, viewIndex) {
+  container.views.push(viewIndex);
+  autogen.containers[containerIndex] = container;
+  return autogen;
+}
+
+export function RemoveViewFromContainer(autogen, container, containerIndex, itemIndexToRemove) {
+  container.views.splice(itemIndexToRemove, 1);
+  autogen.containers[containerIndex] = container;
+  return autogen;
+}
+
 
 
 export class MapifyComponents extends Component {

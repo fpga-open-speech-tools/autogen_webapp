@@ -11,8 +11,25 @@ function appendAddressToForm(data, address) {
 // ACTION CREATORS - These are functions exposed to UI components that will trigger a state transition.
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 exports.openSpeechDataActionCreators = {
-    updateModelData: function (autogen) { return function (dispatch) {
+    updateAutogenProps: function (autogen) { return function (dispatch) {
         dispatch({ type: 'UPDATE_MODEL_DATA', autogen: autogen });
+    }; },
+    requestSendAutogenConfiguration: function (address, input) { return function (dispatch, getState) {
+        var data = new FormData();
+        appendAddressToForm(data, address);
+        var inputString = JSON.stringify(input);
+        data.append('configuration', JSON.stringify(inputString));
+        fetch("configuration", { method: "PUT", body: data })
+            .then(function (response) { return response.json(); })
+            .then(function (data) {
+            dispatch({
+                type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
+            });
+        });
+        dispatch({
+            type: 'REQUEST_SEND_AUTOGEN_CONFIGURATION',
+            deviceAddress: address, autogen: input
+        });
     }; },
     requestRTCEnable: function (address) { return function (dispatch) {
         var data = new FormData();
@@ -38,6 +55,7 @@ exports.openSpeechDataActionCreators = {
     }; },
     requestAutogenConfiguration: function (address) { return function (dispatch, getState) {
         var data = new FormData();
+        data.append("configuration", "");
         appendAddressToForm(data, address);
         fetch("configuration", { method: "PUT", body: data })
             .then(function (response) { return response.json(); })
@@ -111,6 +129,16 @@ exports.reducer = function (state, incomingAction) {
     }
     var action = incomingAction;
     switch (action.type) {
+        case 'REQUEST_SEND_AUTOGEN_CONFIGURATION':
+            return {
+                deviceAddress: state.deviceAddress,
+                autogen: state.autogen,
+                availableDemos: state.availableDemos,
+                isDeviceDownloading: state.isDeviceDownloading,
+                isLoading: true,
+                newAutogen: false,
+                rtcEnabled: state.rtcEnabled
+            };
         case 'REQUEST_OPENSPEECH_AUTOGEN':
             return {
                 deviceAddress: state.deviceAddress,

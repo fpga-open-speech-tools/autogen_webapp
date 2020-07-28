@@ -20,12 +20,12 @@ namespace Autogen.Controllers
     }
 
 
-    private static string _download_json_data(string url){
+    private static string _download_json_data(string url,string method, string data){
       var json_data = string.Empty;
       // attempt to download JSON data as a string
       try
       {
-        json_data = HTTP_GET(url).Output;
+        json_data = HTTP_REQ(url,method,data).Output;
       }
       catch (Exception) { }
       if (json_data == "")
@@ -35,14 +35,14 @@ namespace Autogen.Controllers
       System.Diagnostics.Debug.WriteLine("JSON Data" + json_data);
       return json_data;
     }
-    private static T _download_serialized_json_data<T>(string url) where T : new()
+    private static T _download_serialized_json_data<T>(string url,string method, string data) where T : new()
     {
 
         var json_data = string.Empty;
         // attempt to download JSON data as a string
         try
         {
-          json_data = HTTP_GET(url).Output;
+          json_data = HTTP_REQ(url,method, data).Output;
         }
         catch (Exception) { }
         if (json_data == "")
@@ -65,7 +65,7 @@ namespace Autogen.Controllers
       public string Output { get; set; }
     }
 
-    public static JsonResultModel HTTP_GET(string Url)
+    public static JsonResultModel HTTP_REQ(string Url,string method, string PostData)
     {
       JsonResultModel model = new JsonResultModel();
       string Out = String.Empty;
@@ -74,10 +74,17 @@ namespace Autogen.Controllers
 
       try
       {
-        req.Method = "GET";
+        req.Method = method;
         req.Timeout = 1000;
         req.ContentType = "application/json";
 
+        if (method.Equals("POST"))
+        {
+          using (var streamWriter = new StreamWriter(req.GetRequestStream()))
+          {
+            streamWriter.Write(PostData);
+          }
+        }
 
         WebResponse res = req.GetResponse();
         Stream ReceiveStream = res.GetResponseStream();
@@ -127,14 +134,26 @@ namespace Autogen.Controllers
       [FromForm]string ip2,
       [FromForm]string ip3,
       [FromForm]string ip4,
-      [FromForm]string port
+      [FromForm]string port,
+      [FromForm]string configuration
       )
     {
+      var result = "{\"name\":\"ERROR\",\"views\":[],\"data\":[],\"containers\":[]}";
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
       var url = "http://" + deviceIP + ":" + port + "/configuration";
-      System.Diagnostics.Debug.WriteLine("Attempting to Get UI @: " + url);
-      //r = _download_serialized_json_data<object>(url);
-      string result  = _download_json_data(url);
+      var method = string.IsNullOrEmpty(configuration) ? "GET" : "POST";
+      System.Diagnostics.Debug.WriteLine("Attempting to " + method + " UI @: " + url);
+      if (method.Equals("GET"))
+      {
+        result = _download_json_data(url, method, "");
+      }
+      else
+      {
+        object obj = JsonConvert.DeserializeObject(configuration);
+        result = _download_json_data(url, method, obj.ToString());
+      }
+
+
       return result;
     }
 

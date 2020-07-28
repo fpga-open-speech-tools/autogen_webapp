@@ -163,6 +163,12 @@ interface ConnectRTC {
   rtcEnabled: boolean;
 }
 
+interface SetAutogenConfiguration {
+  type: 'REQUEST_SEND_AUTOGEN_CONFIGURATION';
+  autogen: Autogen;
+  deviceAddress: DeviceAddress;
+}
+
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
 // declared type strings (and not any other arbitrary string).
 type KnownAction =
@@ -170,7 +176,7 @@ type KnownAction =
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
-  SetDeviceAddress | UpdateModelData | ConnectRTC;
+  SetDeviceAddress | UpdateModelData | ConnectRTC | SetAutogenConfiguration;
 
 
 function appendAddressToForm(data: FormData, address:DeviceAddress) {
@@ -186,9 +192,29 @@ function appendAddressToForm(data: FormData, address:DeviceAddress) {
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 
 export const openSpeechDataActionCreators = {
-  updateModelData: (autogen: Autogen):
+  updateAutogenProps: (autogen: Autogen):
     AppThunkAction<KnownAction> => (dispatch) => {
       dispatch({ type: 'UPDATE_MODEL_DATA', autogen});
+    },
+
+  requestSendAutogenConfiguration: (address: DeviceAddress, input: Autogen):
+    AppThunkAction<KnownAction> => (dispatch, getState) => {
+      var data = new FormData();
+      appendAddressToForm(data, address);
+      var inputString = JSON.stringify(input);
+      data.append('configuration', JSON.stringify(inputString));
+
+      fetch(`configuration`, { method: "PUT", body: data })
+        .then(response => response.json() as Promise<any>)
+        .then(data => {
+          dispatch({
+            type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
+          });
+        });
+      dispatch({
+        type: 'REQUEST_SEND_AUTOGEN_CONFIGURATION',
+        deviceAddress: address,autogen:input
+      });
     },
 
   requestRTCEnable: (address:DeviceAddress):
@@ -219,7 +245,8 @@ export const openSpeechDataActionCreators = {
 
   requestAutogenConfiguration: (address: DeviceAddress):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
-    var data = new FormData();
+      var data = new FormData();
+      data.append("configuration", "");
     appendAddressToForm(data, address);
     fetch(`configuration`, { method: "PUT", body: data })
         .then(response => response.json() as Promise<any>)
@@ -302,6 +329,16 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
 
   const action = incomingAction as KnownAction;
   switch (action.type) {
+    case 'REQUEST_SEND_AUTOGEN_CONFIGURATION':
+      return {
+        deviceAddress: state.deviceAddress,
+        autogen: state.autogen,
+        availableDemos: state.availableDemos,
+        isDeviceDownloading: state.isDeviceDownloading,
+        isLoading: true,
+        newAutogen: false,
+        rtcEnabled: state.rtcEnabled
+      };
     case 'REQUEST_OPENSPEECH_AUTOGEN':
       return {
         deviceAddress:state.deviceAddress,

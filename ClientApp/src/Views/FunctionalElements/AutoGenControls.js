@@ -122,6 +122,30 @@ var AutoGenControls = /** @class */ (function (_super) {
                 }
             }
         };
+        _this.makeEditable = function () {
+            _this.setState({ editable: true });
+        };
+        _this.cancelEdit = function () {
+            _this.setState({ editable: false });
+        };
+        _this.saveEdit = function () {
+            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, _this.state.autogen);
+            _this.setState({ editable: false });
+        };
+        _this.controlEditable = function () {
+            if (!_this.state.editable) {
+                return (React.createElement("div", { className: "float-right" },
+                    React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: _this.makeEditable },
+                        React.createElement("i", { className: "fa fa-pencil-square-o large-icon" }))));
+            }
+            else {
+                return (React.createElement("div", { className: "float-right" },
+                    React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: _this.saveEdit },
+                        React.createElement("i", { className: "fa fa-save large-icon" })),
+                    React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: _this.cancelEdit },
+                        React.createElement("i", { className: "fa fa-times large-icon" }))));
+            }
+        };
         _this.getAutogen = function () {
             if (_this.props.autogen && modelData) {
                 if (_this.props.autogen.containers.length > 0 &&
@@ -133,7 +157,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
                         React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, _this.props.autogen.containers.map(function (container) {
                             return React.createElement(React.Fragment, { key: container.name },
-                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand }));
+                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable }));
                         }))));
                 }
                 else if (_this.props.autogen.name) {
@@ -145,14 +169,12 @@ var AutoGenControls = /** @class */ (function (_super) {
         };
         _this.state = {
             connected: false,
+            editable: false,
             notification: {
                 text: "",
                 level: ""
             },
-            autogen: {
-                name: "",
-                projectID: "Example",
-            },
+            autogen: _this.props.autogen,
             //data: []
             newAutogen: false,
             dataUpdated: false
@@ -166,16 +188,22 @@ var AutoGenControls = /** @class */ (function (_super) {
         _this.handleMessage = _this.handleMessage.bind(_this);
         _this.updateModelFromProps = _this.updateModelFromProps.bind(_this);
         _this.getAutogen = _this.getAutogen.bind(_this);
+        _this.controlEditable = _this.controlEditable.bind(_this);
+        _this.saveEdit = _this.saveEdit.bind(_this);
+        _this.cancelEdit = _this.cancelEdit.bind(_this);
         return _this;
     }
     AutoGenControls.prototype.componentWillReceiveProps = function () {
         this.updateModelFromProps();
     };
-    AutoGenControls.prototype.shouldComponentUpdate = function (nextProps) {
+    AutoGenControls.prototype.shouldComponentUpdate = function (nextProps, nextState) {
         if (nextProps.autogen.data.length > 0) {
             return true;
         }
         else if (nextProps.deviceAddress !== this.props.deviceAddress) {
+            return true;
+        }
+        else if (nextState.editable != this.state.editable) {
             return true;
         }
         return false;
@@ -196,30 +224,12 @@ var AutoGenControls = /** @class */ (function (_super) {
         if (this.props.autogen) {
             if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('error', 'Demo Upload Failed');
-                this.setState({
-                    autogen: {
-                        name: this.props.autogen.name,
-                        projectID: this.state.autogen.projectID
-                    }
-                });
             }
             else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('error', 'Control Generation Failed');
-                this.setState({
-                    autogen: {
-                        name: this.props.autogen.name,
-                        projectID: this.state.autogen.projectID
-                    }
-                });
             }
             else if (this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('success', 'New Controls Generated');
-                this.setState({
-                    autogen: {
-                        name: this.props.autogen.name,
-                        projectID: this.state.autogen.projectID
-                    }
-                });
             }
         }
     };
@@ -279,6 +289,7 @@ var AutoGenControls = /** @class */ (function (_super) {
                     React.createElement(react_bootstrap_1.Modal.Dialog, null,
                         React.createElement(react_bootstrap_1.Modal.Header, null,
                             React.createElement(react_bootstrap_1.Modal.Title, { className: "float-left" }, "Controls"),
+                            this.controlEditable(),
                             React.createElement("div", { className: "float-right" },
                                 React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
                                     React.createElement("i", { className: "fa fa-refresh large-icon" })))),

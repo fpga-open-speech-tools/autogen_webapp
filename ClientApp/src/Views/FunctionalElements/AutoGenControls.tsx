@@ -19,12 +19,13 @@ type OpenSpeechProps =
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 export interface AutoGenState {
-  autogen: Autogen,
+  autogen: OpenSpeechDataStore.Autogen,
   notification: Notification,
   //data: OpenSpeechDataStore.ModelData[],
   newAutogen: boolean;
   dataUpdated: boolean;
   connected: boolean,
+  editable: boolean,
 }
 
 interface Autogen {
@@ -47,16 +48,13 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     this.state = {
 
       connected: false,
-
+      editable: false,
       notification: {
         text: "",
         level: ""
       },
 
-      autogen: {
-        name: "",
-        projectID: "Example",
-      },
+      autogen: this.props.autogen,
       //data: []
       newAutogen: false,
       dataUpdated:false
@@ -74,19 +72,27 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
 
     this.updateModelFromProps = this.updateModelFromProps.bind(this);
     this.getAutogen = this.getAutogen.bind(this);
+
+    this.controlEditable = this.controlEditable.bind(this);
+    this.saveEdit = this.saveEdit.bind(this);
+    this.cancelEdit = this.cancelEdit.bind(this);
   }
 
   componentWillReceiveProps() {
     this.updateModelFromProps();
   }
  
-  shouldComponentUpdate(nextProps: OpenSpeechProps) {
+  shouldComponentUpdate(nextProps: OpenSpeechProps,nextState:AutoGenState) {
     if (nextProps.autogen.data.length > 0) {
       return true;
     }
     else if (nextProps.deviceAddress !== this.props.deviceAddress) {
       return true;
     }
+    else if (nextState.editable != this.state.editable) {
+      return true;
+    }
+
     return false;
   }
 
@@ -107,30 +113,13 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     if (this.props.autogen) {
       if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Demo Upload Failed');
-        this.setState({
-          autogen: {
-            name: this.props.autogen.name,
-            projectID: this.state.autogen.projectID
-          }
-        });
+
       }
       else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
-        this.setNotification('error', 'Control Generation Failed')
-        this.setState({
-          autogen: {
-            name: this.props.autogen.name,
-            projectID: this.state.autogen.projectID
-          }
-        });
+        this.setNotification('error', 'Control Generation Failed');
       }
       else if (this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('success', 'New Controls Generated');
-        this.setState({
-          autogen: {
-            name: this.props.autogen.name,
-            projectID: this.state.autogen.projectID
-          }
-        });
       }
     }
   }
@@ -233,6 +222,54 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     });
   }
 
+  makeEditable = () => {
+    this.setState({ editable: true });
+  }
+
+  cancelEdit = () => {
+    this.setState({ editable: false });
+  }
+
+  saveEdit = () => {
+    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, this.state.autogen);
+    this.setState({ editable: false });
+  }
+
+  controlEditable = () => {
+    if (!this.state.editable) {
+      return (
+        <div className="float-right">
+          <Button
+            variant="primary"
+            className="btn-simple btn-icon"
+            onClick={this.makeEditable}
+          >
+            <i className="fa fa-pencil-square-o large-icon" />
+          </Button>
+        </div>);
+    }
+    else {
+      return (
+        <div className="float-right">
+          <Button
+            variant="primary"
+            className="btn-simple btn-icon"
+            onClick={this.saveEdit}
+          >
+            <i className="fa fa-save large-icon" />
+          </Button>
+          <Button
+            variant="primary"
+            className="btn-simple btn-icon"
+            onClick={this.cancelEdit}
+          >
+            <i className="fa fa-times large-icon" />
+          </Button>
+        </div>);
+    }
+
+  }
+
   getAutogen = () => {
     if (this.props.autogen && modelData) {
       if (
@@ -253,6 +290,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
                     views={this.props.autogen.views}
                     data={modelData}
                     callback={this.handleInputCommand}
+                    editable={this.state.editable}
                   />
                 </React.Fragment>)
               }
@@ -280,6 +318,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
           <Row>
             <Modal.Dialog>
               <Modal.Header><Modal.Title className="float-left">Controls</Modal.Title>
+                {this.controlEditable()}
                 <div className="float-right">
                 <Button
                   variant="primary"
@@ -288,7 +327,8 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
                 >
                   <i className="fa fa-refresh large-icon" />
                 </Button>
-              </div></Modal.Header>
+                </div>
+              </Modal.Header>
             {this.getAutogen()}
             </Modal.Dialog>
           </Row>
