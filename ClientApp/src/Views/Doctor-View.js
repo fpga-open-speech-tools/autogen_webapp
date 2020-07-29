@@ -30,7 +30,7 @@ var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var NotificationWrapper_jsx_1 = require("../Components/Notifications/NotificationWrapper.jsx");
 var FileUploaderPresentationalComponent_1 = require("../Components/FileManagement/FileUploaderPresentationalComponent");
-var AutoGenControls_1 = require("./FunctionalElements/AutoGenControls");
+var ControlPanel_1 = require("./FunctionalElements/ControlPanel");
 var signalR = require("@microsoft/signalr");
 var connection = new signalR.HubConnectionBuilder().withUrl("/doctor-patient").build();
 var DoctorView = /** @class */ (function (_super) {
@@ -425,7 +425,7 @@ var DoctorView = /** @class */ (function (_super) {
                         React.createElement(react_bootstrap_1.Row, null,
                             React.createElement("h4", { className: "centered-header" }, this.state.groupID)))),
                 React.createElement(react_bootstrap_1.Row, null, feedbackUI(this, this.state)),
-                React.createElement(AutoGenControls_1.AutoGenControls, __assign({}, this.props)),
+                React.createElement(ControlPanel_1.ControlPanel, __assign({}, this.props)),
                 React.createElement("script", { src: "~/js/signalr/dist/browser/signalr.js" }),
                 React.createElement("script", { src: "~/js/chat.js" }))));
     }; //End Render

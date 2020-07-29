@@ -12,7 +12,7 @@ function appendAddressToForm(data, address) {
 // They don't directly mutate state, but they can have external side-effects (such as loading data).
 exports.openSpeechDataActionCreators = {
     updateAutogenProps: function (autogen) { return function (dispatch) {
-        dispatch({ type: 'UPDATE_MODEL_DATA', autogen: autogen });
+        dispatch({ type: 'UPDATE_AUTOGEN_PROPS', autogen: autogen });
     }; },
     requestSendAutogenConfiguration: function (address, input) { return function (dispatch, getState) {
         var data = new FormData();
@@ -237,7 +237,7 @@ exports.reducer = function (state, incomingAction) {
                 isLoading: false,
                 rtcEnabled: state.rtcEnabled
             };
-        case 'UPDATE_MODEL_DATA':
+        case 'UPDATE_AUTOGEN_PROPS':
             return {
                 deviceAddress: state.deviceAddress,
                 availableDemos: state.availableDemos,

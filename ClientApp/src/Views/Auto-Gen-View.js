@@ -27,7 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
-var AutoGenControls_1 = require("./FunctionalElements/AutoGenControls");
+var ControlPanel_1 = require("./FunctionalElements/ControlPanel");
 var AutoGenDemos_1 = require("./FunctionalElements/AutoGenDemos");
 var AutoGenDeviceAddress_1 = require("./FunctionalElements/AutoGenDeviceAddress");
 var AutogenView = /** @class */ (function (_super) {
@@ -39,7 +39,7 @@ var AutogenView = /** @class */ (function (_super) {
         return (React.createElement("div", null,
             React.createElement(AutoGenDeviceAddress_1.AddressManager, __assign({}, this.props)),
             React.createElement(AutoGenDemos_1.AvailableDemos, __assign({}, this.props)),
-            React.createElement(AutoGenControls_1.AutoGenControls, __assign({}, this.props))));
+            React.createElement(ControlPanel_1.ControlPanel, __assign({}, this.props))));
     };
     return AutogenView;
 }(React.PureComponent));

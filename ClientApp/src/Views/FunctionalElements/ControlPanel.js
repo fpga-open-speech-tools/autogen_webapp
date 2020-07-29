@@ -54,12 +54,13 @@ var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var NotificationWrapper_jsx_1 = require("../../Components/Notifications/NotificationWrapper.jsx");
-var AutogenContainer_jsx_1 = require("../../Components/Autogen/Containers/AutogenContainer.jsx");
+var ControlCard_jsx_1 = require("../../Components/Autogen/Containers/ControlCard.jsx");
 var ModelDataClient_1 = require("../../SignalR/ModelDataClient");
+var MapifyComponents_jsx_1 = require("../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx");
 var modelDataClient = new ModelDataClient_1.ModelDataClient();
-var AutoGenControls = /** @class */ (function (_super) {
-    __extends(AutoGenControls, _super);
-    function AutoGenControls(props) {
+var ControlPanel = /** @class */ (function (_super) {
+    __extends(ControlPanel, _super);
+    function ControlPanel(props) {
         var _this = _super.call(this, props) || this;
         _this.updateModelFromProps = function () {
             function overwriteModel(controls) {
@@ -123,14 +124,23 @@ var AutoGenControls = /** @class */ (function (_super) {
             }
         };
         _this.makeEditable = function () {
-            _this.setState({ editable: true });
+            _this.setState({
+                editable: true
+            });
         };
         _this.cancelEdit = function () {
-            _this.setState({ editable: false });
+            _this.setState({ editable: false }); //Stop editing
+            _this.handleRequestUI();
         };
         _this.saveEdit = function () {
-            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, _this.state.autogen);
             _this.setState({ editable: false });
+            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, _this.props.autogen);
+            _this.handleRequestUI();
+        };
+        _this.fixEdit = function () {
+            _this.setState({ editable: false });
+            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, MapifyComponents_jsx_1.GetAutogenObjectFromData(_this.props.autogen.data, _this.props.autogen.name));
+            _this.handleRequestUI();
         };
         _this.controlEditable = function () {
             if (!_this.state.editable) {
@@ -143,10 +153,60 @@ var AutoGenControls = /** @class */ (function (_super) {
                     React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: _this.saveEdit },
                         React.createElement("i", { className: "fa fa-save large-icon" })),
                     React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: _this.cancelEdit },
-                        React.createElement("i", { className: "fa fa-times large-icon" }))));
+                        React.createElement("i", { className: "fa fa-times large-icon" })),
+                    React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: _this.fixEdit },
+                        React.createElement("i", { className: "fa fa-wrench large-icon" }))));
             }
         };
-        _this.getAutogen = function () {
+        _this.updateControlCardName = function (title, index) {
+            var autogen = _this.props.autogen;
+            autogen.containers[index].name = title;
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.updateControlPanelName = function (name) {
+            var autogen = _this.props.autogen;
+            autogen.name = name;
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.deleteContainer = function (index) {
+            var autogen = _this.props.autogen;
+            autogen.containers.splice(index, 1);
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.moveContainer = function (index, direction) {
+            var autogen = _this.props.autogen;
+            //moving first element left(to end of array)
+            if (direction < 1 && index === 0) {
+                var currentContainer = autogen.containers.shift();
+                autogen.containers.push(currentContainer);
+            }
+            //moving last element right(to start of array)
+            else if (direction > 0 && index === autogen.containers.length - 1) {
+                var currentContainer = autogen.containers.pop();
+                autogen.containers.unshift(currentContainer);
+            }
+            //swapping indexed container with the component at the desired direction's index.
+            else {
+                var currentContainer = autogen.containers[index];
+                autogen.containers[index] = autogen.containers[index + direction];
+                autogen.containers[index + direction] = currentContainer;
+            }
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.controlPanelHeaderTitleControl = function (name) {
+            if (_this.state.editable) {
+                return (React.createElement(react_bootstrap_1.Form, null,
+                    React.createElement(react_bootstrap_1.Form.Control, { size: "lg", type: "text", value: name })));
+            }
+            else {
+                return (React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, name));
+            }
+        };
+        _this.createControlPanel = function () {
             if (_this.props.autogen && modelData) {
                 if (_this.props.autogen.containers.length > 0 &&
                     modelData.length > 0 &&
@@ -154,10 +214,10 @@ var AutoGenControls = /** @class */ (function (_super) {
                     var effectName = _this.props.autogen.name ? _this.props.autogen.name : "";
                     effectName = (effectName === "ERROR") ? "" : effectName;
                     return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
-                        React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, effectName),
-                        React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, _this.props.autogen.containers.map(function (container) {
-                            return React.createElement(React.Fragment, { key: container.name },
-                                React.createElement(AutogenContainer_jsx_1.default, { references: container.views, headerTitle: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable }));
+                        _this.controlPanelHeaderTitleControl(effectName),
+                        React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, _this.props.autogen.containers.map(function (container, index) {
+                            return React.createElement(React.Fragment, { key: index },
+                                React.createElement(ControlCard_jsx_1.default, { references: container.views, title: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index }));
                         }))));
                 }
                 else if (_this.props.autogen.name) {
@@ -175,7 +235,6 @@ var AutoGenControls = /** @class */ (function (_super) {
                 level: ""
             },
             autogen: _this.props.autogen,
-            //data: []
             newAutogen: false,
             dataUpdated: false
         };
@@ -187,16 +246,21 @@ var AutoGenControls = /** @class */ (function (_super) {
         _this.receiveDataPackets = _this.receiveDataPackets.bind(_this);
         _this.handleMessage = _this.handleMessage.bind(_this);
         _this.updateModelFromProps = _this.updateModelFromProps.bind(_this);
-        _this.getAutogen = _this.getAutogen.bind(_this);
+        _this.createControlPanel = _this.createControlPanel.bind(_this);
         _this.controlEditable = _this.controlEditable.bind(_this);
         _this.saveEdit = _this.saveEdit.bind(_this);
         _this.cancelEdit = _this.cancelEdit.bind(_this);
+        _this.fixEdit = _this.fixEdit.bind(_this);
+        _this.moveContainer = _this.moveContainer.bind(_this);
+        _this.deleteContainer = _this.deleteContainer.bind(_this);
+        _this.updateControlCardName = _this.updateControlCardName.bind(_this);
+        _this.updateControlPanelName = _this.updateControlPanelName.bind(_this);
         return _this;
     }
-    AutoGenControls.prototype.componentWillReceiveProps = function () {
+    ControlPanel.prototype.componentWillReceiveProps = function () {
         this.updateModelFromProps();
     };
-    AutoGenControls.prototype.shouldComponentUpdate = function (nextProps, nextState) {
+    ControlPanel.prototype.shouldComponentUpdate = function (nextProps, nextState) {
         if (nextProps.autogen.data.length > 0) {
             return true;
         }
@@ -208,14 +272,14 @@ var AutoGenControls = /** @class */ (function (_super) {
         }
         return false;
     };
-    AutoGenControls.prototype.componentDidMount = function () {
+    ControlPanel.prototype.componentDidMount = function () {
         this.handleRequestUI();
         this.props.requestRTCEnable(this.props.deviceAddress);
         modelDataClient.callbacks.incomingMessageListener = this.handleMessage;
         modelDataClient.callbacks.incomingDataListener = this.receiveDataPackets;
         modelDataClient.startSession();
     };
-    AutoGenControls.prototype.componentDidUpdate = function () {
+    ControlPanel.prototype.componentWillUpdate = function () {
         if (this.props.autogen && modelData) {
             if (modelData != this.props.autogen.data) {
                 this.updateModelFromProps();
@@ -224,48 +288,28 @@ var AutoGenControls = /** @class */ (function (_super) {
         if (this.props.autogen) {
             if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('error', 'Demo Upload Failed');
+                this.setState({ autogen: this.props.autogen });
             }
             else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('error', 'Control Generation Failed');
+                this.setState({ autogen: this.props.autogen });
             }
             else if (this.props.autogen.name != this.state.autogen.name) {
                 this.setNotification('success', 'New Controls Generated');
+                this.setState({ autogen: this.props.autogen });
             }
         }
     };
-    AutoGenControls.prototype.sendDataPackets = function (dataPackets) {
+    ControlPanel.prototype.sendDataPackets = function (dataPackets) {
         modelDataClient.sendObject(dataPackets);
     };
-    AutoGenControls.prototype.receiveDataPackets = function (object) {
+    ControlPanel.prototype.receiveDataPackets = function (object) {
         this.updateModelData(object);
     };
-    AutoGenControls.prototype.handleDeviceAddressChange = function (e, key) {
-        var deviceAddress = this.props.deviceAddress;
-        switch (key) {
-            case 'ip1':
-                deviceAddress.ipAddress.ip1 = e.target.value;
-                break;
-            case 'ip2':
-                deviceAddress.ipAddress.ip2 = e.target.value;
-                break;
-            case 'ip3':
-                deviceAddress.ipAddress.ip3 = e.target.value;
-                break;
-            case 'ip4':
-                deviceAddress.ipAddress.ip4 = e.target.value;
-                break;
-            case 'port':
-                deviceAddress.port = e.target.value;
-                break;
-            default:
-                break;
-        }
-        this.props.setDeviceAddress(deviceAddress);
-    };
-    AutoGenControls.prototype.handleRequestUI = function () {
+    ControlPanel.prototype.handleRequestUI = function () {
         this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
-    AutoGenControls.prototype.handleMessage = function (text) {
+    ControlPanel.prototype.handleMessage = function (text) {
         this.setState({
             notification: {
                 level: "success",
@@ -273,7 +317,7 @@ var AutoGenControls = /** @class */ (function (_super) {
             }
         });
     };
-    AutoGenControls.prototype.setNotification = function (level, text) {
+    ControlPanel.prototype.setNotification = function (level, text) {
         this.setState({
             notification: {
                 level: level,
@@ -281,7 +325,7 @@ var AutoGenControls = /** @class */ (function (_super) {
             }
         });
     };
-    AutoGenControls.prototype.render = function () {
+    ControlPanel.prototype.render = function () {
         return (React.createElement("div", { className: "content" },
             React.createElement(NotificationWrapper_jsx_1.default, { pushText: this.state.notification.text, level: this.state.notification.level }),
             React.createElement(react_bootstrap_1.Container, { fluid: true },
@@ -293,11 +337,11 @@ var AutoGenControls = /** @class */ (function (_super) {
                             React.createElement("div", { className: "float-right" },
                                 React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "btn-simple btn-icon", onClick: this.handleRequestUI },
                                     React.createElement("i", { className: "fa fa-refresh large-icon" })))),
-                        this.getAutogen())))));
+                        this.createControlPanel())))));
     };
-    return AutoGenControls;
+    return ControlPanel;
 }(React.Component));
-exports.AutoGenControls = AutoGenControls;
+exports.ControlPanel = ControlPanel;
 var modelData = [];
 function updateModelData(packet, oldModel) {
     return __awaiter(this, void 0, void 0, function () {
@@ -341,5 +385,5 @@ function process(controls, packet, oldModel) {
         });
     });
 }
-exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(AutoGenControls);
-//# sourceMappingURL=AutoGenControls.js.map
+exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(ControlPanel);
+//# sourceMappingURL=ControlPanel.js.map

@@ -18,9 +18,9 @@ var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../Store/OpenSpeechToolsData");
 var react_bootstrap_1 = require("react-bootstrap");
 var MapifyComponents_jsx_1 = require("../Components/Autogen/Inputs/Manager/MapifyComponents.jsx");
-var ControlSyncView = /** @class */ (function (_super) {
-    __extends(ControlSyncView, _super);
-    function ControlSyncView(props) {
+var SandboxView = /** @class */ (function (_super) {
+    __extends(SandboxView, _super);
+    function SandboxView(props) {
         var _this = _super.call(this, props) || this;
         _this.getComponents = function () {
             if (_this.props.autogen) {
@@ -34,13 +34,13 @@ var ControlSyncView = /** @class */ (function (_super) {
         _this.getComponents = _this.getComponents.bind(_this);
         return _this;
     } //End Constructor 
-    ControlSyncView.prototype.componentDidMount = function () {
+    SandboxView.prototype.componentDidMount = function () {
         this.handleRequestUI();
     }; // End ComponentDidMount
-    ControlSyncView.prototype.handleRequestUI = function () {
+    SandboxView.prototype.handleRequestUI = function () {
         this.props.requestAutogenConfiguration(this.props.deviceAddress);
     };
-    ControlSyncView.prototype.render = function () {
+    SandboxView.prototype.render = function () {
         return (React.createElement("div", { className: "content" },
             React.createElement(react_bootstrap_1.Container, { fluid: true },
                 React.createElement(react_bootstrap_1.Row, null,
@@ -51,8 +51,8 @@ var ControlSyncView = /** @class */ (function (_super) {
                             React.createElement("h4", { className: "centered-header" })))),
                 React.createElement(react_bootstrap_1.Row, null, this.getComponents()))));
     }; //End Render
-    return ControlSyncView;
+    return SandboxView;
 }(React.Component));
-exports.ControlSyncView = ControlSyncView;
-exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(ControlSyncView);
-//# sourceMappingURL=ControlSync.js.map
+exports.SandboxView = SandboxView;
+exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(SandboxView);
+//# sourceMappingURL=Sandbox-View.js.map

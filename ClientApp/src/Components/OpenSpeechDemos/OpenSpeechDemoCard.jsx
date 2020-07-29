@@ -8,10 +8,14 @@ export class OpenSpeechDemoCard extends Component {
         <Row>
 
           <div className="open-speech-header open-speech-header-std open-speech-accent-color">
-            <Col lg={10} md={10} sm={10}>
+            <div className="float-left">
             <h1 className="open-speech-accent-font">{this.props.headerTitle}</h1>
-            </Col>
-            {this.props.isDownloading}
+            </div>
+            <div className="float-right">
+              <div className="btn btn-simple btn-icon btn-white">
+                {this.props.isDownloading}
+                </div>
+            </div>
           </div>
         </Row>
         <div className="content">

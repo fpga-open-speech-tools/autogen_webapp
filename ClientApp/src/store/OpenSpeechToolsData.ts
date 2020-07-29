@@ -69,8 +69,8 @@ export interface ComponentView {
 }
 
 export interface AutogenComponent {
-  component: string;
-  variant: string;
+  component: string; 
+  variant: string; 
   callback: string | undefined | null;
 }
 
@@ -153,8 +153,8 @@ interface ReceiveSendCommandResponse {
   type: 'RECEIVE_SEND_COMMAND_RESPONSE';
 }
 
-interface UpdateModelData {
-  type: 'UPDATE_MODEL_DATA';
+interface UpdateAutogen {
+  type: 'UPDATE_AUTOGEN_PROPS';
   autogen: Autogen;
 }
 
@@ -176,7 +176,7 @@ type KnownAction =
   RequestOpenSpeechS3DemosAction | ReceiveOpenSpeechS3DemosAction |
   RequestSendCommand | ReceiveSendCommandResponse | 
   RequestOpenSpeechS3DownloadAction | ReceiveOpenSpeechS3DownloadAction |
-  SetDeviceAddress | UpdateModelData | ConnectRTC | SetAutogenConfiguration;
+  SetDeviceAddress | UpdateAutogen | ConnectRTC | SetAutogenConfiguration;
 
 
 function appendAddressToForm(data: FormData, address:DeviceAddress) {
@@ -194,7 +194,7 @@ function appendAddressToForm(data: FormData, address:DeviceAddress) {
 export const openSpeechDataActionCreators = {
   updateAutogenProps: (autogen: Autogen):
     AppThunkAction<KnownAction> => (dispatch) => {
-      dispatch({ type: 'UPDATE_MODEL_DATA', autogen});
+      dispatch({ type: 'UPDATE_AUTOGEN_PROPS', autogen});
     },
 
   requestSendAutogenConfiguration: (address: DeviceAddress, input: Autogen):
@@ -438,7 +438,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
         isLoading: false,
         rtcEnabled: state.rtcEnabled
       };
-    case 'UPDATE_MODEL_DATA':
+    case 'UPDATE_AUTOGEN_PROPS':
       return {
         deviceAddress: state.deviceAddress,
         availableDemos: state.availableDemos,

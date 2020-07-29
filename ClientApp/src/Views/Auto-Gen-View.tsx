@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
 import { ApplicationState } from '..';
 
-import { AutoGenControls } from './FunctionalElements/AutoGenControls';
+import { ControlPanel } from './FunctionalElements/ControlPanel';
 import { AvailableDemos } from './FunctionalElements/AutoGenDemos';
 import { AddressManager } from './FunctionalElements/AutoGenDeviceAddress';
 
@@ -28,7 +28,7 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
       <div>
         <AddressManager {...this.props} />
         <AvailableDemos {...this.props} />
-        <AutoGenControls  {...this.props} />
+        <ControlPanel  {...this.props} />
       </div>
       );
   }

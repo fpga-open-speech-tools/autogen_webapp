@@ -16,7 +16,9 @@ export class Slider extends React.Component {
   }
 
   componentWillReceiveProps() {
-    this.setState({ currentValue: this.props.data[0].value });
+    if (this.state.currentValue != this.props.data[0].value) {
+      this.setState({ currentValue: this.props.data[0].value });
+    }
   }
 
   componentDidMount() {

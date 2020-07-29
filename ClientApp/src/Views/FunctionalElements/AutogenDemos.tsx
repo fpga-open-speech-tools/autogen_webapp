@@ -73,7 +73,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
   componentDidUpdate() {
 
     if (this.props.autogen) {
-      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
+      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name !== this.state.autogen.name) {
         this.setNotification('error', 'Demo Upload Failed');
         this.setState({
           autogen: {
@@ -81,7 +81,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
           }
         });
       }
-      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
+      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name !== this.state.autogen.name) {
         this.setNotification('error', 'Control Generation Failed')
         this.setState({
           autogen: {
@@ -89,7 +89,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
           }
         });
       }
-      else if (this.props.autogen.name != this.state.autogen.name) {
+      else if (this.props.autogen.name !== this.state.autogen.name) {
         this.setNotification('success', 'New Controls Generated');
         this.setState({
           autogen: {

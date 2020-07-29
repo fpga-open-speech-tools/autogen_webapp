@@ -121,14 +121,7 @@ const MatchDataToComponent = (data) => {
 
     const checkMatch = containsRequiredProps(requiredProps, dataProps);
     //const optionalMatches = checkOptionalProps(optionalProps, dataProps);
-
-    if (checkMatch.match) {
-      //match = "Component: " + component.name +
-      //  "\n\t | optional Matches: " + optionalMatches.count +
-      //  "\n\t | Option(s): " + optionalMatches.matches + 
-      //  "\n\t | Expected Options: " + checkMatch.remainingProps;
-      match = component.name;
-    }
+    if (checkMatch.match) { match = component.name; }
 
   });
   return match;
@@ -144,6 +137,17 @@ export function AddViewToContainer(autogen, container, containerIndex, viewIndex
 export function RemoveViewFromContainer(autogen, container, containerIndex, itemIndexToRemove) {
   container.views.splice(itemIndexToRemove, 1);
   autogen.containers[containerIndex] = container;
+  return autogen;
+}
+
+export function GetAutogenObjectFromData(data, name) {
+  const autogen = { name: "", views: [], data: data, containers: [] };
+  if (data.length > 0) {
+    var obj = createUIObjectFromData(data, name);
+    autogen.name = obj.name;
+    autogen.views = obj.views;
+    autogen.containers = obj.containers;
+  }
   return autogen;
 }
 

@@ -14,7 +14,7 @@ type OpenSpeechProps =
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 
-export class ControlSyncView extends React.Component<OpenSpeechProps> {
+export class SandboxView extends React.Component<OpenSpeechProps> {
 
   constructor(props: OpenSpeechProps) {
     super(props);
@@ -74,4 +74,4 @@ export class ControlSyncView extends React.Component<OpenSpeechProps> {
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
   OpenSpeechDataStore.openSpeechDataActionCreators 
-)(ControlSyncView as any);     
+)(SandboxView as any);     

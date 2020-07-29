@@ -1,7 +1,7 @@
 import AutoGenView from "./Views/Auto-Gen-View.tsx";
 import DoctorView from "./Views/Doctor-View.tsx";
 import PatientView from "./Views/Patient-View.tsx";
-import ControlSyncView  from "./Views/ControlSync";
+import SandboxView  from "./Views/Sandbox-View";
 
 const dashboardRoutes = [
   {
@@ -29,7 +29,7 @@ const dashboardRoutes = [
     path: "/sandbox",
     name: "Sandbox",
     icon: "pe-7s-graph",
-    component: ControlSyncView,
+    component: SandboxView,
     layout: "/tools"
   },
 

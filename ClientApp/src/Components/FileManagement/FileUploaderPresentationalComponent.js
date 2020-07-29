@@ -8,7 +8,6 @@ exports.FileUploaderPresentationalComponent = function (props) {
     if (dragging) {
         uploaderClasses += " file-uploader--dragging";
     }
-    var fileName = file ? file.name : "No File Uploaded!";
     return (React.createElement("div", { className: uploaderClasses, onDrag: onDrag, onDragStart: onDragStart, onDragEnd: onDragEnd, onDragOver: onDragOver, onDragEnter: onDragEnter, onDragLeave: onDragLeave, onDrop: onDrop },
         React.createElement("div", { className: "file-uploader__contents" },
             React.createElement(react_bootstrap_1.Button, { variant: "primary", className: "float-right btn-simple btn-icon", onClick: onSelectFileClick },

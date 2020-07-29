@@ -35,8 +35,6 @@ export const FileUploaderPresentationalComponent: React.SFC<
     uploaderClasses += " file-uploader--dragging";
   }
 
-  const fileName = file ? file.name : "No File Uploaded!";
-
   return (
     <div
       className={uploaderClasses}

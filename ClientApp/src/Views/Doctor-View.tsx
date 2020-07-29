@@ -11,7 +11,7 @@ import {
 } from "react-bootstrap";
 import NotificationWrapper from "../Components/Notifications/NotificationWrapper.jsx";
 import { FileUploaderPresentationalComponent } from "../Components/FileManagement/FileUploaderPresentationalComponent";
-import { AutoGenControls } from './FunctionalElements/AutoGenControls';
+import { ControlPanel } from './FunctionalElements/ControlPanel';
 
 import * as signalR from "@microsoft/signalr";
 
@@ -615,7 +615,7 @@ export class DoctorView extends React.PureComponent<OpenSpeechProps, IState> {
             </Modal.Dialog>
           </Row>
           <Row>{feedbackUI(this,this.state)}</Row>
-          <AutoGenControls
+          <ControlPanel
             {...this.props}
           />
           <script src="~/js/signalr/dist/browser/signalr.js"></script>

@@ -4,13 +4,12 @@ import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../../Store/OpenSpeechToolsData';
 import { ApplicationState } from '../..';
 import {
-  Container, Row, Col, InputGroup,
-  FormControl, Button, Spinner,
-  Card, Jumbotron, Modal
+  Container, Row, Button, Jumbotron, Modal, Form
 } from "react-bootstrap";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
-import AutogenContainer from "../../Components/Autogen/Containers/AutogenContainer.jsx";
-import {ModelDataClient} from '../../SignalR/ModelDataClient';
+import ControlCard from "../../Components/Autogen/Containers/ControlCard.jsx";
+import { ModelDataClient } from '../../SignalR/ModelDataClient';
+import { GetAutogenObjectFromData } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -28,11 +27,6 @@ export interface AutoGenState {
   editable: boolean,
 }
 
-interface Autogen {
-  name: string,
-  projectID: string,
-}
-
 interface Notification {
   text: string,
   level: string
@@ -40,7 +34,7 @@ interface Notification {
 
 let modelDataClient = new ModelDataClient();
 
-export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenState>{
+export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
   
   constructor(props: OpenSpeechProps) {
     super(props);
@@ -55,7 +49,6 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
       },
 
       autogen: this.props.autogen,
-      //data: []
       newAutogen: false,
       dataUpdated:false
 
@@ -70,12 +63,18 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     this.receiveDataPackets = this.receiveDataPackets.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
 
+
     this.updateModelFromProps = this.updateModelFromProps.bind(this);
-    this.getAutogen = this.getAutogen.bind(this);
+    this.createControlPanel = this.createControlPanel.bind(this);
 
     this.controlEditable = this.controlEditable.bind(this);
     this.saveEdit = this.saveEdit.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
+    this.fixEdit = this.fixEdit.bind(this);
+    this.moveContainer = this.moveContainer.bind(this);
+    this.deleteContainer = this.deleteContainer.bind(this);
+    this.updateControlCardName = this.updateControlCardName.bind(this);
+    this.updateControlPanelName = this.updateControlPanelName.bind(this);
   }
 
   componentWillReceiveProps() {
@@ -104,7 +103,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     modelDataClient.startSession();
   }
 
-  componentDidUpdate() {
+  componentWillUpdate() {
     if (this.props.autogen && modelData) {
       if (modelData != this.props.autogen.data) {
         this.updateModelFromProps();
@@ -113,13 +112,15 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     if (this.props.autogen) {
       if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Demo Upload Failed');
-
+        this.setState({ autogen: this.props.autogen });
       }
       else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('error', 'Control Generation Failed');
+        this.setState({ autogen: this.props.autogen });
       }
       else if (this.props.autogen.name != this.state.autogen.name) {
         this.setNotification('success', 'New Controls Generated');
+        this.setState({ autogen: this.props.autogen });
       }
     }
   }
@@ -133,19 +134,19 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
   }
 
   updateModelFromProps = () =>{
-    async function overwriteModel(controls: AutoGenControls) {
+    async function overwriteModel(controls: ControlPanel) {
       modelData = controls.props.autogen.data; 
     }
 
-    async function updateModel(controls: AutoGenControls) {
+    async function updateModel(controls: ControlPanel) {
       controls.setState({ newAutogen: true });
     }
 
-    async function modelUpdated(controls: AutoGenControls) {
+    async function modelUpdated(controls: ControlPanel) {
       controls.setState({ newAutogen: false });
     }
 
-    async function update(controls: AutoGenControls) {
+    async function update(controls: ControlPanel) {
       await overwriteModel(controls);
       await updateModel(controls);
       await modelUpdated(controls);
@@ -155,38 +156,10 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
 
   updateModelData = (dataPackets: OpenSpeechDataStore.DataPacket[]) => {
     dataPackets.map((packet) => {
-      process(this,packet,modelData);
+      process(this,packet, modelData);
     });
   }
 
-  handleDeviceAddressChange(e: React.ChangeEvent<HTMLInputElement>, key: string) {
-    var deviceAddress = this.props.deviceAddress;
-    switch (key) {
-      case 'ip1': 
-        deviceAddress.ipAddress.ip1 = e.target.value;
-        break;
-      
-      case 'ip2': 
-          deviceAddress.ipAddress.ip2 = e.target.value;
-        break;
-      
-      case 'ip3': 
-          deviceAddress.ipAddress.ip3 = e.target.value;
-        break;
-      
-      case 'ip4': 
-        deviceAddress.ipAddress.ip4 = e.target.value;
-        break;
-      
-      case 'port': 
-        deviceAddress.port = e.target.value;
-        break;
-      
-      default:
-        break;
-    }
-    this.props.setDeviceAddress(deviceAddress);
-  }
 
   handleRequestUI() {
     this.props.requestAutogenConfiguration(this.props.deviceAddress);
@@ -222,17 +195,28 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
     });
   }
 
-  makeEditable = () => {
-    this.setState({ editable: true });
+
+  makeEditable = () =>{
+    this.setState({
+      editable: true
+    });
   }
 
   cancelEdit = () => {
-    this.setState({ editable: false });
+    this.setState({ editable: false }); //Stop editing
+    this.handleRequestUI();
   }
 
   saveEdit = () => {
-    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, this.state.autogen);
     this.setState({ editable: false });
+    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, this.props.autogen);
+    this.handleRequestUI();
+  }
+
+  fixEdit = () => {
+    this.setState({ editable: false });
+    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.name));
+    this.handleRequestUI();
   }
 
   controlEditable = () => {
@@ -265,12 +249,82 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
           >
             <i className="fa fa-times large-icon" />
           </Button>
-        </div>);
+            <Button
+              variant="primary"
+              className="btn-simple btn-icon"
+              onClick={this.fixEdit}
+            >
+              <i className="fa fa-wrench large-icon" />
+            </Button>
+        </div>
+      );
     }
-
   }
 
-  getAutogen = () => {
+  updateControlCardName = (title: string,index:number) => {
+    var autogen = this.props.autogen;
+    autogen.containers[index].name = title;
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  updateControlPanelName = (name: string) => {
+    var autogen = this.props.autogen;
+    autogen.name = name;
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  deleteContainer = (index: number) => {
+    var autogen = this.props.autogen;
+    autogen.containers.splice(index, 1);
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  moveContainer = (index: number, direction: number) => {
+    var autogen = this.props.autogen;
+
+    //moving first element left(to end of array)
+    if (direction < 1 && index === 0) {
+      var currentContainer = autogen.containers.shift() as OpenSpeechDataStore.AutogenContainer;
+      autogen.containers.push(currentContainer);
+    }
+    //moving last element right(to start of array)
+    else if (direction > 0 && index === autogen.containers.length-1) {
+      var currentContainer = autogen.containers.pop();
+      autogen.containers.unshift(currentContainer);
+    }
+    //swapping indexed container with the component at the desired direction's index.
+    else {
+      var currentContainer = autogen.containers[index] as OpenSpeechDataStore.AutogenContainer;
+      autogen.containers[index] = autogen.containers[index + direction];
+      autogen.containers[index + direction] = currentContainer;
+    }
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  controlPanelHeaderTitleControl = (name:string) => {
+    if (this.state.editable) {
+      return (
+        <Form>
+          <Form.Control
+            size="lg" type="text"
+            value={name}
+            
+            />
+        </Form>
+        );
+    }
+    else {
+      return (
+        <Jumbotron className="autogen-effect-name">{name}</Jumbotron>
+        );
+    }
+  }
+
+  createControlPanel = () => {
     if (this.props.autogen && modelData) {
       if (
         this.props.autogen.containers.length > 0 &&
@@ -280,17 +334,22 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
         effectName = (effectName === "ERROR") ? "" : effectName;
         return (
           <div className="autogen autogen-effectContainer modal-body">
-            <Jumbotron className="autogen-effect-name">{effectName}</Jumbotron>
+            {this.controlPanelHeaderTitleControl(effectName)}
             <Row className="autogen-pages row">
-              {this.props.autogen.containers.map((container) =>
-                <React.Fragment key={container.name}>
-                  <AutogenContainer
+              {this.props.autogen.containers.map((container,index) =>
+                <React.Fragment key={index}>
+                  <ControlCard
                     references={container.views}
-                    headerTitle={container.name}
+                    title={container.name}
                     views={this.props.autogen.views}
                     data={modelData}
                     callback={this.handleInputCommand}
                     editable={this.state.editable}
+                    moveLeft={this.moveContainer}
+                    moveRight={this.moveContainer}
+                    delete={this.deleteContainer}
+                    updateTitle={this.updateControlCardName}
+                    index={index}
                   />
                 </React.Fragment>)
               }
@@ -329,7 +388,7 @@ export class AutoGenControls extends React.Component<OpenSpeechProps,AutoGenStat
                 </Button>
                 </div>
               </Modal.Header>
-            {this.getAutogen()}
+            {this.createControlPanel()}
             </Modal.Dialog>
           </Row>
         </Container>
@@ -345,21 +404,22 @@ async function updateModelData(packet: OpenSpeechDataStore.DataPacket, oldModel:
   oldModel[packet.index].value = packet.value;
 }
 
-async function updateModel(controls: AutoGenControls) {
+async function updateModel(controls: ControlPanel) {
   controls.setState({ dataUpdated: true });
 }
 
-async function modelUpdated(controls: AutoGenControls) {
+async function modelUpdated(controls: ControlPanel) {
   controls.setState({ dataUpdated: false });
 }
 
-async function process(controls: AutoGenControls, packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
+async function process(controls: ControlPanel, packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
   await updateModelData(packet, oldModel);
   await updateModel(controls);
   await modelUpdated(controls);
 }
 
+
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
   OpenSpeechDataStore.openSpeechDataActionCreators
-)(AutoGenControls as any);    
+)(ControlPanel as any);    

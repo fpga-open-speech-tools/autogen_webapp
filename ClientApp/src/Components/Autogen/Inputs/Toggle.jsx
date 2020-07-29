@@ -7,7 +7,7 @@ export class Toggle extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentValue: this.props.data[0].value,
+      currentValue: 0,
     };
 
     this.generatePayload = this.generatePayload.bind(this);
@@ -17,8 +17,10 @@ export class Toggle extends Component {
     this.setState({ currentValue: this.props.data[0].value });
   }
   componentWillReceiveProps() {
-    this.setState({ currentValue: this.props.data[0].value });
-    this.forceUpdate();
+    if (this.state.currentValue != this.props.data[0].value) {
+      this.setState({ currentValue: this.props.data[0].value });
+      this.forceUpdate();
+    }
   }
 
   generatePayload = (value) => {
