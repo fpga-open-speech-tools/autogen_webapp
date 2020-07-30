@@ -5,11 +5,12 @@ import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 //Take in Data Structures
 //Iterate through input component folder
 //Find appropriate matches for data / defaults
-const Components = () => {
+export const Components = () => {
   //const components = JSON.parse('./Components.json');
   const components = require('./Components.json');
   return components;
 }
+
 
 
 const containsRequiredProps = (requiredProps, dataProps) => {
@@ -47,13 +48,11 @@ const checkOptionalProps = (optionalProps, dataProps) => {
 
 export function getViewsFromData(modelDataArray) {
   var views = [];
-  modelDataArray.map((modelData,index) => {
+  modelDataArray.map((modelData, index) => {
+    const component = MatchDataToComponent(modelData);
     const view = {
       name: modelData.name,
-      type: {
-        component:MatchDataToComponent(modelData),
-        variant:""
-      },
+      type: component,
       references:[index]
     };
     views.push(view);
@@ -114,14 +113,18 @@ const getUniqueDevices = (data) => {
 
 const MatchDataToComponent = (data) => {
   const dataProps = Object.keys(data.properties);
-  var match = "";
+  var match = {};
   Components().components.map((component) => {
     const requiredProps = component.properties.data.required;
     const optionalProps = component.properties.data.optional;
 
     const checkMatch = containsRequiredProps(requiredProps, dataProps);
+    var defaultVariant = component.variants.length === 0 ? "" : component.variants[0];
     //const optionalMatches = checkOptionalProps(optionalProps, dataProps);
-    if (checkMatch.match) { match = component.name; }
+    if (checkMatch.match) {
+      match = { component: component.name, variant: defaultVariant };
+     // match = component.name;
+    }
 
   });
   return match;

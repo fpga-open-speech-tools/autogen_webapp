@@ -9,7 +9,7 @@ import {
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 import ControlCard from "../../Components/Autogen/Containers/ControlCard.jsx";
 import { ModelDataClient } from '../../SignalR/ModelDataClient';
-import { GetAutogenObjectFromData } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
+import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -34,8 +34,8 @@ interface Notification {
 
 let modelDataClient = new ModelDataClient();
 
-export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
-  
+export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>{
+
   constructor(props: OpenSpeechProps) {
     super(props);
 
@@ -50,7 +50,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
 
       autogen: this.props.autogen,
       newAutogen: false,
-      dataUpdated:false
+      dataUpdated: false
 
     };
 
@@ -75,13 +75,17 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
     this.deleteContainer = this.deleteContainer.bind(this);
     this.updateControlCardName = this.updateControlCardName.bind(this);
     this.updateControlPanelName = this.updateControlPanelName.bind(this);
+
+    this.modifyContainer = this.modifyContainer.bind(this);
+    this.modifyView = this.modifyView.bind(this);
+
   }
 
   componentWillReceiveProps() {
     this.updateModelFromProps();
   }
- 
-  shouldComponentUpdate(nextProps: OpenSpeechProps,nextState:AutoGenState) {
+
+  shouldComponentUpdate(nextProps: OpenSpeechProps, nextState: AutoGenState) {
     if (nextProps.autogen.data.length > 0) {
       return true;
     }
@@ -129,13 +133,13 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
     modelDataClient.sendObject(dataPackets);
   }
 
-  receiveDataPackets(object:any) {
+  receiveDataPackets(object: any) {
     this.updateModelData(object as OpenSpeechDataStore.DataPacket[]);
   }
 
-  updateModelFromProps = () =>{
+  updateModelFromProps = () => {
     async function overwriteModel(controls: ControlPanel) {
-      modelData = controls.props.autogen.data; 
+      modelData = controls.props.autogen.data;
     }
 
     async function updateModel(controls: ControlPanel) {
@@ -156,7 +160,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
 
   updateModelData = (dataPackets: OpenSpeechDataStore.DataPacket[]) => {
     dataPackets.map((packet) => {
-      process(this,packet, modelData);
+      process(this, packet, modelData);
     });
   }
 
@@ -165,9 +169,9 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
     this.props.requestAutogenConfiguration(this.props.deviceAddress);
   }
 
-  handleInputCommand = (command: OpenSpeechDataStore.DataPacket[]) =>{
+  handleInputCommand = (command: OpenSpeechDataStore.DataPacket[]) => {
     this.updateModelData(command);
-    if(!this.props.isLoading){
+    if (!this.props.isLoading) {
       if (modelDataClient.state.connected && this.props.rtcEnabled) {
         this.sendDataPackets(command);
       }
@@ -177,7 +181,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
     }
   }
 
-  handleMessage(text:string) {
+  handleMessage(text: string) {
     this.setState({
       notification: {
         level: "success",
@@ -189,17 +193,22 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
   setNotification(level: string, text: string) {
     this.setState({
       notification: {
-        level:level,
-        text:text
+        level: level,
+        text: text
       }
     });
   }
 
 
-  makeEditable = () =>{
-    this.setState({
-      editable: true
-    });
+  makeEditable = () => {
+    if (this.props.autogen.containers.length === 0) {
+      //Generate new Autogen.
+    }
+    else {
+      this.setState({
+        editable: true
+      });
+    }
   }
 
   cancelEdit = () => {
@@ -249,19 +258,19 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
           >
             <i className="fa fa-times large-icon" />
           </Button>
-            <Button
-              variant="primary"
-              className="btn-simple btn-icon"
-              onClick={this.fixEdit}
-            >
-              <i className="fa fa-wrench large-icon" />
-            </Button>
+          <Button
+            variant="primary"
+            className="btn-simple btn-icon"
+            onClick={this.fixEdit}
+          >
+            <i className="fa fa-wrench large-icon" />
+          </Button>
         </div>
       );
     }
   }
 
-  updateControlCardName = (title: string,index:number) => {
+  updateControlCardName = (title: string, index: number) => {
     var autogen = this.props.autogen;
     autogen.containers[index].name = title;
     this.props.updateAutogenProps(autogen);
@@ -278,6 +287,27 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
   deleteContainer = (index: number) => {
     var autogen = this.props.autogen;
     autogen.containers.splice(index, 1);
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  removeViewFromContainer = (containerIndex: number, viewIndex: number) => {
+    var autogen = this.props.autogen;
+    autogen.containers[containerIndex].views.splice(viewIndex, 1);
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  modifyView = (index: number, view: OpenSpeechDataStore.ComponentView) =>{
+    var autogen = this.props.autogen;
+    autogen.views[index] = view;
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  modifyContainer = (index: number, container: OpenSpeechDataStore.AutogenContainer)=>{
+    var autogen = this.props.autogen;
+    autogen.containers[index] = container;
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
@@ -312,7 +342,8 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
           <Form.Control
             size="lg" type="text"
             value={name}
-            
+            onChange={(x: React.FormEvent<HTMLInputElement>) =>
+            { this.updateControlPanelName(x.currentTarget.value); }}
             />
         </Form>
         );
@@ -350,6 +381,9 @@ export class ControlPanel extends React.Component<OpenSpeechProps,AutoGenState>{
                     delete={this.deleteContainer}
                     updateTitle={this.updateControlCardName}
                     index={index}
+                    updateView={this.modifyView}
+                    updateContainer={this.modifyContainer}
+                    components={components}
                   />
                 </React.Fragment>)
               }
@@ -418,6 +452,7 @@ async function process(controls: ControlPanel, packet: OpenSpeechDataStore.DataP
   await modelUpdated(controls);
 }
 
+const components = Components().components;
 
 export default connect(
   (state: ApplicationState) => state.openSpeechData,

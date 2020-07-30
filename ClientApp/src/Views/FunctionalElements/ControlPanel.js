@@ -124,9 +124,14 @@ var ControlPanel = /** @class */ (function (_super) {
             }
         };
         _this.makeEditable = function () {
-            _this.setState({
-                editable: true
-            });
+            if (_this.props.autogen.containers.length === 0) {
+                //Generate new Autogen.
+            }
+            else {
+                _this.setState({
+                    editable: true
+                });
+            }
         };
         _this.cancelEdit = function () {
             _this.setState({ editable: false }); //Stop editing
@@ -176,6 +181,24 @@ var ControlPanel = /** @class */ (function (_super) {
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
+        _this.removeViewFromContainer = function (containerIndex, viewIndex) {
+            var autogen = _this.props.autogen;
+            autogen.containers[containerIndex].views.splice(viewIndex, 1);
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.modifyView = function (index, view) {
+            var autogen = _this.props.autogen;
+            autogen.views[index] = view;
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.modifyContainer = function (index, container) {
+            var autogen = _this.props.autogen;
+            autogen.containers[index] = container;
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
         _this.moveContainer = function (index, direction) {
             var autogen = _this.props.autogen;
             //moving first element left(to end of array)
@@ -200,7 +223,7 @@ var ControlPanel = /** @class */ (function (_super) {
         _this.controlPanelHeaderTitleControl = function (name) {
             if (_this.state.editable) {
                 return (React.createElement(react_bootstrap_1.Form, null,
-                    React.createElement(react_bootstrap_1.Form.Control, { size: "lg", type: "text", value: name })));
+                    React.createElement(react_bootstrap_1.Form.Control, { size: "lg", type: "text", value: name, onChange: function (x) { _this.updateControlPanelName(x.currentTarget.value); } })));
             }
             else {
                 return (React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, name));
@@ -217,7 +240,7 @@ var ControlPanel = /** @class */ (function (_super) {
                         _this.controlPanelHeaderTitleControl(effectName),
                         React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, _this.props.autogen.containers.map(function (container, index) {
                             return React.createElement(React.Fragment, { key: index },
-                                React.createElement(ControlCard_jsx_1.default, { references: container.views, title: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index }));
+                                React.createElement(ControlCard_jsx_1.default, { references: container.views, title: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateView: _this.modifyView, updateContainer: _this.modifyContainer, components: components }));
                         }))));
                 }
                 else if (_this.props.autogen.name) {
@@ -255,6 +278,8 @@ var ControlPanel = /** @class */ (function (_super) {
         _this.deleteContainer = _this.deleteContainer.bind(_this);
         _this.updateControlCardName = _this.updateControlCardName.bind(_this);
         _this.updateControlPanelName = _this.updateControlPanelName.bind(_this);
+        _this.modifyContainer = _this.modifyContainer.bind(_this);
+        _this.modifyView = _this.modifyView.bind(_this);
         return _this;
     }
     ControlPanel.prototype.componentWillReceiveProps = function () {
@@ -385,5 +410,6 @@ function process(controls, packet, oldModel) {
         });
     });
 }
+var components = MapifyComponents_jsx_1.Components().components;
 exports.default = react_redux_1.connect(function (state) { return state.openSpeechData; }, OpenSpeechDataStore.openSpeechDataActionCreators)(ControlPanel);
 //# sourceMappingURL=ControlPanel.js.map

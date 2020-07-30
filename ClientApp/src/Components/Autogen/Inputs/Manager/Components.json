@@ -2,7 +2,7 @@
   "components": [
     {
       "name": "Slider",
-      "variants": ["vertical"],
+      "variants": ["horizontal", "vertical"],
       "properties": {
         "data": {
           "required": [ "min", "max", "step" ],
@@ -13,7 +13,7 @@
     },
     {
       "name": "Toggle",
-      "variants": [],
+      "variants": ["standard"],
       "properties": {
         "data": {
           "required": [ "enumeration" ],

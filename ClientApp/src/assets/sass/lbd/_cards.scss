@@ -691,6 +691,8 @@ td .content {
   border-bottom: 1px;
   border-style: solid;
   border-color: #f7f4f4;
+  display:flex;
+  justify-content: space-between;
 }
 
 .autogen-control-name {
@@ -739,4 +741,22 @@ td .content {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+}
+
+
+.no-padding{
+  padding:0px!important;
+}
+
+.no-border{
+  border:none!important;
+}
+
+.center-flex{
+  display:flex;
+  justify-content:center;
+}
+
+#view-variant{
+  text-align:start;
 }

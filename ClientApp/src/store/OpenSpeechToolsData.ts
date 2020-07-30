@@ -55,6 +55,7 @@ export interface Autogen {
   views: ComponentView[];
   data: ModelData[];
   containers: AutogenContainer[];
+  //properties: ViewProperties;
 }
 
 export interface AutogenContainer {
@@ -71,7 +72,7 @@ export interface ComponentView {
 export interface AutogenComponent {
   component: string; 
   variant: string; 
-  callback: string | undefined | null;
+  callback: string | undefined | null; 
 }
 
 export interface ModelData {
@@ -81,6 +82,7 @@ export interface ModelData {
   properties: DataProperties | any;
   value: number | number[] | string | string[];
 }
+
 
 export interface DataProperties {
   min: number | undefined | null;
