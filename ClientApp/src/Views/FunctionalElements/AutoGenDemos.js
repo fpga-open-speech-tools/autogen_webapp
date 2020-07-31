@@ -43,41 +43,8 @@ var AvailableDemos = /** @class */ (function (_super) {
     AvailableDemos.prototype.componentDidMount = function () {
         this.props.requestOpenSpeechS3Demos();
     };
-    AvailableDemos.prototype.componentDidUpdate = function () {
-        if (this.props.autogen) {
-            if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name !== this.state.autogen.name) {
-                this.setNotification('error', 'Demo Upload Failed');
-                this.setState({
-                    autogen: {
-                        name: this.props.autogen.name,
-                    }
-                });
-            }
-            else if (this.props.autogen.name === "ERROR" && this.props.autogen.name !== this.state.autogen.name) {
-                this.setNotification('error', 'Control Generation Failed');
-                this.setState({
-                    autogen: {
-                        name: this.props.autogen.name
-                    }
-                });
-            }
-            else if (this.props.autogen.name !== this.state.autogen.name) {
-                this.setNotification('success', 'New Controls Generated');
-                this.setState({
-                    autogen: {
-                        name: this.props.autogen.name
-                    }
-                });
-            }
-        }
-    };
     AvailableDemos.prototype.handleDownloadDemo = function (device, project) {
         if (!this.props.isLoading) {
-            this.setState({
-                autogen: {
-                    name: project
-                }
-            });
             this.props.requestDownloadS3Demo(this.props.deviceAddress, device, project);
         }
     };

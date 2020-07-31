@@ -113,19 +113,8 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         this.updateModelFromProps();
       }
     }
-    if (this.props.autogen) {
-      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name != this.state.autogen.name) {
-        this.setNotification('error', 'Demo Upload Failed');
-        this.setState({ autogen: this.props.autogen });
-      }
-      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name != this.state.autogen.name) {
-        this.setNotification('error', 'Control Generation Failed');
-        this.setState({ autogen: this.props.autogen });
-      }
-      else if (this.props.autogen.name != this.state.autogen.name) {
-        this.setNotification('success', 'New Controls Generated');
-        this.setState({ autogen: this.props.autogen });
-      }
+    if (this.props.autogen != this.state.autogen) {
+      this.setState({ autogen: this.props.autogen });
     }
   }
 
@@ -298,7 +287,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     this.forceUpdate();
   }
 
-  modifyView = (index: number, view: OpenSpeechDataStore.ComponentView) =>{
+  modifyView = (index: number, view: OpenSpeechDataStore.ComponentView) => {
     var autogen = this.props.autogen;
     autogen.views[index] = view;
     this.props.updateAutogenProps(autogen);

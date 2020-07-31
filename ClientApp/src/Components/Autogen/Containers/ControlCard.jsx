@@ -21,7 +21,7 @@ export class ControlCard extends Component {
       }
     };
     this.startViewEditor = this.startViewEditor.bind(this);
-    
+    this.saveViewEditor = this.saveViewEditor.bind(this);
   }
 
   startViewEditor = () => {
@@ -37,6 +37,11 @@ export class ControlCard extends Component {
   }
 
   closeViewEditor = () => {
+    this.setState({ viewEditorEnabled: false });
+  }
+
+  saveViewEditor = (view) => {
+    this.props.updateView(view);
     this.setState({ viewEditorEnabled: false });
   }
 
@@ -71,7 +76,6 @@ export class ControlCard extends Component {
                   editable={this.props.editable}
                   view={this.props.views[reference]}
                   viewIndex={reference}
-                  updateView={this.props.updateView}
                   components={this.props.components}
                   openViewEditor={this.startViewEditor}
                   setTargetView={this.setTargetView}
@@ -92,6 +96,7 @@ export class ControlCard extends Component {
             view={this.state.targetView}
             viewProps={this.state.targetViewProps}
             handleClose={this.closeViewEditor}
+            handleSave={() => this.saveViewEditor}
           />
           <div className="footer">
           </div>
@@ -135,7 +140,7 @@ const FetchViewComponentProps = (view, components) => {
   var match = components[0];
   components.map((component) => {
     if (component.name === view.type.component) {
-      component = component;
+      match = component;
     }
   });
   return match;
@@ -149,9 +154,6 @@ const EditViewButton = (props) => {
           variant="primary"
           className="btn-simple btn-icon"
           onClick={() => {
-            //props.updateView(
-            //  FetchNextViewVariant(props.view, props.components),
-            //  props.viewIndex);
             props.setTargetView(props.view, FetchViewComponentProps(props.view,props.components));
             props.openViewEditor();
           }}

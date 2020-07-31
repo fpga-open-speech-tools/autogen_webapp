@@ -4,12 +4,23 @@ import { Button, Modal, ListGroup, Col } from "react-bootstrap";
 export class PopupViewEditor extends Component {
   constructor(props) {
     super(props);
+    this.view = this.props.view;
     this.handleClose = this.handleClose.bind(this);
+    this.handleSave = this.handleSave.bind(this);
   }
 
 
   handleClose() {
      this.props.handleClose();
+  }
+
+  handleSave = () => {
+    this.props.handleSave(this.view);
+    this.props.handleClose();
+  }
+
+  handleUpdateView = (view) => {
+    this.view = view;
   }
 
 
@@ -18,6 +29,7 @@ export class PopupViewEditor extends Component {
     if (this.props.view) {
       b = this.props.view;
     }
+
     return (
       <>
         <Modal
@@ -34,12 +46,16 @@ export class PopupViewEditor extends Component {
           <Modal.Body>
             <Col sm={12} md={6} lg={3}>
               <div className="autogen-units" id="view-variant">Variant</div>
-            <ListGroup>
+              <ListGroup defaultActiveKey={b.type.variant}>
             {this.props.viewProps.variants.map((variant,index) => {
               return (
                 <ListGroup.Item
-                  eventKey={index}
-                  key={index}
+                  eventKey={variant}
+                  key={variant}
+                  onClick={() => {
+                    b.type.variant = variant;
+                    this.handleUpdateView(b);
+                  }}
                 >
                   {variant}
                 </ListGroup.Item>);
@@ -51,7 +67,7 @@ export class PopupViewEditor extends Component {
             <Button variant="secondary" onClick={this.handleClose}>
               Close
         </Button>
-            <Button variant="primary" onClick={this.handleClose}>
+            <Button variant="primary" onClick={this.handleSave}>
               Save Changes
         </Button>
           </Modal.Footer>

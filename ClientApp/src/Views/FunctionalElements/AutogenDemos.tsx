@@ -70,47 +70,12 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
   componentDidMount() {
     this.props.requestOpenSpeechS3Demos();
   }
-  componentDidUpdate() {
-
-    if (this.props.autogen) {
-      if (this.props.autogen.name === 'Demo Upload Failed' && this.props.autogen.name !== this.state.autogen.name) {
-        this.setNotification('error', 'Demo Upload Failed');
-        this.setState({
-          autogen: {
-            name: this.props.autogen.name,
-          }
-        });
-      }
-      else if (this.props.autogen.name === "ERROR" && this.props.autogen.name !== this.state.autogen.name) {
-        this.setNotification('error', 'Control Generation Failed')
-        this.setState({
-          autogen: {
-            name: this.props.autogen.name
-          }
-        });
-      }
-      else if (this.props.autogen.name !== this.state.autogen.name) {
-        this.setNotification('success', 'New Controls Generated');
-        this.setState({
-          autogen: {
-            name: this.props.autogen.name
-          }
-        });
-      }
-    }
-  }
-
-
+ 
 
 
 
   handleDownloadDemo(device:string,project:string) {
     if (!this.props.isLoading) {
-      this.setState({
-        autogen: {
-          name: project
-        }
-      });
       this.props.requestDownloadS3Demo(this.props.deviceAddress,device, project);
     }
   }
