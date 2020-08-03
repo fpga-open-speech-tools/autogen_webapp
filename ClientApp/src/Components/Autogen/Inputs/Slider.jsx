@@ -44,7 +44,22 @@ export class Slider extends React.Component {
     if (this.props.view.type.variant === "vertical") {
       return (
         <React.Fragment>
+          <Row className="centered-row">
+            <Col sm={12} md={12} lg={12} className="autogen-control-name">
+              {this.props.view.name}
+            </Col>
+          </Row>
           <Row className="vertical-slider-row">
+            <Col className="vertical-slider-col grid align-end">
+              <Row className="stacked-row">
+              <div className="autogen-units full-width justify-start flex">
+                {this.props.data[0].properties.units}
+                </div>
+              <Row className="autogen-value-row full-width justify-start">
+                <div className="autogen-value float-left">{this.state.currentValue}</div>
+                </Row>
+                </Row>
+            </Col>
             <Col sm={3} md={3} lg={3} className="vertical-slider-col">
               <ReactBootstrapSlider
                 orientation={this.props.view.type.variant}
@@ -60,18 +75,6 @@ export class Slider extends React.Component {
                   }
                 }
               />
-            </Col>
-            <Col sm={9} md={9} lg={9} className="vertical-slider-col">
-              <Row className="centered-row">
-                <Col sm={12} md={12} lg={12} className="autogen-control-name">
-                  {this.props.view.name}
-                </Col>
-              </Row>
-              <Row sm={1} md={1} lg={1}><div className="empty-medium"></div></Row>
-              <Row className="autogen-value-row">
-                <div className="autogen-value">{this.state.currentValue}</div>
-                <div className="autogen-units">{this.props.data[0].properties.units}</div>
-              </Row>
             </Col>
           </Row>
         </React.Fragment>);

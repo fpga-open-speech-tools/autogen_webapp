@@ -57,6 +57,7 @@ var NotificationWrapper_jsx_1 = require("../../Components/Notifications/Notifica
 var ControlCard_jsx_1 = require("../../Components/Autogen/Containers/ControlCard.jsx");
 var ModelDataClient_1 = require("../../SignalR/ModelDataClient");
 var MapifyComponents_jsx_1 = require("../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx");
+var PopupViewEditor_jsx_1 = require("../../Components/Autogen/Containers/PopupViewEditor.jsx");
 var modelDataClient = new ModelDataClient_1.ModelDataClient();
 var ControlPanel = /** @class */ (function (_super) {
     __extends(ControlPanel, _super);
@@ -188,6 +189,7 @@ var ControlPanel = /** @class */ (function (_super) {
             _this.forceUpdate();
         };
         _this.modifyView = function (index, view) {
+            console.log("modifying view in controlPanel @index: " + index);
             var autogen = _this.props.autogen;
             autogen.views[index] = view;
             _this.props.updateAutogenProps(autogen);
@@ -229,26 +231,27 @@ var ControlPanel = /** @class */ (function (_super) {
                 return (React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, name));
             }
         };
-        _this.createControlPanel = function () {
-            if (_this.props.autogen && modelData) {
-                if (_this.props.autogen.containers.length > 0 &&
-                    modelData.length > 0 &&
-                    _this.props.autogen.views.length > 0) {
-                    var effectName = _this.props.autogen.name ? _this.props.autogen.name : "";
-                    effectName = (effectName === "ERROR") ? "" : effectName;
-                    return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
-                        _this.controlPanelHeaderTitleControl(effectName),
-                        React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, _this.props.autogen.containers.map(function (container, index) {
-                            return React.createElement(React.Fragment, { key: index },
-                                React.createElement(ControlCard_jsx_1.default, { references: container.views, title: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateView: _this.modifyView, updateContainer: _this.modifyContainer, components: components }));
-                        }))));
+        _this.startViewEditor = function (enabled, view, index, properties, component) {
+            _this.setState({
+                viewEditor: {
+                    enabled: enabled,
+                    view: view,
+                    index: index,
+                    properties: properties,
+                    component: component
                 }
-                else if (_this.props.autogen.name) {
-                    var effectName = _this.props.autogen.name ? _this.props.autogen.name : "";
-                    effectName = (effectName === "ERROR") ? "" : effectName;
-                    return (React.createElement("div", { className: "autogen autogen-effectContainer autogen-error" }));
+            });
+        };
+        _this.closeViewEditor = function () {
+            _this.setState({
+                viewEditor: {
+                    enabled: false,
+                    view: null,
+                    index: -1,
+                    properties: null,
+                    component: null
                 }
-            }
+            });
         };
         _this.state = {
             connected: false,
@@ -259,7 +262,14 @@ var ControlPanel = /** @class */ (function (_super) {
             },
             autogen: _this.props.autogen,
             newAutogen: false,
-            dataUpdated: false
+            dataUpdated: false,
+            viewEditor: {
+                enabled: false,
+                view: null,
+                index: -1,
+                properties: null,
+                component: null
+            }
         };
         _this.handleRequestUI = _this.handleRequestUI.bind(_this);
         _this.handleInputCommand = _this.handleInputCommand.bind(_this);
@@ -280,6 +290,10 @@ var ControlPanel = /** @class */ (function (_super) {
         _this.updateControlPanelName = _this.updateControlPanelName.bind(_this);
         _this.modifyContainer = _this.modifyContainer.bind(_this);
         _this.modifyView = _this.modifyView.bind(_this);
+        _this.startViewEditor = _this.startViewEditor.bind(_this);
+        _this.closeViewEditor = _this.closeViewEditor.bind(_this);
+        _this.moveContainer = _this.moveContainer.bind(_this);
+        _this.removeViewFromContainer = _this.removeViewFromContainer.bind(_this);
         return _this;
     }
     ControlPanel.prototype.componentWillReceiveProps = function () {
@@ -338,6 +352,29 @@ var ControlPanel = /** @class */ (function (_super) {
                 text: text
             }
         });
+    };
+    ControlPanel.prototype.createControlPanel = function () {
+        var _this = this;
+        if (this.props.autogen && modelData) {
+            if (this.props.autogen.containers.length > 0 &&
+                modelData.length > 0 &&
+                this.props.autogen.views.length > 0) {
+                var effectName = this.props.autogen.name ? this.props.autogen.name : "";
+                effectName = (effectName === "ERROR") ? "" : effectName;
+                return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
+                    this.controlPanelHeaderTitleControl(effectName),
+                    React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, this.props.autogen.containers.map(function (container, index) {
+                        return React.createElement(React.Fragment, { key: "container-" + index },
+                            React.createElement(ControlCard_jsx_1.default, { references: container.views, title: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateContainer: _this.modifyContainer, components: components, startViewEditor: _this.startViewEditor }));
+                    })),
+                    React.createElement(PopupViewEditor_jsx_1.PopupViewEditor, { viewProps: this.state.viewEditor.properties, data: modelData, show: this.state.viewEditor.enabled, index: this.state.viewEditor.index, view: this.state.viewEditor.view, component: this.state.viewEditor.component, handleClose: this.closeViewEditor })));
+            }
+            else if (this.props.autogen.name) {
+                var effectName = this.props.autogen.name ? this.props.autogen.name : "";
+                effectName = (effectName === "ERROR") ? "" : effectName;
+                return (React.createElement("div", { className: "autogen autogen-effectContainer autogen-error" }));
+            }
+        }
     };
     ControlPanel.prototype.render = function () {
         return (React.createElement("div", { className: "content" },

@@ -1,51 +1,8 @@
 import React, { Component } from "react";
 import { Button, Form, Table, Modal } from "react-bootstrap";
-import { PopupViewEditor } from "./PopupViewEditor.jsx";
 
 export class ControlCard extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      viewEditorEnabled: false,
-      targetView: null,
-      targetViewProps: {
-        name: "",
-        variants: [],
-        properties: {
-          data: {
-            required: [],
-            optional: [],
-            type: ""
-          }
-        }
-      }
-    };
-    this.startViewEditor = this.startViewEditor.bind(this);
-    this.saveViewEditor = this.saveViewEditor.bind(this);
-  }
-
-  startViewEditor = () => {
-    this.setState({ viewEditorEnabled: true });
-  }
-
-  setTargetView = (view) => {
-    this.setState({ targetView: view });
-  }
-
-  setTargetView = (view, props) => {
-    this.setState({targetView:view,targetViewProps:props})
-  }
-
-  closeViewEditor = () => {
-    this.setState({ viewEditorEnabled: false });
-  }
-
-  saveViewEditor = (view) => {
-    this.props.updateView(view);
-    this.setState({ viewEditorEnabled: false });
-  }
-
-  render = () => {
+  render() {
     return (
       <div className={"autogen + autogen-panel card"}>
         <div className="open-speech-header open-speech-header-std open-speech-accent-color">
@@ -65,8 +22,8 @@ export class ControlCard extends Component {
         </div>
         <div className={"content" + " autogen" + " autogen-panel"}>
           {this.props.references.map((reference,index) =>
-            <React.Fragment key={reference}>
-              <div className="autogen autogen-control" key={reference + index}>
+            <React.Fragment key={"r-"+ reference + "i-" +index}>
+              <div className="autogen autogen-control">
                 <InputComponent
                   view={this.props.views[reference]}
                   data={this.props.data}
@@ -77,8 +34,8 @@ export class ControlCard extends Component {
                   view={this.props.views[reference]}
                   viewIndex={reference}
                   components={this.props.components}
-                  openViewEditor={this.startViewEditor}
-                  setTargetView={this.setTargetView}
+                  openViewEditor={this.props.setTargetView}
+                  setTargetView={this.props.startViewEditor}
                 />
                 <EditContainerViews
                   editable={this.props.editable}
@@ -91,49 +48,12 @@ export class ControlCard extends Component {
               </div>
             </React.Fragment>
           )}
-          <PopupViewEditor
-            show={this.state.viewEditorEnabled}
-            view={this.state.targetView}
-            viewProps={this.state.targetViewProps}
-            handleClose={this.closeViewEditor}
-            handleSave={() => this.saveViewEditor}
-          />
           <div className="footer">
           </div>
         </div>
       </div>
     );
   }
-}
-
-
-//Fetches the next (index-wise) component from the current variant with regards to the components json.
-//If at last element, returns first.
-//If variant does not exist, returns ""
-//Otherwise, reutrns the next (n+1) variant
-const FetchNextViewVariant = (view, components) =>{
-  var variant = view.type.variant;
-  components.map((component) => {
-    if (component.name === view.type.component) {
-      var variantIndex = component.variants.indexOf(variant);
-      if (variantIndex < 0) {
-        if (component.variants.length > 0) {
-          variant = component.variants[0];
-        }
-        else {
-          variant = "";
-        }
-      }
-      else if (variantIndex === component.variants.length-1) {
-        variant = component.variants[0];
-      }
-      else {
-        variant = component.variants[variantIndex + 1];
-      }
-    }
-  });
-  view.type.variant = variant;
-  return view;
 }
 
 const FetchViewComponentProps = (view, components) => {
@@ -146,7 +66,7 @@ const FetchViewComponentProps = (view, components) => {
   return match;
 }
 
-const EditViewButton = (props) => {
+var EditViewButton = (props) => {
   if (props.editable) {
     return (
       <div>
@@ -154,8 +74,13 @@ const EditViewButton = (props) => {
           variant="primary"
           className="btn-simple btn-icon"
           onClick={() => {
-            props.setTargetView(props.view, FetchViewComponentProps(props.view,props.components));
-            props.openViewEditor();
+            props.setTargetView(
+              true,
+              props.view,
+              props.viewIndex,
+              FetchViewComponentProps(props.view, props.components),
+              InputComponent
+            );
           }}
         >
           <i className="fa fa-cog large-icon" />

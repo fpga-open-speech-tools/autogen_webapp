@@ -10,6 +10,8 @@ import NotificationWrapper from "../../Components/Notifications/NotificationWrap
 import ControlCard from "../../Components/Autogen/Containers/ControlCard.jsx";
 import { ModelDataClient } from '../../SignalR/ModelDataClient';
 import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
+import { PopupViewEditor } from "../../Components/Autogen/Containers/PopupViewEditor.jsx";
+
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -25,11 +27,20 @@ export interface AutoGenState {
   dataUpdated: boolean;
   connected: boolean,
   editable: boolean,
+  viewEditor: ViewEditor
 }
 
 interface Notification {
   text: string,
   level: string
+}
+
+interface ViewEditor {
+  enabled: boolean,
+  view: OpenSpeechDataStore.AutogenComponent | null,
+  index: number,
+  properties: any,
+  component: any
 }
 
 let modelDataClient = new ModelDataClient();
@@ -50,7 +61,15 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
       autogen: this.props.autogen,
       newAutogen: false,
-      dataUpdated: false
+      dataUpdated: false,
+
+      viewEditor: {
+        enabled: false,
+        view: null,
+        index: -1,
+        properties: null,
+        component: null
+      }
 
     };
 
@@ -78,6 +97,10 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
     this.modifyContainer = this.modifyContainer.bind(this);
     this.modifyView = this.modifyView.bind(this);
+    this.startViewEditor = this.startViewEditor.bind(this);
+    this.closeViewEditor = this.closeViewEditor.bind(this);
+    this.moveContainer = this.moveContainer.bind(this);
+    this.removeViewFromContainer = this.removeViewFromContainer.bind(this);
 
   }
 
@@ -288,6 +311,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   }
 
   modifyView = (index: number, view: OpenSpeechDataStore.ComponentView) => {
+    console.log("modifying view in controlPanel @index: " + index);
     var autogen = this.props.autogen;
     autogen.views[index] = view;
     this.props.updateAutogenProps(autogen);
@@ -344,7 +368,33 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     }
   }
 
-  createControlPanel = () => {
+  startViewEditor = (enabled:boolean, view: OpenSpeechDataStore.AutogenComponent, index:number, properties:any, component:any) => {
+
+    this.setState({
+      viewEditor: {
+        enabled: enabled,
+        view: view,
+        index: index,
+        properties: properties,
+        component:component
+      }
+    });
+
+  }
+
+  closeViewEditor = () => {
+    this.setState({
+      viewEditor: {
+        enabled: false,
+        view: null,
+        index: -1,
+        properties: null,
+        component: null
+      }
+    });
+  }
+
+  createControlPanel() {
     if (this.props.autogen && modelData) {
       if (
         this.props.autogen.containers.length > 0 &&
@@ -357,7 +407,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
             {this.controlPanelHeaderTitleControl(effectName)}
             <Row className="autogen-pages row">
               {this.props.autogen.containers.map((container,index) =>
-                <React.Fragment key={index}>
+                <React.Fragment key={"container-" + index}>
                   <ControlCard
                     references={container.views}
                     title={container.name}
@@ -370,13 +420,22 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
                     delete={this.deleteContainer}
                     updateTitle={this.updateControlCardName}
                     index={index}
-                    updateView={this.modifyView}
                     updateContainer={this.modifyContainer}
                     components={components}
+                    startViewEditor={this.startViewEditor}
                   />
                 </React.Fragment>)
               }
             </Row>
+            <PopupViewEditor
+              viewProps={this.state.viewEditor.properties}
+              data={modelData}
+              show={this.state.viewEditor.enabled}
+              index={this.state.viewEditor.index}
+              view={this.state.viewEditor.view}
+              component={this.state.viewEditor.component}
+              handleClose={this.closeViewEditor}
+            />
           </div>);
       }
       else if (this.props.autogen.name) {
