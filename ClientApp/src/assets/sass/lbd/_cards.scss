@@ -784,3 +784,29 @@ td .content {
 .autogen-effect-preview{
   width:211px;
 }
+
+.modal-editor{
+  //max-width:600px;
+  justify-content:center;
+  align-items:center;
+  margin: 0 auto;
+  display:flex!important;
+}
+
+.modal-backdrop{
+  display:flex!important;
+  justify-content:center;
+  align-items:center;
+}
+
+.modal-editor-body{
+  max-width:600px;
+}
+
+.modal-content{
+  width:inherit;
+}
+
+.modal-dialog-centered{
+  background:none;
+}

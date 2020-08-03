@@ -38,18 +38,19 @@ export class PopupViewEditor extends Component {
       return (
         <>
           <Modal
+            className="modal-editor"
             animation={false}
             show={this.props.show}
             onShow={this.handleOnShow}
             onHide={() => { this.props.handleClose(); }}
             size="lg"
-            aria-labelledby="contained-modal-title-vcenter"
+            aria-labelledby="contained-modal-title-vcenter contained-modal-title-hcenter"
             centered
           >
-            <Modal.Header closeButton>
+            <Modal.Header className="modal-editor-body" closeButton>
               <Modal.Title id="contained-modal-title-vcenter">Editing: {this.props.view.name}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body className="modal-editor-body">
               <Col sm={12} md={6} lg={3}>
                 <div className="autogen-units" id="view-variant">Variant</div>
                 <ListGroup defaultActiveKey={this.props.view.type.variant}>
@@ -97,7 +98,7 @@ export class PopupViewEditor extends Component {
                     callback={() => { }} />
                 </div></div></div>
             </Modal.Body>
-            <Modal.Footer>
+            <Modal.Footer className="modal-editor-body">
               <Button
               variant="primary"
               className="btn-simple btn-icon"

@@ -58,7 +58,7 @@ export class Slider extends React.Component {
               <Row className="autogen-value-row full-width justify-start">
                 <div className="autogen-value float-left">{this.state.currentValue}</div>
                 </Row>
-                </Row>
+               </Row>
             </Col>
             <Col sm={3} md={3} lg={3} className="vertical-slider-col">
               <ReactBootstrapSlider
