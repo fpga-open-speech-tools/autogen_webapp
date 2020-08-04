@@ -22,9 +22,9 @@ type OpenSpeechProps =
 export interface AutoGenState {
   autogen: OpenSpeechDataStore.Autogen,
   notification: Notification,
-  //data: OpenSpeechDataStore.ModelData[],
-  newAutogen: boolean;
-  dataUpdated: boolean;
+  autogenUpdateTrigger: boolean;
+  dataUpdateTrigger: boolean;
+  dataIndexTrigger: number;
   connected: boolean,
   editable: boolean,
   viewEditor: ViewEditor
@@ -40,7 +40,8 @@ interface ViewEditor {
   view: OpenSpeechDataStore.AutogenComponent | null,
   index: number,
   properties: any,
-  component: any
+  component: any,
+  functionalData: any
 }
 
 let modelDataClient = new ModelDataClient();
@@ -60,36 +61,41 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
       },
 
       autogen: this.props.autogen,
-      newAutogen: false,
-      dataUpdated: false,
-
+      autogenUpdateTrigger: false,
+      dataUpdateTrigger: false,
+      dataIndexTrigger: -1,
       viewEditor: {
         enabled: false,
         view: null,
         index: -1,
         properties: null,
-        component: null
+        component: null,
+        functionalData: null
       }
 
     };
 
+    //ActionStore send-handlers.
     this.handleRequestUI = this.handleRequestUI.bind(this);
     this.handleInputCommand = this.handleInputCommand.bind(this);
-
     this.setNotification = this.setNotification.bind(this);
     this.sendDataPackets = this.sendDataPackets.bind(this);
     this.updateModelData = this.updateModelData.bind(this);
+
+    //Receipt Callback Functions
+    this.updateModelFromProps = this.updateModelFromProps.bind(this);
     this.receiveDataPackets = this.receiveDataPackets.bind(this);
     this.handleMessage = this.handleMessage.bind(this);
 
-
-    this.updateModelFromProps = this.updateModelFromProps.bind(this);
+    //UI Control and population
+    this.setNotification = this.setNotification.bind(this);
     this.createControlPanel = this.createControlPanel.bind(this);
 
     this.controlEditable = this.controlEditable.bind(this);
     this.saveEdit = this.saveEdit.bind(this);
     this.cancelEdit = this.cancelEdit.bind(this);
     this.fixEdit = this.fixEdit.bind(this);
+
     this.moveContainer = this.moveContainer.bind(this);
     this.deleteContainer = this.deleteContainer.bind(this);
     this.updateControlCardName = this.updateControlCardName.bind(this);
@@ -97,15 +103,13 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
     this.modifyContainer = this.modifyContainer.bind(this);
     this.modifyView = this.modifyView.bind(this);
+
     this.startViewEditor = this.startViewEditor.bind(this);
     this.closeViewEditor = this.closeViewEditor.bind(this);
+
     this.moveContainer = this.moveContainer.bind(this);
     this.removeViewFromContainer = this.removeViewFromContainer.bind(this);
 
-  }
-
-  componentWillReceiveProps() {
-    this.updateModelFromProps();
   }
 
   shouldComponentUpdate(nextProps: OpenSpeechProps, nextState: AutoGenState) {
@@ -115,7 +119,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     else if (nextProps.deviceAddress !== this.props.deviceAddress) {
       return true;
     }
-    else if (nextState.editable != this.state.editable) {
+    else if (nextState.editable !== this.state.editable) {
       return true;
     }
 
@@ -131,12 +135,10 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   }
 
   componentWillUpdate() {
-    if (this.props.autogen && modelData) {
-      if (modelData != this.props.autogen.data) {
+    if (this.props.autogen !== this.state.autogen) {
+      if (this.props.autogen.data !== modelData) {
         this.updateModelFromProps();
       }
-    }
-    if (this.props.autogen != this.state.autogen) {
       this.setState({ autogen: this.props.autogen });
     }
   }
@@ -152,27 +154,23 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   updateModelFromProps = () => {
     async function overwriteModel(controls: ControlPanel) {
       modelData = controls.props.autogen.data;
+      mappedModelData = createDataSubsets(controls.props.autogen, controls.props.autogen.data);
     }
 
     async function updateModel(controls: ControlPanel) {
-      controls.setState({ newAutogen: true });
-    }
-
-    async function modelUpdated(controls: ControlPanel) {
-      controls.setState({ newAutogen: false });
+      controls.setState({ autogenUpdateTrigger: !controls.state.autogenUpdateTrigger });
     }
 
     async function update(controls: ControlPanel) {
       await overwriteModel(controls);
       await updateModel(controls);
-      await modelUpdated(controls);
     }
     update(this);
   }
 
   updateModelData = (dataPackets: OpenSpeechDataStore.DataPacket[]) => {
     dataPackets.map((packet) => {
-      process(this, packet, modelData);
+      return(process(this, packet, modelData));
     });
   }
 
@@ -185,12 +183,13 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     this.updateModelData(command);
     if (!this.props.isLoading) {
       if (modelDataClient.state.connected && this.props.rtcEnabled) {
-        this.sendDataPackets(command);
+        return(this.sendDataPackets(command));
       }
       else {
-        this.props.requestSendModelData(command, this.props.deviceAddress);
+        return(this.props.requestSendModelData(command, this.props.deviceAddress));
       }
     }
+    return (() => { });
   }
 
   handleMessage(text: string) {
@@ -213,14 +212,11 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
 
   makeEditable = () => {
-    if (this.props.autogen.containers.length === 0) {
-      //Generate new Autogen.
-    }
-    else {
-      this.setState({
-        editable: true
-      });
-    }
+    this.handleRequestUI();
+    this.setState({
+      editable: true
+    });
+
   }
 
   cancelEdit = () => {
@@ -230,14 +226,12 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   saveEdit = () => {
     this.setState({ editable: false });
-    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, this.props.autogen);
-    this.handleRequestUI();
+    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, this.props.autogen, this.handleRequestUI);
   }
 
   fixEdit = () => {
     this.setState({ editable: false });
-    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.name));
-    this.handleRequestUI();
+    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.name), this.handleRequestUI);
   }
 
   controlEditable = () => {
@@ -299,6 +293,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   deleteContainer = (index: number) => {
     var autogen = this.props.autogen;
     autogen.containers.splice(index, 1);
+    mappedModelData = createDataSubsets(autogen, this.props.autogen.data);
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
@@ -306,14 +301,15 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   removeViewFromContainer = (containerIndex: number, viewIndex: number) => {
     var autogen = this.props.autogen;
     autogen.containers[containerIndex].views.splice(viewIndex, 1);
+    mappedModelData = createDataSubsets(autogen, this.props.autogen.data);
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
 
   modifyView = (index: number, view: OpenSpeechDataStore.ComponentView) => {
-    console.log("modifying view in controlPanel @index: " + index);
     var autogen = this.props.autogen;
     autogen.views[index] = view;
+    mappedModelData = createDataSubsets(autogen, this.props.autogen.data);
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
@@ -321,29 +317,31 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   modifyContainer = (index: number, container: OpenSpeechDataStore.AutogenContainer)=>{
     var autogen = this.props.autogen;
     autogen.containers[index] = container;
+    mappedModelData = createDataSubsets(autogen, this.props.autogen.data);
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
 
   moveContainer = (index: number, direction: number) => {
     var autogen = this.props.autogen;
-
+    var currentContainer: OpenSpeechDataStore.AutogenContainer;
     //moving first element left(to end of array)
     if (direction < 1 && index === 0) {
-      var currentContainer = autogen.containers.shift() as OpenSpeechDataStore.AutogenContainer;
+      currentContainer = autogen.containers.shift() as OpenSpeechDataStore.AutogenContainer;
       autogen.containers.push(currentContainer);
     }
     //moving last element right(to start of array)
     else if (direction > 0 && index === autogen.containers.length-1) {
-      var currentContainer = autogen.containers.pop();
+      currentContainer = autogen.containers.pop() as OpenSpeechDataStore.AutogenContainer;
       autogen.containers.unshift(currentContainer);
     }
     //swapping indexed container with the component at the desired direction's index.
     else {
-      var currentContainer = autogen.containers[index] as OpenSpeechDataStore.AutogenContainer;
+      currentContainer = autogen.containers[index] as OpenSpeechDataStore.AutogenContainer;
       autogen.containers[index] = autogen.containers[index + direction];
       autogen.containers[index + direction] = currentContainer;
     }
+    mappedModelData = createDataSubsets(autogen, this.props.autogen.data);
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
@@ -368,15 +366,15 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     }
   }
 
-  startViewEditor = (enabled:boolean, view: OpenSpeechDataStore.AutogenComponent, index:number, properties:any, component:any) => {
-
+  startViewEditor = (enabled: boolean, view: OpenSpeechDataStore.AutogenComponent, index: number, properties: any, component: any, functionalData:any) => {
     this.setState({
       viewEditor: {
         enabled: enabled,
         view: view,
         index: index,
         properties: properties,
-        component:component
+        component: component,
+        functionalData:functionalData
       }
     });
 
@@ -386,66 +384,66 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     this.setState({
       viewEditor: {
         enabled: false,
-        view: null,
-        index: -1,
-        properties: null,
-        component: null
+        view: this.state.viewEditor.view,
+        index: this.state.viewEditor.index,
+        properties: this.state.viewEditor.properties,
+        component: this.state.viewEditor.component,
+        functionalData: this.state.viewEditor.functionalData
       }
     });
   }
 
+
   createControlPanel() {
-    if (this.props.autogen && modelData) {
-      if (
-        this.props.autogen.containers.length > 0 &&
-        modelData.length > 0 &&
-        this.props.autogen.views.length > 0) {
-        var effectName = this.props.autogen.name ? this.props.autogen.name : "";
-        effectName = (effectName === "ERROR") ? "" : effectName;
-        return (
-          <div className="autogen autogen-effectContainer modal-body">
-            {this.controlPanelHeaderTitleControl(effectName)}
-            <Row className="autogen-pages row">
-              {this.props.autogen.containers.map((container,index) =>
-                <React.Fragment key={"container-" + index}>
-                  <ControlCard
-                    references={container.views}
-                    title={container.name}
-                    views={this.props.autogen.views}
-                    data={modelData}
-                    callback={this.handleInputCommand}
-                    editable={this.state.editable}
-                    moveLeft={this.moveContainer}
-                    moveRight={this.moveContainer}
-                    delete={this.deleteContainer}
-                    updateTitle={this.updateControlCardName}
-                    index={index}
-                    updateContainer={this.modifyContainer}
-                    components={components}
-                    startViewEditor={this.startViewEditor}
-                  />
-                </React.Fragment>)
-              }
-            </Row>
-            <PopupViewEditor
-              viewProps={this.state.viewEditor.properties}
-              data={modelData}
-              show={this.state.viewEditor.enabled}
-              index={this.state.viewEditor.index}
-              view={this.state.viewEditor.view}
-              component={this.state.viewEditor.component}
-              handleClose={this.closeViewEditor}
-            />
-          </div>);
-      }
-      else if (this.props.autogen.name) {
-        var effectName = this.props.autogen.name ? this.props.autogen.name : "";
-        effectName = (effectName === "ERROR") ? "" : effectName;
-        return (
-          <div className="autogen autogen-effectContainer autogen-error">
-          </div>);
-      }
+
+    if (mappedModelData.length < 1) {
+      mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
     }
+    else if (this.props.autogen != this.state.autogen) {
+      mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
+    }
+
+    var effectName = this.props.autogen.name ? this.props.autogen.name : "";
+    effectName = (effectName === "ERROR") ? "" : effectName;
+    return (
+      <div className="autogen autogen-effectContainer modal-body">
+        {this.controlPanelHeaderTitleControl(effectName)}
+        <Row className="autogen-pages row">
+          {this.props.autogen.containers.map((container,index) =>
+            <React.Fragment key={"container-" + index}>
+              <ControlCard
+                indexTrigger={this.state.dataIndexTrigger}
+                references={container.views}
+                title={container.name}
+                views={this.props.autogen.views}
+                data={mappedModelData[index]}
+                callback={this.handleInputCommand}
+                editable={this.state.editable}
+                moveLeft={this.moveContainer}
+                moveRight={this.moveContainer}
+                delete={this.deleteContainer}
+                updateTitle={this.updateControlCardName}
+                index={index}
+                updateContainer={this.modifyContainer}
+                components={components}
+                startViewEditor={this.startViewEditor}
+              />
+            </React.Fragment>)
+          }
+        </Row>
+        <PopupViewEditor
+          viewProps={this.state.viewEditor.properties}
+          data={modelData}
+          functionalData={this.state.viewEditor.functionalData}
+          show={this.state.viewEditor.enabled}
+          index={this.state.viewEditor.index}
+          view={this.state.viewEditor.view}
+          updateView={this.modifyView}
+          component={this.state.viewEditor.component}
+          handleClose={this.closeViewEditor}
+        />
+      </div>);
+
   }
 
   render() {
@@ -480,25 +478,87 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   
 }
 
+
+//Local copy of the model data for editing/displaying purposes. (strip from whole autogen)
 var modelData = [] as OpenSpeechDataStore.ModelData[];
 
-async function updateModelData(packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
+//1:1 Index map of each container -> views -> data.
+var mappedModelData = [] as dataSubset[];
+
+//Data Subset for a container.
+interface dataSubset {
+  indices: number[]; //data indexes to listen to
+  views: viewData[]; //views inside container
+}
+
+interface viewData {
+  indices: number[];
+  data: indexedData[];
+}
+
+interface indexedData {
+  index: number;
+  packet: OpenSpeechDataStore.ModelData;
+}
+
+async function updateModelData
+  (packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
   oldModel[packet.index].value = packet.value;
 }
 
 async function updateModel(controls: ControlPanel) {
-  controls.setState({ dataUpdated: true });
+  controls.setState({dataUpdateTrigger: !controls.state.dataUpdateTrigger});
 }
 
-async function modelUpdated(controls: ControlPanel) {
-  controls.setState({ dataUpdated: false });
+async function updateSpecific(controls: ControlPanel, index:number) {
+  controls.setState({ dataIndexTrigger: index });
 }
 
-async function process(controls: ControlPanel, packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
+async function process
+  (controls: ControlPanel, packet: OpenSpeechDataStore.DataPacket, oldModel: OpenSpeechDataStore.ModelData[]) {
   await updateModelData(packet, oldModel);
-  await updateModel(controls);
-  await modelUpdated(controls);
+  await updateDataSubsetValues(packet, mappedModelData);
+  await updateSpecific(controls, packet.index);
+  //await updateModel(controls);
 }
+
+
+function createDataSubsets
+  (autogen: OpenSpeechDataStore.Autogen, modelData: OpenSpeechDataStore.ModelData[]) {
+  var map = [] as dataSubset[];
+  autogen.containers.map((container) => {
+    const subset = {indices: [], views: [] } as dataSubset; //assign a data subset for each container.
+    container.views.map((viewIndex) => {
+      const viewData = { indices: [], data:[] } as viewData; //Assign empty data array for each view.
+      autogen.views[viewIndex].references.map((dataIndex) => {
+        const currentData = { index: dataIndex, packet: modelData[dataIndex] };
+        viewData.data.push(currentData);
+        viewData.indices.push(dataIndex);
+        subset.indices.push(dataIndex);
+      });
+      subset.views.push(viewData);
+    });
+    map.push(subset);
+  });
+  return map;
+}
+
+async function updateDataSubsetValues(packet: OpenSpeechDataStore.DataPacket, map: dataSubset[]) {
+  map.map((subset) => {
+    if (subset.indices.includes(packet.index)) {
+      subset.views.map((view) => {
+        if (view.indices.includes(packet.index)) {
+          view.data.map((data) => {
+            if (data.index === packet.index) {
+              data.packet.value = packet.value;
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
 
 const components = Components().components;
 

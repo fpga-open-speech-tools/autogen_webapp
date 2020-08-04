@@ -199,7 +199,7 @@ export const openSpeechDataActionCreators = {
       dispatch({ type: 'UPDATE_AUTOGEN_PROPS', autogen});
     },
 
-  requestSendAutogenConfiguration: (address: DeviceAddress, input: Autogen):
+  requestSendAutogenConfiguration: (address: DeviceAddress, input: Autogen, callback: Function):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
       var data = new FormData();
       appendAddressToForm(data, address);
@@ -212,6 +212,7 @@ export const openSpeechDataActionCreators = {
           dispatch({
             type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
           });
+          callback();
         });
       dispatch({
         type: 'REQUEST_SEND_AUTOGEN_CONFIGURATION',
@@ -306,9 +307,9 @@ export const openSpeechDataActionCreators = {
 };
 
 const emptyAutogen = {
-  containers: {},
-  data: {},
-  views: {},
+  containers: [],
+  data: [],
+  views: [],
   name: ""
 } as Autogen
 // ----------------
@@ -344,7 +345,7 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
     case 'REQUEST_OPENSPEECH_AUTOGEN':
       return {
         deviceAddress:state.deviceAddress,
-        autogen: emptyAutogen,
+        autogen: state.autogen,
         availableDemos: state.availableDemos,
         isDeviceDownloading: state.isDeviceDownloading,
         isLoading: true,

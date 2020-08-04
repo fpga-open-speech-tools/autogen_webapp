@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Row, Col } from "react-bootstrap";
 import ReactBootstrapSlider from "react-bootstrap-slider";
 
@@ -16,7 +16,7 @@ export class Slider extends React.Component {
   }
 
   componentWillReceiveProps() {
-    if (this.state.currentValue != this.props.data[0].value) {
+    if (this.state.currentValue !== this.props.data[0].value) {
       this.setState({ currentValue: this.props.data[0].value });
     }
   }
@@ -37,7 +37,7 @@ export class Slider extends React.Component {
   }
 
   handleChange = (value) => {
-    this.props.callback(this.generatePayload(value));
+    return(this.props.callback(this.generatePayload(value)));
   }
 
   createSlider = () => {

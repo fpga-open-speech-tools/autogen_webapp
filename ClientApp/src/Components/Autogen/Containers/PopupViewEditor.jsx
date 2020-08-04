@@ -13,7 +13,7 @@ export class PopupViewEditor extends Component {
   }
 
   componentDidUpdate() {
-    if (this.props.view && this.props.view != this.props.view) {
+    if (this.props.view && this.props.view !== this.state.v) {
       this.setState({ v: this.props.view });
       this.setState({ i: this.props.index });
     }
@@ -26,6 +26,8 @@ export class PopupViewEditor extends Component {
 
   handleUpdateView (view){
     this.setState({ v: view });
+    this.props.updateView(this.props.index, view);
+    this.forceUpdate();
   }
 
   revert() {
@@ -94,7 +96,8 @@ export class PopupViewEditor extends Component {
                   <div className="autogen autogen-control">
                   <this.props.component
                     view={this.props.view}
-                    data={this.props.data}
+                    editing= {true }
+                    data={this.props.functionalData}
                     callback={() => { }} />
                 </div></div></div>
             </Modal.Body>

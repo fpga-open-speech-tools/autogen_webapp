@@ -14,7 +14,7 @@ exports.openSpeechDataActionCreators = {
     updateAutogenProps: function (autogen) { return function (dispatch) {
         dispatch({ type: 'UPDATE_AUTOGEN_PROPS', autogen: autogen });
     }; },
-    requestSendAutogenConfiguration: function (address, input) { return function (dispatch, getState) {
+    requestSendAutogenConfiguration: function (address, input, callback) { return function (dispatch, getState) {
         var data = new FormData();
         appendAddressToForm(data, address);
         var inputString = JSON.stringify(input);
@@ -25,6 +25,7 @@ exports.openSpeechDataActionCreators = {
             dispatch({
                 type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data
             });
+            callback();
         });
         dispatch({
             type: 'REQUEST_SEND_AUTOGEN_CONFIGURATION',
@@ -107,9 +108,9 @@ exports.openSpeechDataActionCreators = {
     }; },
 };
 var emptyAutogen = {
-    containers: {},
-    data: {},
-    views: {},
+    containers: [],
+    data: [],
+    views: [],
     name: ""
 };
 // ----------------
@@ -142,7 +143,7 @@ exports.reducer = function (state, incomingAction) {
         case 'REQUEST_OPENSPEECH_AUTOGEN':
             return {
                 deviceAddress: state.deviceAddress,
-                autogen: emptyAutogen,
+                autogen: state.autogen,
                 availableDemos: state.availableDemos,
                 isDeviceDownloading: state.isDeviceDownloading,
                 isLoading: true,

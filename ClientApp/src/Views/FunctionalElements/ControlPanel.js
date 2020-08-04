@@ -68,6 +68,7 @@ var ControlPanel = /** @class */ (function (_super) {
                 return __awaiter(this, void 0, void 0, function () {
                     return __generator(this, function (_a) {
                         modelData = controls.props.autogen.data;
+                        mappedModelData = createDataSubsets(controls.props.autogen, controls.props.autogen.data);
                         return [2 /*return*/];
                     });
                 });
@@ -75,15 +76,7 @@ var ControlPanel = /** @class */ (function (_super) {
             function updateModel(controls) {
                 return __awaiter(this, void 0, void 0, function () {
                     return __generator(this, function (_a) {
-                        controls.setState({ newAutogen: true });
-                        return [2 /*return*/];
-                    });
-                });
-            }
-            function modelUpdated(controls) {
-                return __awaiter(this, void 0, void 0, function () {
-                    return __generator(this, function (_a) {
-                        controls.setState({ newAutogen: false });
+                        controls.setState({ autogenUpdateTrigger: !controls.state.autogenUpdateTrigger });
                         return [2 /*return*/];
                     });
                 });
@@ -98,9 +91,6 @@ var ControlPanel = /** @class */ (function (_super) {
                                 return [4 /*yield*/, updateModel(controls)];
                             case 2:
                                 _a.sent();
-                                return [4 /*yield*/, modelUpdated(controls)];
-                            case 3:
-                                _a.sent();
                                 return [2 /*return*/];
                         }
                     });
@@ -110,29 +100,26 @@ var ControlPanel = /** @class */ (function (_super) {
         };
         _this.updateModelData = function (dataPackets) {
             dataPackets.map(function (packet) {
-                process(_this, packet, modelData);
+                return (process(_this, packet, modelData));
             });
         };
         _this.handleInputCommand = function (command) {
             _this.updateModelData(command);
             if (!_this.props.isLoading) {
                 if (modelDataClient.state.connected && _this.props.rtcEnabled) {
-                    _this.sendDataPackets(command);
+                    return (_this.sendDataPackets(command));
                 }
                 else {
-                    _this.props.requestSendModelData(command, _this.props.deviceAddress);
+                    return (_this.props.requestSendModelData(command, _this.props.deviceAddress));
                 }
             }
+            return (function () { });
         };
         _this.makeEditable = function () {
-            if (_this.props.autogen.containers.length === 0) {
-                //Generate new Autogen.
-            }
-            else {
-                _this.setState({
-                    editable: true
-                });
-            }
+            _this.handleRequestUI();
+            _this.setState({
+                editable: true
+            });
         };
         _this.cancelEdit = function () {
             _this.setState({ editable: false }); //Stop editing
@@ -140,13 +127,11 @@ var ControlPanel = /** @class */ (function (_super) {
         };
         _this.saveEdit = function () {
             _this.setState({ editable: false });
-            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, _this.props.autogen);
-            _this.handleRequestUI();
+            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, _this.props.autogen, _this.handleRequestUI);
         };
         _this.fixEdit = function () {
             _this.setState({ editable: false });
-            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, MapifyComponents_jsx_1.GetAutogenObjectFromData(_this.props.autogen.data, _this.props.autogen.name));
-            _this.handleRequestUI();
+            _this.props.requestSendAutogenConfiguration(_this.props.deviceAddress, MapifyComponents_jsx_1.GetAutogenObjectFromData(_this.props.autogen.data, _this.props.autogen.name), _this.handleRequestUI);
         };
         _this.controlEditable = function () {
             if (!_this.state.editable) {
@@ -179,46 +164,51 @@ var ControlPanel = /** @class */ (function (_super) {
         _this.deleteContainer = function (index) {
             var autogen = _this.props.autogen;
             autogen.containers.splice(index, 1);
+            mappedModelData = createDataSubsets(autogen, _this.props.autogen.data);
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
         _this.removeViewFromContainer = function (containerIndex, viewIndex) {
             var autogen = _this.props.autogen;
             autogen.containers[containerIndex].views.splice(viewIndex, 1);
+            mappedModelData = createDataSubsets(autogen, _this.props.autogen.data);
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
         _this.modifyView = function (index, view) {
-            console.log("modifying view in controlPanel @index: " + index);
             var autogen = _this.props.autogen;
             autogen.views[index] = view;
+            mappedModelData = createDataSubsets(autogen, _this.props.autogen.data);
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
         _this.modifyContainer = function (index, container) {
             var autogen = _this.props.autogen;
             autogen.containers[index] = container;
+            mappedModelData = createDataSubsets(autogen, _this.props.autogen.data);
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
         _this.moveContainer = function (index, direction) {
             var autogen = _this.props.autogen;
+            var currentContainer;
             //moving first element left(to end of array)
             if (direction < 1 && index === 0) {
-                var currentContainer = autogen.containers.shift();
+                currentContainer = autogen.containers.shift();
                 autogen.containers.push(currentContainer);
             }
             //moving last element right(to start of array)
             else if (direction > 0 && index === autogen.containers.length - 1) {
-                var currentContainer = autogen.containers.pop();
+                currentContainer = autogen.containers.pop();
                 autogen.containers.unshift(currentContainer);
             }
             //swapping indexed container with the component at the desired direction's index.
             else {
-                var currentContainer = autogen.containers[index];
+                currentContainer = autogen.containers[index];
                 autogen.containers[index] = autogen.containers[index + direction];
                 autogen.containers[index + direction] = currentContainer;
             }
+            mappedModelData = createDataSubsets(autogen, _this.props.autogen.data);
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
@@ -231,14 +221,15 @@ var ControlPanel = /** @class */ (function (_super) {
                 return (React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, name));
             }
         };
-        _this.startViewEditor = function (enabled, view, index, properties, component) {
+        _this.startViewEditor = function (enabled, view, index, properties, component, functionalData) {
             _this.setState({
                 viewEditor: {
                     enabled: enabled,
                     view: view,
                     index: index,
                     properties: properties,
-                    component: component
+                    component: component,
+                    functionalData: functionalData
                 }
             });
         };
@@ -246,10 +237,11 @@ var ControlPanel = /** @class */ (function (_super) {
             _this.setState({
                 viewEditor: {
                     enabled: false,
-                    view: null,
-                    index: -1,
-                    properties: null,
-                    component: null
+                    view: _this.state.viewEditor.view,
+                    index: _this.state.viewEditor.index,
+                    properties: _this.state.viewEditor.properties,
+                    component: _this.state.viewEditor.component,
+                    functionalData: _this.state.viewEditor.functionalData
                 }
             });
         };
@@ -261,24 +253,30 @@ var ControlPanel = /** @class */ (function (_super) {
                 level: ""
             },
             autogen: _this.props.autogen,
-            newAutogen: false,
-            dataUpdated: false,
+            autogenUpdateTrigger: false,
+            dataUpdateTrigger: false,
+            dataIndexTrigger: -1,
             viewEditor: {
                 enabled: false,
                 view: null,
                 index: -1,
                 properties: null,
-                component: null
+                component: null,
+                functionalData: null
             }
         };
+        //ActionStore send-handlers.
         _this.handleRequestUI = _this.handleRequestUI.bind(_this);
         _this.handleInputCommand = _this.handleInputCommand.bind(_this);
         _this.setNotification = _this.setNotification.bind(_this);
         _this.sendDataPackets = _this.sendDataPackets.bind(_this);
         _this.updateModelData = _this.updateModelData.bind(_this);
+        //Receipt Callback Functions
+        _this.updateModelFromProps = _this.updateModelFromProps.bind(_this);
         _this.receiveDataPackets = _this.receiveDataPackets.bind(_this);
         _this.handleMessage = _this.handleMessage.bind(_this);
-        _this.updateModelFromProps = _this.updateModelFromProps.bind(_this);
+        //UI Control and population
+        _this.setNotification = _this.setNotification.bind(_this);
         _this.createControlPanel = _this.createControlPanel.bind(_this);
         _this.controlEditable = _this.controlEditable.bind(_this);
         _this.saveEdit = _this.saveEdit.bind(_this);
@@ -296,9 +294,6 @@ var ControlPanel = /** @class */ (function (_super) {
         _this.removeViewFromContainer = _this.removeViewFromContainer.bind(_this);
         return _this;
     }
-    ControlPanel.prototype.componentWillReceiveProps = function () {
-        this.updateModelFromProps();
-    };
     ControlPanel.prototype.shouldComponentUpdate = function (nextProps, nextState) {
         if (nextProps.autogen.data.length > 0) {
             return true;
@@ -306,7 +301,7 @@ var ControlPanel = /** @class */ (function (_super) {
         else if (nextProps.deviceAddress !== this.props.deviceAddress) {
             return true;
         }
-        else if (nextState.editable != this.state.editable) {
+        else if (nextState.editable !== this.state.editable) {
             return true;
         }
         return false;
@@ -319,12 +314,10 @@ var ControlPanel = /** @class */ (function (_super) {
         modelDataClient.startSession();
     };
     ControlPanel.prototype.componentWillUpdate = function () {
-        if (this.props.autogen && modelData) {
-            if (modelData != this.props.autogen.data) {
+        if (this.props.autogen !== this.state.autogen) {
+            if (this.props.autogen.data !== modelData) {
                 this.updateModelFromProps();
             }
-        }
-        if (this.props.autogen != this.state.autogen) {
             this.setState({ autogen: this.props.autogen });
         }
     };
@@ -355,26 +348,21 @@ var ControlPanel = /** @class */ (function (_super) {
     };
     ControlPanel.prototype.createControlPanel = function () {
         var _this = this;
-        if (this.props.autogen && modelData) {
-            if (this.props.autogen.containers.length > 0 &&
-                modelData.length > 0 &&
-                this.props.autogen.views.length > 0) {
-                var effectName = this.props.autogen.name ? this.props.autogen.name : "";
-                effectName = (effectName === "ERROR") ? "" : effectName;
-                return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
-                    this.controlPanelHeaderTitleControl(effectName),
-                    React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, this.props.autogen.containers.map(function (container, index) {
-                        return React.createElement(React.Fragment, { key: "container-" + index },
-                            React.createElement(ControlCard_jsx_1.default, { references: container.views, title: container.name, views: _this.props.autogen.views, data: modelData, callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateContainer: _this.modifyContainer, components: components, startViewEditor: _this.startViewEditor }));
-                    })),
-                    React.createElement(PopupViewEditor_jsx_1.PopupViewEditor, { viewProps: this.state.viewEditor.properties, data: modelData, show: this.state.viewEditor.enabled, index: this.state.viewEditor.index, view: this.state.viewEditor.view, component: this.state.viewEditor.component, handleClose: this.closeViewEditor })));
-            }
-            else if (this.props.autogen.name) {
-                var effectName = this.props.autogen.name ? this.props.autogen.name : "";
-                effectName = (effectName === "ERROR") ? "" : effectName;
-                return (React.createElement("div", { className: "autogen autogen-effectContainer autogen-error" }));
-            }
+        if (mappedModelData.length < 1) {
+            mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
         }
+        else if (this.props.autogen != this.state.autogen) {
+            mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
+        }
+        var effectName = this.props.autogen.name ? this.props.autogen.name : "";
+        effectName = (effectName === "ERROR") ? "" : effectName;
+        return (React.createElement("div", { className: "autogen autogen-effectContainer modal-body" },
+            this.controlPanelHeaderTitleControl(effectName),
+            React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, this.props.autogen.containers.map(function (container, index) {
+                return React.createElement(React.Fragment, { key: "container-" + index },
+                    React.createElement(ControlCard_jsx_1.default, { indexTrigger: _this.state.dataIndexTrigger, references: container.views, title: container.name, views: _this.props.autogen.views, data: mappedModelData[index], callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateContainer: _this.modifyContainer, components: components, startViewEditor: _this.startViewEditor }));
+            })),
+            React.createElement(PopupViewEditor_jsx_1.PopupViewEditor, { viewProps: this.state.viewEditor.properties, data: modelData, functionalData: this.state.viewEditor.functionalData, show: this.state.viewEditor.enabled, index: this.state.viewEditor.index, view: this.state.viewEditor.view, updateView: this.modifyView, component: this.state.viewEditor.component, handleClose: this.closeViewEditor })));
     };
     ControlPanel.prototype.render = function () {
         return (React.createElement("div", { className: "content" },
@@ -393,7 +381,10 @@ var ControlPanel = /** @class */ (function (_super) {
     return ControlPanel;
 }(React.Component));
 exports.ControlPanel = ControlPanel;
+//Local copy of the model data for editing/displaying purposes. (strip from whole autogen)
 var modelData = [];
+//1:1 Index map of each container -> views -> data.
+var mappedModelData = [];
 function updateModelData(packet, oldModel) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
@@ -405,15 +396,15 @@ function updateModelData(packet, oldModel) {
 function updateModel(controls) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            controls.setState({ dataUpdated: true });
+            controls.setState({ dataUpdateTrigger: !controls.state.dataUpdateTrigger });
             return [2 /*return*/];
         });
     });
 }
-function modelUpdated(controls) {
+function updateSpecific(controls, index) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            controls.setState({ dataUpdated: false });
+            controls.setState({ dataIndexTrigger: index });
             return [2 /*return*/];
         });
     });
@@ -425,14 +416,52 @@ function process(controls, packet, oldModel) {
                 case 0: return [4 /*yield*/, updateModelData(packet, oldModel)];
                 case 1:
                     _a.sent();
-                    return [4 /*yield*/, updateModel(controls)];
+                    return [4 /*yield*/, updateDataSubsetValues(packet, mappedModelData)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, modelUpdated(controls)];
+                    return [4 /*yield*/, updateSpecific(controls, packet.index)];
                 case 3:
                     _a.sent();
                     return [2 /*return*/];
             }
+        });
+    });
+}
+function createDataSubsets(autogen, modelData) {
+    var map = [];
+    autogen.containers.map(function (container) {
+        var subset = { indices: [], views: [] }; //assign a data subset for each container.
+        container.views.map(function (viewIndex) {
+            var viewData = { indices: [], data: [] }; //Assign empty data array for each view.
+            autogen.views[viewIndex].references.map(function (dataIndex) {
+                var currentData = { index: dataIndex, packet: modelData[dataIndex] };
+                viewData.data.push(currentData);
+                viewData.indices.push(dataIndex);
+                subset.indices.push(dataIndex);
+            });
+            subset.views.push(viewData);
+        });
+        map.push(subset);
+    });
+    return map;
+}
+function updateDataSubsetValues(packet, map) {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            map.map(function (subset) {
+                if (subset.indices.includes(packet.index)) {
+                    subset.views.map(function (view) {
+                        if (view.indices.includes(packet.index)) {
+                            view.data.map(function (data) {
+                                if (data.index === packet.index) {
+                                    data.packet.value = packet.value;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+            return [2 /*return*/];
         });
     });
 }

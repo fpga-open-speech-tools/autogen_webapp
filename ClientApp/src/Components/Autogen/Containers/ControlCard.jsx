@@ -1,7 +1,32 @@
 import React, { Component } from "react";
-import { Button, Form, Table, Modal } from "react-bootstrap";
+import { Button, Form, Table } from "react-bootstrap";
 
 export class ControlCard extends Component {
+
+  shouldComponentUpdate(nextProps) {
+    if (this.props.data.indices.includes(nextProps.indexTrigger)) {
+      return true;
+    }
+    else if (this.props.editable) {
+      return true;
+    }
+    else if (nextProps.title !== this.props.title) {
+      return true;
+    }
+    else if (nextProps.references !== this.props.references) {
+      return true;
+    }
+    else if (nextProps.views !== this.props.views) {
+      return true;
+    }
+    else if (nextProps.components !== this.props.components) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   render() {
     return (
       <div className={"autogen + autogen-panel card"}>
@@ -26,15 +51,17 @@ export class ControlCard extends Component {
               <div className="autogen autogen-control">
                 <InputComponent
                   view={this.props.views[reference]}
-                  data={this.props.data}
+                  data={this.props.data.views[index]}
                   callback={this.props.callback}
+                  indexTrigger={this.props.indexTrigger}
+                  editing={getEditInputComponentState(reference)}
                 />
                 <EditViewButton
                   editable={this.props.editable}
                   view={this.props.views[reference]}
                   viewIndex={reference}
                   components={this.props.components}
-                  openViewEditor={this.props.setTargetView}
+                  data={this.props.data.views[index]}
                   setTargetView={this.props.startViewEditor}
                 />
                 <EditContainerViews
@@ -66,6 +93,16 @@ const FetchViewComponentProps = (view, components) => {
   return match;
 }
 
+var editReference = -1;
+const getEditInputComponentState = (index) => {
+  if (index === editReference) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
 var EditViewButton = (props) => {
   if (props.editable) {
     return (
@@ -74,12 +111,14 @@ var EditViewButton = (props) => {
           variant="primary"
           className="btn-simple btn-icon"
           onClick={() => {
+            editReference = props.viewIndex;
             props.setTargetView(
               true,
               props.view,
               props.viewIndex,
               FetchViewComponentProps(props.view, props.components),
-              InputComponent
+              InputComponent,
+              props.data
             );
           }}
         >
@@ -242,26 +281,49 @@ const EditPanel = (props) => {
   }
 }
 
-const InputComponent = (props) => {
-  const dataList = [];
-  props.view.references.map((reference) => {
-    dataList.push(props.data[reference]);
-  });
+class InputComponent extends Component {
 
-  try {
-    let Component = require('../Inputs/' + props.view.type.component).default;
-    
-    return (
-      <Component
-        view={props.view}
-        data={dataList}
-        callback={props.callback}
-      />
-    );
+  shouldComponentUpdate(nextProps) {
+    if (this.props.data.indices.includes(nextProps.indexTrigger)) {
+      return true;
+    }
+    else if (nextProps.editing) {
+      return true;
+    }
+    else if (this.props.view !== nextProps.view) {
+      return true;
+    }
+    else {
+      return false;
+    }
   }
-  catch{
-    return (<div>Component Not Recognized!</div>);
+
+  getComponent = () => {
+    try {
+      const dataList = [];
+      this.props.data.data.map((data) => {
+        dataList.push(data.packet);
+      });
+
+      let Component = require('../Inputs/' + this.props.view.type.component).default;
+      
+      return (
+        <Component
+          view={this.props.view}
+          data={dataList}
+          callback={this.props.callback}
+        />
+      );
+    }
+    catch{
+      return (<div>Component Not Recognized!</div>);
+    }
   }
+
+  render() {
+    return ({...this.getComponent()});
+  }
+
 }
 
 export default ControlCard;
