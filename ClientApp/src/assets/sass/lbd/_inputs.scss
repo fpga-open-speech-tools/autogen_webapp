@@ -139,3 +139,45 @@
 .input-group-focus .input-group-addon{
     border-color: $dark-gray;
 }
+
+
+.autogen-form{
+  width:auto;
+  flex-shrink:100;
+  flex-grow: 1;
+}
+
+.autogen-form-valid {
+  -webkit-transition: all 0.30s ease-in-out;
+  -moz-transition: all 0.30s ease-in-out;
+  -ms-transition: all 0.30s ease-in-out;
+  -o-transition: all 0.30s ease-in-out;
+  box-shadow: 0 0 5px rgba(60, 120, 255, 0.1);
+  border: 1px solid rgba(60, 120, 255, 0.1);
+}
+
+.autogen-form-row{
+  flex-wrap:nowrap;
+}
+
+.autogen-form-invalid {
+  -webkit-transition: all 0.30s ease-in-out;
+  -moz-transition: all 0.30s ease-in-out;
+  -ms-transition: all 0.30s ease-in-out;
+  -o-transition: all 0.30s ease-in-out;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.4);
+  border: 1px solid rgba(255, 0, 0, 0.4);
+}
+
+.autogen-form-control {
+  font-size: 2.2rem;
+  font-weight: 300;
+  padding-left: 4px;
+  white-space: nowrap;
+  border: none;
+}
+
+.autogen-units{
+  width:auto!important;
+  flex-grow:2;
+}
