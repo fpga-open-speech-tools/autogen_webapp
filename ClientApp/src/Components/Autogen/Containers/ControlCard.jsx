@@ -85,7 +85,7 @@ export class ControlCard extends Component {
 
 const FetchViewComponentProps = (view, components) => {
   var match = components[0];
-  components.map((component) => {
+  components.forEach((component) => {
     if (component.name === view.type.component) {
       match = component;
     }
@@ -300,9 +300,9 @@ class InputComponent extends Component {
 
   getComponent = () => {
     try {
-      const dataList = [];
+      const dataList = 
       this.props.data.data.map((data) => {
-        dataList.push(data.packet);
+        return(data.packet);
       });
 
       let Component = require('../Inputs/' + this.props.view.type.component).default;

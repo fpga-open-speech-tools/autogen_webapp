@@ -20,28 +20,28 @@ type OpenSpeechProps =
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 export interface AutoGenState {
-  autogen: OpenSpeechDataStore.Autogen,
-  notification: Notification,
+  autogen: OpenSpeechDataStore.Autogen;
+  notification: Notification;
   autogenUpdateTrigger: boolean;
   dataUpdateTrigger: boolean;
   dataIndexTrigger: number;
-  connected: boolean,
-  editable: boolean,
-  viewEditor: ViewEditor
+  connected: boolean;
+  editable: boolean;
+  viewEditor: ViewEditor;
 }
 
 interface Notification {
-  text: string,
-  level: string
+  text: string;
+  level: string;
 }
 
 interface ViewEditor {
-  enabled: boolean,
-  view: OpenSpeechDataStore.AutogenComponent | null,
-  index: number,
-  properties: any,
-  component: any,
-  functionalData: any
+  enabled: boolean;
+  view: OpenSpeechDataStore.AutogenComponent | null;
+  index: number;
+  properties: any;
+  component: any;
+  functionalData: any;
 }
 
 let modelDataClient = new ModelDataClient();
@@ -122,8 +122,9 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     else if (nextState.editable !== this.state.editable) {
       return true;
     }
-
-    return false;
+    else{
+      return false;
+    }
   }
 
   componentDidMount() {
@@ -169,7 +170,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   }
 
   updateModelData = (dataPackets: OpenSpeechDataStore.DataPacket[]) => {
-    dataPackets.map((packet) => {
+    dataPackets.forEach((packet) => {
       return(process(this, packet, modelData));
     });
   }
@@ -399,10 +400,10 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     if (mappedModelData.length < 1) {
       mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
     }
-    else if (this.props.autogen != this.state.autogen) {
+    else if (this.props.autogen !== this.state.autogen) {
       mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
     }
-
+    
     var effectName = this.props.autogen.name ? this.props.autogen.name : "";
     effectName = (effectName === "ERROR") ? "" : effectName;
     return (
@@ -526,11 +527,11 @@ async function process
 function createDataSubsets
   (autogen: OpenSpeechDataStore.Autogen, modelData: OpenSpeechDataStore.ModelData[]) {
   var map = [] as dataSubset[];
-  autogen.containers.map((container) => {
+  autogen.containers.forEach((container) => {
     const subset = {indices: [], views: [] } as dataSubset; //assign a data subset for each container.
-    container.views.map((viewIndex) => {
+    container.views.forEach((viewIndex) => {
       const viewData = { indices: [], data:[] } as viewData; //Assign empty data array for each view.
-      autogen.views[viewIndex].references.map((dataIndex) => {
+      autogen.views[viewIndex].references.forEach((dataIndex) => {
         const currentData = { index: dataIndex, packet: modelData[dataIndex] };
         viewData.data.push(currentData);
         viewData.indices.push(dataIndex);
@@ -544,11 +545,11 @@ function createDataSubsets
 }
 
 async function updateDataSubsetValues(packet: OpenSpeechDataStore.DataPacket, map: dataSubset[]) {
-  map.map((subset) => {
+  map.forEach((subset) => {
     if (subset.indices.includes(packet.index)) {
-      subset.views.map((view) => {
+      subset.views.forEach((view) => {
         if (view.indices.includes(packet.index)) {
-          view.data.map((data) => {
+          view.data.forEach((data) => {
             if (data.index === packet.index) {
               data.packet.value = packet.value;
             }

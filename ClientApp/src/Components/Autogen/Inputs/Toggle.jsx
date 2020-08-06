@@ -16,6 +16,7 @@ export class Toggle extends Component {
   componentDidMount() {
     this.setState({ currentValue: this.props.data[0].value });
   }
+
   componentWillReceiveProps() {
     if (this.state.currentValue != this.props.data[0].value) {
       this.setState({ currentValue: this.props.data[0].value });

@@ -7,8 +7,12 @@ export class Slider extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentValue:  this.props.data[0].value,
-      formValue: this.props.data[0].toString(),
+      currentValue:  
+        this.props.data[0].value ? 
+          parseFloat(this.props.data[0].value) : this.props.data[0].properties.min,
+      formValue: 
+        this.props.data[0].value ? 
+          this.props.data[0].value.toString(): this.props.data[0].properties.min.toString(),
       formValid: true,
       formHighlight: "autogen-form-row autogen-value-row autogen-form-valid"
     };
@@ -21,9 +25,13 @@ export class Slider extends React.Component {
   componentWillReceiveProps() {
     if (this.state.currentValue !== this.props.data[0].value) {
       this.setState({ 
-        currentValue: this.props.data[0].value, 
-        formValue:this.props.data[0].value.toString(),
+        currentValue: parseFloat(this.props.data[0].value)
       });
+      if(parseFloat(this.state.formValue) !== this.props.data[0].value){
+        this.setState({ 
+          formValue: this.props.data[0].value.toString()
+        });
+      }
       if(!this.state.formValid){
         this.setState({formValid:true,formHighlight: "autogen-form-row autogen-value-row autogen-form-valid"});
       }
@@ -32,14 +40,18 @@ export class Slider extends React.Component {
 
   componentDidMount() {
     this.setState({ 
-      currentValue: this.props.data[0].value,
-      formValue:this.props.data[0].value.toString()
+            currentValue:  
+        this.props.data[0].value ? 
+          parseFloat(this.props.data[0].value) : this.props.data[0].properties.min,
+      formValue: 
+        this.props.data[0].value ? 
+          this.props.data[0].value.toString(): this.props.data[0].properties.min.toString(),
     });
   }
 
   generatePayload = (value) => {
     const payload = [];
-    this.props.view.references.map((reference) => {
+    this.props.view.references.forEach((reference) => {
       (payload.push({
         index: reference,
         value: value
@@ -54,14 +66,14 @@ export class Slider extends React.Component {
 
 
   handleFormInput = (value) => {
-    this.setState({formValue:value});
-    const isValid = this.validateInput(parseFloat(value));
+    this.setState({formValue:value.toString()});
+    const isValid = this.validateInput(value);
     if(isValid){
       this.setState({
         formValid:true,
         formHighlight:"autogen-form-row autogen-value-row  autogen-form-valid"
       });
-      this.handleChange(value);
+      this.handleChange(parseFloat(value));
     }
     else{
       this.setState({
@@ -75,6 +87,7 @@ export class Slider extends React.Component {
     if (isNaN(value)) {
       return false;
     }
+    else if(value.length===0){return false;}
     else {
     var mod = value % this.props.data[0].properties.step;
       if (value <= this.props.data[0].properties.max &&

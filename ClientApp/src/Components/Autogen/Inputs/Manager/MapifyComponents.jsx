@@ -20,7 +20,7 @@ const containsRequiredProps = (requiredProps, dataProps) => {
     remainingProps:dataProps.length
     };
 
-  requiredProps.map((currentProp) => {
+  requiredProps.forEach((currentProp) => {
     if (!dataProps.includes(currentProp)) {
       obj.match = false;
     }
@@ -37,7 +37,7 @@ const checkOptionalProps = (optionalProps, dataProps) => {
     count: 0,
     matches:[]
   };
-  optionalProps.map((currentProp) => {
+  optionalProps.forEach((currentProp) => {
     if (dataProps.includes(currentProp)) {
       obj.count++;
       obj.matches.push(currentProp);
@@ -47,15 +47,14 @@ const checkOptionalProps = (optionalProps, dataProps) => {
 }
 
 export function getViewsFromData(modelDataArray) {
-  var views = [];
-  modelDataArray.map((modelData, index) => {
+  var views = modelDataArray.map((modelData, index) => {
     const component = MatchDataToComponent(modelData);
     const view = {
       name: modelData.name,
       type: component,
       references:[index]
     };
-    views.push(view);
+    return(view);
   });
   return views;
 }
@@ -66,7 +65,7 @@ export function getContainers(viewArray, dataArray) {
   //get list of unique device names
   const devices = getUniqueDevices(dataArray);
   //add an empty container for each unique device
-  devices.map((device) => {
+  devices.forEach((device) => {
     const container = {
       name: device,
       views: []
@@ -74,11 +73,11 @@ export function getContainers(viewArray, dataArray) {
     containers.push(container);
   });
   //add each view to the container list
-  viewArray.map((view, viewIndex) => {
+  viewArray.forEach((view, viewIndex) => {
     //find view's referenced data's device
     const device = dataArray[view.references[0]].device;
     //find matching container for device, add view's index.
-    containers.map((container,containerIndex) => {
+    containers.forEach((container,containerIndex) => {
       if (container.name === device) {
         containers[containerIndex].views.push(viewIndex);
       }
@@ -100,12 +99,12 @@ export function createUIObjectFromData(data,name) {
 }
 
 const getUniqueDevices = (data) => {
-  var deviceNames = [];
-  data.map((model) => {
-    if (!deviceNames.includes(model.device)) {
-      deviceNames.push(model.device);
-    }
-  });
+  var deviceNames = 
+    data.map((model) => {
+      if (!deviceNames.includes(model.device)) {
+        return(model.device);
+      }
+    });
   return deviceNames;
 }
 
@@ -114,7 +113,7 @@ const getUniqueDevices = (data) => {
 const MatchDataToComponent = (data) => {
   const dataProps = Object.keys(data.properties);
   var match = {};
-  Components().components.map((component) => {
+  Components().components.forEach((component) => {
     const requiredProps = component.properties.data.required;
     const optionalProps = component.properties.data.optional;
 
