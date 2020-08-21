@@ -27,6 +27,7 @@ namespace Autogen.Controllers
         try
         {
           json_data = w.DownloadString(url);
+                
         }
         catch (Exception) { }
         // if string with JSON data is not empty, deserialize it to class and return its instance 
@@ -80,7 +81,7 @@ namespace Autogen.Controllers
         byte[] data = Encoding.ASCII.GetBytes(command);
         using var client = new WebClient();
         _ = client.UploadData(baseURL + "/download", "PUT", data);
-        result = _download_serialized_json_data<AutogenConfig.Configuration>(baseURL + "/ui");
+        result = _download_serialized_json_data<AutogenConfig.Configuration>(baseURL + "/configuration");
       }
       catch(Exception e)
       {

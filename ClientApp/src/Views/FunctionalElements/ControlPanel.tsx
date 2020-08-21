@@ -113,7 +113,8 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   }
 
   shouldComponentUpdate(nextProps: OpenSpeechProps, nextState: AutoGenState) {
-    if (nextProps.autogen.data.length > 0) {
+    if (nextProps.autogen.data && nextProps.autogen.data.length > 0) {
+      
       return true;
     }
     else if (nextProps.deviceAddress !== this.props.deviceAddress) {
@@ -154,7 +155,9 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   updateModelFromProps = () => {
     async function overwriteModel(controls: ControlPanel) {
-      modelData = controls.props.autogen.data;
+        modelData = controls.props.autogen.data;
+        console.log(modelData)
+        console.log(controls.props.autogen)
       mappedModelData = createDataSubsets(controls.props.autogen, controls.props.autogen.data);
     }
 

@@ -99,12 +99,14 @@ export function createUIObjectFromData(data,name) {
 }
 
 const getUniqueDevices = (data) => {
-  var deviceNames = 
-    data.map((model) => {
-      if (!deviceNames.includes(model.device)) {
-        return(model.device);
+    var deviceNames = []
+
+    data.forEach((model) => {
+        if (!deviceNames.includes(model.device)) {
+          deviceNames.push(model.device);
       }
     });
+
   return deviceNames;
 }
 
