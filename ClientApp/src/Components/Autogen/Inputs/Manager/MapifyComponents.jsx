@@ -112,6 +112,39 @@ const getUniqueDevices = (data) => {
 
 
 
+export function GetCompatibleViews(data, options = {}){
+
+  //CombiningDataProperties
+  var combinedDataProperties = JSON.parse(JSON.stringify(data.properties));
+  if (options) {
+    for (var key of Object.keys(options)) {
+      combinedDataProperties[key] = options[key];
+    }
+  }
+
+  const dataProps = Object.keys(combinedDataProperties);
+  const validViews = GetAllValidViewsFromDataProps(dataProps);
+  return validViews;
+}
+
+
+
+const GetAllValidViewsFromDataProps = (dataProperties) => {
+  var matches = [];
+
+  //Finding Compatible Components
+  Components().components.forEach((component) => {
+    const requiredProps = component.properties.data.required;
+    const viewCompatibility = containsRequiredProps(requiredProps, dataProperties);
+    const defaultVariant = component.variants.length === 0 ? "" : component.variants[0];
+    if (viewCompatibility.match) {
+      matches.push({ component: component.name, variant: defaultVariant });
+    }
+  });
+
+  return matches;
+}
+
 const MatchDataToComponent = (data) => {
   const dataProps = Object.keys(data.properties);
   var match = {};

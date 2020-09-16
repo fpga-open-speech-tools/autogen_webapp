@@ -55,6 +55,7 @@ export class ControlCard extends Component {
                   callback={this.props.callback}
                   indexTrigger={this.props.indexTrigger}
                   editing={getEditInputComponentState(reference)}
+                  options={this.props.options}
                 />
                 <EditViewButton
                   editable={this.props.editable}
@@ -63,6 +64,7 @@ export class ControlCard extends Component {
                   components={this.props.components}
                   data={this.props.data.views[index]}
                   setTargetView={this.props.startViewEditor}
+                  options={this.props.options}
                 />
                 <EditContainerViews
                   editable={this.props.editable}
@@ -104,6 +106,12 @@ const getEditInputComponentState = (index) => {
 }
 
 var EditViewButton = (props) => {
+
+  var options = null;
+  var optionsIndex = null;
+  if (props.view.optionsIndex) {
+    options = props.options[props.view.optionsIndex];
+  }
   if (props.editable) {
     return (
       <div>
@@ -118,7 +126,9 @@ var EditViewButton = (props) => {
               props.viewIndex,
               FetchViewComponentProps(props.view, props.components),
               InputComponent,
-              props.data
+              props.data,
+              options,
+              optionsIndex
             );
           }}
         >
@@ -148,7 +158,7 @@ const EditTitle = (props) => {
     );
   }
   else {
-    return (<h1 className="open-speech-accent-font">{props.title}</h1>);
+    return (<h1 className="open-speech-accent-font-widget">{props.title}</h1>);
   }
 }
 
@@ -283,6 +293,19 @@ const EditPanel = (props) => {
 
 class InputComponent extends Component {
 
+  mergeProps = (a, b) => {
+    if (!b || !a || b === {}) {
+      console.log("Merge Unnecessary");
+      return;
+    }
+    var merge = a.properties;
+    Object.keys(b).forEach((key) => {
+      if (b[key]) {
+        merge[key] = b[key];
+      }
+    });
+  }
+
   shouldComponentUpdate(nextProps) {
     if (this.props.data.indices.includes(nextProps.indexTrigger)) {
       return true;
@@ -302,8 +325,16 @@ class InputComponent extends Component {
     try {
       const dataList = 
       this.props.data.data.map((data) => {
-        return(data.packet);
+        return(JSON.parse(JSON.stringify(data.packet)));
       });
+
+      var forwardOptions;
+      if (this.props.options) {
+        if (this.props.view.optionsIndex) {
+          forwardOptions = this.props.options[this.props.view.optionsIndex];
+          this.mergeProps(dataList[0], forwardOptions);
+        }
+      }
 
       let Component = require('../Inputs/' + this.props.view.type.component).default;
       
@@ -312,6 +343,7 @@ class InputComponent extends Component {
           view={this.props.view}
           data={dataList}
           callback={this.props.callback}
+          options={forwardOptions}
         />
       );
     }
@@ -325,6 +357,8 @@ class InputComponent extends Component {
   }
 
 }
+
+
 
 export default ControlCard;
 

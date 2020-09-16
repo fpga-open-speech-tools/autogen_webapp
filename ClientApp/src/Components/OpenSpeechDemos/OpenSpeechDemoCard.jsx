@@ -3,13 +3,18 @@ import { Row, Col, Button} from "react-bootstrap";
 
 export class OpenSpeechDemoCard extends Component {
   render() {
+
+    const removeUnderscore = (title) => {
+        return(title.replaceAll('_', ' '));
+    }
+
     return (
       <div className={this.props.isSelected} key={this.props.key}>
         <Row>
 
           <div className="open-speech-header open-speech-header-std open-speech-accent-color">
             <div className="float-left">
-            <h1 className="open-speech-accent-font">{this.props.headerTitle}</h1>
+            <h1 className="open-speech-accent-font">{removeUnderscore(this.props.headerTitle)}</h1>
             </div>
             <div className="float-right">
               <div className="btn btn-simple btn-icon btn-white">

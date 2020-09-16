@@ -49,6 +49,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ControlPanel = void 0;
 var React = require("react");
 var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../../Store/OpenSpeechToolsData");
@@ -99,7 +100,7 @@ var ControlPanel = /** @class */ (function (_super) {
             update(_this);
         };
         _this.updateModelData = function (dataPackets) {
-            dataPackets.map(function (packet) {
+            dataPackets.forEach(function (packet) {
                 return (process(_this, packet, modelData));
             });
         };
@@ -182,6 +183,43 @@ var ControlPanel = /** @class */ (function (_super) {
             _this.props.updateAutogenProps(autogen);
             _this.forceUpdate();
         };
+        _this.modifyOption = function (options, index) {
+            var autogen = _this.props.autogen;
+            if (autogen.options) {
+                autogen.options[index] = options;
+            }
+            if (options === {}) {
+                _this.removeOptions(index);
+            }
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+        };
+        _this.addOptions = function (options, viewIndex) {
+            var autogen = _this.props.autogen;
+            if (autogen.options) {
+                if (autogen.views[viewIndex].optionsIndex) {
+                    console.log("Editing view's existing options");
+                    _this.modifyOption(options, autogen.views[viewIndex].optionsIndex);
+                }
+                else {
+                    console.log("adding new options set to view.");
+                    console.log("Options: " + JSON.stringify(options));
+                    var optionsIndex = (autogen.options.push(options) - 1);
+                    autogen.views[viewIndex].optionsIndex = optionsIndex;
+                }
+            }
+            else {
+                console.log("no options detected. Creating object!");
+                autogen.options = [options];
+                autogen.views[viewIndex].optionsIndex = 0;
+            }
+            _this.props.updateAutogenProps(autogen);
+            _this.forceUpdate();
+            if (autogen.views[viewIndex].optionsIndex) {
+                if (autogen.options[autogen.views[viewIndex].optionsIndex])
+                    console.log(JSON.stringify(autogen.options[autogen.views[viewIndex].optionsIndex]));
+            }
+        };
         _this.modifyContainer = function (index, container) {
             var autogen = _this.props.autogen;
             autogen.containers[index] = container;
@@ -221,7 +259,7 @@ var ControlPanel = /** @class */ (function (_super) {
                 return (React.createElement(react_bootstrap_1.Jumbotron, { className: "autogen-effect-name" }, name));
             }
         };
-        _this.startViewEditor = function (enabled, view, index, properties, component, functionalData) {
+        _this.startViewEditor = function (enabled, view, index, properties, component, functionalData, options, optionsIndex) {
             _this.setState({
                 viewEditor: {
                     enabled: enabled,
@@ -229,9 +267,15 @@ var ControlPanel = /** @class */ (function (_super) {
                     index: index,
                     properties: properties,
                     component: component,
-                    functionalData: functionalData
+                    functionalData: functionalData,
+                    options: options,
+                    optionsIndex: optionsIndex
                 }
             });
+            console.log("Starting View Editor. ");
+            if (_this.state.viewEditor.optionsIndex) {
+                console.log("Options Attached to Current View. View[" + index + "] -> options[" + optionsIndex + "] -> " + JSON.stringify(options));
+            }
         };
         _this.closeViewEditor = function () {
             _this.setState({
@@ -241,7 +285,9 @@ var ControlPanel = /** @class */ (function (_super) {
                     index: _this.state.viewEditor.index,
                     properties: _this.state.viewEditor.properties,
                     component: _this.state.viewEditor.component,
-                    functionalData: _this.state.viewEditor.functionalData
+                    functionalData: _this.state.viewEditor.functionalData,
+                    options: _this.state.viewEditor.options,
+                    optionsIndex: _this.state.viewEditor.optionsIndex
                 }
             });
         };
@@ -262,7 +308,9 @@ var ControlPanel = /** @class */ (function (_super) {
                 index: -1,
                 properties: null,
                 component: null,
-                functionalData: null
+                functionalData: null,
+                optionsIndex: null,
+                options: null
             }
         };
         //ActionStore send-handlers.
@@ -288,6 +336,8 @@ var ControlPanel = /** @class */ (function (_super) {
         _this.updateControlPanelName = _this.updateControlPanelName.bind(_this);
         _this.modifyContainer = _this.modifyContainer.bind(_this);
         _this.modifyView = _this.modifyView.bind(_this);
+        _this.modifyOption = _this.modifyOption.bind(_this);
+        _this.addOptions = _this.addOptions.bind(_this);
         _this.startViewEditor = _this.startViewEditor.bind(_this);
         _this.closeViewEditor = _this.closeViewEditor.bind(_this);
         _this.moveContainer = _this.moveContainer.bind(_this);
@@ -295,7 +345,7 @@ var ControlPanel = /** @class */ (function (_super) {
         return _this;
     }
     ControlPanel.prototype.shouldComponentUpdate = function (nextProps, nextState) {
-        if (nextProps.autogen.data.length > 0) {
+        if (nextProps.autogen.data && nextProps.autogen.data.length > 0) {
             return true;
         }
         else if (nextProps.deviceAddress !== this.props.deviceAddress) {
@@ -304,7 +354,9 @@ var ControlPanel = /** @class */ (function (_super) {
         else if (nextState.editable !== this.state.editable) {
             return true;
         }
-        return false;
+        else {
+            return false;
+        }
     };
     ControlPanel.prototype.componentDidMount = function () {
         this.handleRequestUI();
@@ -346,12 +398,20 @@ var ControlPanel = /** @class */ (function (_super) {
             }
         });
     };
+    ControlPanel.prototype.removeOptions = function (optionsIndex) {
+        var autogen = this.props.autogen;
+        if (autogen.options) {
+            autogen.options.splice(optionsIndex, 1);
+        }
+        this.props.updateAutogenProps(autogen);
+        this.forceUpdate();
+    };
     ControlPanel.prototype.createControlPanel = function () {
         var _this = this;
         if (mappedModelData.length < 1) {
             mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
         }
-        else if (this.props.autogen != this.state.autogen) {
+        else if (this.props.autogen !== this.state.autogen) {
             mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
         }
         var effectName = this.props.autogen.name ? this.props.autogen.name : "";
@@ -360,9 +420,9 @@ var ControlPanel = /** @class */ (function (_super) {
             this.controlPanelHeaderTitleControl(effectName),
             React.createElement(react_bootstrap_1.Row, { className: "autogen-pages row" }, this.props.autogen.containers.map(function (container, index) {
                 return React.createElement(React.Fragment, { key: "container-" + index },
-                    React.createElement(ControlCard_jsx_1.default, { indexTrigger: _this.state.dataIndexTrigger, references: container.views, title: container.name, views: _this.props.autogen.views, data: mappedModelData[index], callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateContainer: _this.modifyContainer, components: components, startViewEditor: _this.startViewEditor }));
+                    React.createElement(ControlCard_jsx_1.default, { indexTrigger: _this.state.dataIndexTrigger, references: container.views, title: container.name, views: _this.props.autogen.views, options: _this.props.autogen.options, data: mappedModelData[index], callback: _this.handleInputCommand, editable: _this.state.editable, moveLeft: _this.moveContainer, moveRight: _this.moveContainer, delete: _this.deleteContainer, updateTitle: _this.updateControlCardName, index: index, updateContainer: _this.modifyContainer, components: components, startViewEditor: _this.startViewEditor }));
             })),
-            React.createElement(PopupViewEditor_jsx_1.PopupViewEditor, { viewProps: this.state.viewEditor.properties, data: modelData, functionalData: this.state.viewEditor.functionalData, show: this.state.viewEditor.enabled, index: this.state.viewEditor.index, view: this.state.viewEditor.view, updateView: this.modifyView, component: this.state.viewEditor.component, handleClose: this.closeViewEditor })));
+            React.createElement(PopupViewEditor_jsx_1.PopupViewEditor, { viewProps: this.state.viewEditor.properties, data: modelData, functionalData: this.state.viewEditor.functionalData, show: this.state.viewEditor.enabled, index: this.state.viewEditor.index, view: this.state.viewEditor.view, updateView: this.modifyView, component: this.state.viewEditor.component, handleClose: this.closeViewEditor, updateOptions: this.modifyOption, addOptions: this.addOptions, options: this.state.viewEditor.options, componentLibs: components })));
     };
     ControlPanel.prototype.render = function () {
         return (React.createElement("div", { className: "content" },
@@ -429,11 +489,11 @@ function process(controls, packet, oldModel) {
 }
 function createDataSubsets(autogen, modelData) {
     var map = [];
-    autogen.containers.map(function (container) {
+    autogen.containers.forEach(function (container) {
         var subset = { indices: [], views: [] }; //assign a data subset for each container.
-        container.views.map(function (viewIndex) {
+        container.views.forEach(function (viewIndex) {
             var viewData = { indices: [], data: [] }; //Assign empty data array for each view.
-            autogen.views[viewIndex].references.map(function (dataIndex) {
+            autogen.views[viewIndex].references.forEach(function (dataIndex) {
                 var currentData = { index: dataIndex, packet: modelData[dataIndex] };
                 viewData.data.push(currentData);
                 viewData.indices.push(dataIndex);
@@ -448,11 +508,11 @@ function createDataSubsets(autogen, modelData) {
 function updateDataSubsetValues(packet, map) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            map.map(function (subset) {
+            map.forEach(function (subset) {
                 if (subset.indices.includes(packet.index)) {
-                    subset.views.map(function (view) {
+                    subset.views.forEach(function (view) {
                         if (view.indices.includes(packet.index)) {
-                            view.data.map(function (data) {
+                            view.data.forEach(function (data) {
                                 if (data.index === packet.index) {
                                     data.packet.value = packet.value;
                                 }

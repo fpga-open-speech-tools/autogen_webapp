@@ -13,6 +13,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AvailableDemos = void 0;
 var React = require("react");
 var react_redux_1 = require("react-redux");
 var OpenSpeechDataStore = require("../../Store/OpenSpeechToolsData");

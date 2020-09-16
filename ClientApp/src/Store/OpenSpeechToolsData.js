@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.reducer = exports.openSpeechDataActionCreators = void 0;
 function appendAddressToForm(data, address) {
     data.append('ip1', address.ipAddress.ip1);
     data.append('ip2', address.ipAddress.ip2);
@@ -116,7 +117,7 @@ var emptyAutogen = {
 // ----------------
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 var unloadedState = {
-    deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '0', ip4: '120' }, port: '3355' },
+    deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '1', ip4: '161' }, port: '3355' },
     autogen: emptyAutogen,
     newAutogen: false,
     availableDemos: [],

@@ -55,6 +55,7 @@ export interface Autogen {
   views: ComponentView[];
   data: ModelData[];
   containers: AutogenContainer[];
+  options?: Options[];
   //properties: ViewProperties;
 }
 
@@ -67,6 +68,7 @@ export interface ComponentView {
   name: string;
   type: AutogenComponent;
   references: number[];
+  optionsIndex?: number;
 }
 
 export interface AutogenComponent {
@@ -95,6 +97,19 @@ export interface DataProperties {
 export interface DataPacket {
   index: number;
   value: number | number[] | string | string[];
+}
+
+export interface Options {
+  min?: number | undefined | null;
+  max?: number | undefined | null;
+  step?: number | undefined | null;
+  units?: string | undefined | null;
+  enumerations?: EnumerationOption[];
+}
+
+export interface EnumerationOption {
+  key: any;
+  value: any;
 }
 
 
@@ -316,7 +331,7 @@ const emptyAutogen = {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
-  deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '0', ip4: '120' }, port: '3355' },
+  deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '1', ip4: '161' }, port: '3355' },
   autogen: emptyAutogen,
   newAutogen: false,
   availableDemos: [],

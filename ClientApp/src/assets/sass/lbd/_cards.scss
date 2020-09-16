@@ -518,13 +518,24 @@ td .content {
 
 .open-speech-accent-font{
   color:aliceblue;
-  font-size: 2em;
-  margin-top:7px;
+  font-size: 1.6em;
+  margin-top:3px;
   margin-left:5px;
   margin-bottom:3px;
   text-align:left;
   height:100%;
   font-weight:400;
+}
+
+.open-speech-accent-font-widget {
+  color: aliceblue;
+  font-size: 2em;
+  margin-top: 7px;
+  margin-left: 5px;
+  margin-bottom: 3px;
+  text-align: left;
+  height: 100%;
+  font-weight: 400;
 }
 
 .open-speech-accent-icon {
@@ -557,7 +568,7 @@ td .content {
 
 .open-speech-header-std {
   width: 100%;
-  height: 40px;
+  height: 45px;
   overflow: hidden;
   border-radius: 3px;
   box-shadow: 0px 3px 8px grey;

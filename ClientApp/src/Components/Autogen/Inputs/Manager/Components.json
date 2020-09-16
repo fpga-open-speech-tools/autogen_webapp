@@ -13,10 +13,21 @@
     },
     {
       "name": "Toggle",
-      "variants": ["standard"],
+      "variants": [ "standard" ],
       "properties": {
         "data": {
           "required": [ "enumeration" ],
+          "optional": [],
+          "type": "number"
+        }
+      }
+    },
+    {
+      "name": "RadioToggle",
+      "variants": [ "standard" ],
+      "properties": {
+        "data": {
+          "required": [ "enumerations" ],
           "optional": [],
           "type": "number"
         }

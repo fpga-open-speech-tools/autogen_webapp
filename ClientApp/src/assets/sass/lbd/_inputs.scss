@@ -181,3 +181,41 @@
   width:auto!important;
   flex-grow:2;
 }
+
+.enumeration-editor-form{
+  display:flex;
+
+}
+
+.enumeration-editor-key{
+
+
+}
+
+.enumeration-editor-value{
+
+
+}
+
+.option-editor-single{
+  display:flex;
+  flex-direction:column;
+}
+
+.option-editor{
+  display:flex;
+  flex-direction:column;
+  overflow:auto;
+}
+
+.expand-me{
+ // overflow:auto;
+}
+
+.fit-right{
+  float:right;
+}
+
+.fit-left{
+  float:left;
+}
