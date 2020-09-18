@@ -1,4 +1,4 @@
-import React, { Component} from "react";
+import React, { Component } from "react";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 
 //Objective: 
@@ -17,8 +17,8 @@ const containsRequiredProps = (requiredProps, dataProps) => {
   var obj = {
     match: true,
     count: 0,
-    remainingProps:dataProps.length
-    };
+    remainingProps: dataProps.length
+  };
 
   requiredProps.forEach((currentProp) => {
     if (!dataProps.includes(currentProp)) {
@@ -35,7 +35,7 @@ const containsRequiredProps = (requiredProps, dataProps) => {
 const checkOptionalProps = (optionalProps, dataProps) => {
   var obj = {
     count: 0,
-    matches:[]
+    matches: []
   };
   optionalProps.forEach((currentProp) => {
     if (dataProps.includes(currentProp)) {
@@ -46,15 +46,28 @@ const checkOptionalProps = (optionalProps, dataProps) => {
   return obj;
 }
 
-export function getViewsFromData(modelDataArray) {
+export function getViewsFromData(modelDataArray, options) {
   var views = modelDataArray.map((modelData, index) => {
+    var optionsIndex;
+    if (options && options !== {}) {
+      options.forEach((option) => {
+        if (option.data) {
+          option.data.forEach((dataIndex) => {
+            if (dataIndex === index) {
+              optionsIndex = dataIndex;
+            }
+          });
+        }
+      });
+    }
     const component = MatchDataToComponent(modelData);
     const view = {
       name: modelData.name,
       type: component,
-      references:[index]
+      references: [index],
+      optionsIndex: optionsIndex,
     };
-    return(view);
+    return (view);
   });
   return views;
 }
@@ -77,7 +90,7 @@ export function getContainers(viewArray, dataArray) {
     //find view's referenced data's device
     const device = dataArray[view.references[0]].device;
     //find matching container for device, add view's index.
-    containers.forEach((container,containerIndex) => {
+    containers.forEach((container, containerIndex) => {
       if (container.name === device) {
         containers[containerIndex].views.push(viewIndex);
       }
@@ -86,12 +99,13 @@ export function getContainers(viewArray, dataArray) {
   return containers;
 }
 
-export function createUIObjectFromData(data,name) {
-  const views = getViewsFromData(data);
+export function createUIObjectFromData(data, options, name) {
+  const views = getViewsFromData(data, options);
   const containers = getContainers(views, data);
   const autogenObject = {
     name: name,
     views: views,
+    options: options,
     data: data,
     containers: containers
   };
@@ -99,23 +113,25 @@ export function createUIObjectFromData(data,name) {
 }
 
 const getUniqueDevices = (data) => {
-    var deviceNames = []
+  var deviceNames = [];
 
-    data.forEach((model) => {
-        if (!deviceNames.includes(model.device)) {
-          deviceNames.push(model.device);
-      }
-    });
+  data.forEach((model) => {
+    if (!deviceNames.includes(model.device)) {
+      deviceNames.push(model.device);
+    }
+  });
 
   return deviceNames;
 }
 
 
 
-export function GetCompatibleViews(data, options = {}){
+export function GetCompatibleViews(data, options) {
 
   //CombiningDataProperties
   var combinedDataProperties = JSON.parse(JSON.stringify(data.properties));
+  console.log(JSON.stringify(combinedDataProperties));
+  console.log(JSON.stringify(options));
   if (options) {
     for (var key of Object.keys(options)) {
       combinedDataProperties[key] = options[key];
@@ -157,7 +173,7 @@ const MatchDataToComponent = (data) => {
     //const optionalMatches = checkOptionalProps(optionalProps, dataProps);
     if (checkMatch.match) {
       match = { component: component.name, variant: defaultVariant };
-     // match = component.name;
+      // match = component.name;
     }
 
   });
@@ -177,10 +193,10 @@ export function RemoveViewFromContainer(autogen, container, containerIndex, item
   return autogen;
 }
 
-export function GetAutogenObjectFromData(data, name) {
-  const autogen = { name: "", views: [], data: data, containers: [] };
+export function GetAutogenObjectFromData(data, options, name) {
+  const autogen = { name: "", views: [], options: options, data: data, containers: [] };
   if (data.length > 0) {
-    var obj = createUIObjectFromData(data, name);
+    var obj = createUIObjectFromData(data, options, name);
     autogen.name = obj.name;
     autogen.views = obj.views;
     autogen.containers = obj.containers;
@@ -198,8 +214,8 @@ export class MapifyComponents extends Component {
 
   MapComponents = () => {
     const autogen = { name: "", views: [], data: this.props.data, containers: [] };
-    if (this.props.data.length>0) {
-      var obj = createUIObjectFromData(this.props.data, this.props.name);
+    if (this.props.data.length > 0) {
+      var obj = createUIObjectFromData(this.props.data, this.props.options, this.props.name);
       autogen.name = obj.name;
       autogen.views = obj.views;
       autogen.containers = obj.containers;
@@ -207,12 +223,12 @@ export class MapifyComponents extends Component {
     return JSON.stringify(autogen);
   }
 
-  render(){
+  render() {
     return (
-       <div> 
+      <div>
         {this.MapComponents()}
-       </div>
-      );
+      </div>
+    );
   }
 
 }

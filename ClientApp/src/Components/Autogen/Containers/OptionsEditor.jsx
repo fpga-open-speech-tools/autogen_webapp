@@ -19,7 +19,7 @@ export class OptionsEditor extends Component{
   }
 
   componentWillReceiveProps() {
-    if (this.props.viewOptionsIndex) {
+    if (this.props.viewOptionsIndex !== undefined && this.props.viewOptionsIndex !== null) {
       if (this.props.options) {
         if (this.props.options != this.state.options) {
           this.setState({ options: this.props.options });
@@ -32,7 +32,7 @@ export class OptionsEditor extends Component{
   }
 
   handleUpdateOption(newOptionKey, newOptionValue) {
-    if (this.props.options && this.props.viewOptionsIndex) {
+    if (this.props.options && this.props.viewOptionsIndex !== undefined && this.props.viewOptionsIndex !== null) {
       var optionUpdate = this.props.options;
       optionUpdate[newOptionKey] = newOptionValue;
       this.setState({ options: optionUpdate });
@@ -50,7 +50,7 @@ export class OptionsEditor extends Component{
   }
 
   handleRemoveOption(optionKey) {
-    if (this.props.options && this.props.viewOptionsIndex) {
+    if (this.props.options && this.props.viewOptionsIndex !== undefined && this.props.viewOptionsIndex !== null) {
       var optionUpdate = this.props.options;
       delete optionUpdate[optionKey];
       this.setState({ options: optionUpdate });
@@ -62,6 +62,8 @@ export class OptionsEditor extends Component{
 
 
   render = () => {
+    console.log("Options Editor Rendering");
+    console.log(JSON.stringify(this.props.options));
     return (
       <div className="option-editor">
         <Form>

@@ -241,7 +241,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   fixEdit = () => {
     this.setState({ editable: false });
-    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.name), this.handleRequestUI);
+    this.props.requestSendAutogenConfiguration(this.props.deviceAddress, GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.options, this.props.autogen.name), this.handleRequestUI);
   }
 
   controlEditable = () => {

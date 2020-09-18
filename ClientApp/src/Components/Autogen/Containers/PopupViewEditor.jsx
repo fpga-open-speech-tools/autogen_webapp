@@ -42,6 +42,7 @@ export class PopupViewEditor extends Component {
   }
 
   handleOnShow = () => {
+    if (this.props.view.optionsIndex) { this.setState({ optionsIndex: this.props.view.optionsIndex }); }
     this.setState({ v: this.props.view, o: this.props.options });
     this.setState({ initialV: this.props.view, initialO:this.props.options});
     this.forceUpdate();

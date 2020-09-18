@@ -100,6 +100,7 @@ export interface DataPacket {
 }
 
 export interface Options {
+  data?: number[];
   min?: number | undefined | null;
   max?: number | undefined | null;
   step?: number | undefined | null;
