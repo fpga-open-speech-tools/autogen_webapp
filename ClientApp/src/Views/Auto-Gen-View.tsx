@@ -6,7 +6,7 @@ import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
 import { ApplicationState } from '..';
 
 import { ControlPanel } from './FunctionalElements/ControlPanel';
-import { AvailableDemos } from './FunctionalElements/AutoGenDemos';
+import { AvailableDemos } from './FunctionalElements/AutogenDemos';
 import { AddressManager } from './FunctionalElements/AutoGenDeviceAddress';
 
 // At runtime, Redux will merge together...

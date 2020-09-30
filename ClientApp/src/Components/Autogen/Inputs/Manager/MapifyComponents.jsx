@@ -54,13 +54,15 @@ export function getViewsFromData(modelDataArray, options) {
         if (option.data) {
           option.data.forEach((dataIndex) => {
             if (dataIndex === index) {
+              console.log("Has Options!");
               optionsIndex = dataIndex;
             }
           });
         }
       });
     }
-    const component = MatchDataToComponent(modelData);
+    const combinedProps = combineDataAndOptions(modelData,options,index);
+    const component = MatchDataToComponent(combinedProps);
     const view = {
       name: modelData.name,
       type: component,
@@ -70,6 +72,24 @@ export function getViewsFromData(modelDataArray, options) {
     return (view);
   });
   return views;
+}
+
+function combineDataAndOptions(data,options,index){
+  var updatedData = JSON.parse(JSON.stringify(data));
+  options.forEach((option)=>{
+    if(option.data){
+      option.data.forEach((dataIndex)=>{
+        if(dataIndex===index){
+          Object.keys(option).forEach((key)=>{
+            if(key!=="data"){
+              updatedData.properties[key] = option[key];
+            }
+          });
+        }
+      });
+    }
+  });
+  return updatedData;
 }
 
 export function getContainers(viewArray, dataArray) {
@@ -130,8 +150,6 @@ export function GetCompatibleViews(data, options) {
 
   //CombiningDataProperties
   var combinedDataProperties = JSON.parse(JSON.stringify(data.properties));
-  console.log(JSON.stringify(combinedDataProperties));
-  console.log(JSON.stringify(options));
   if (options) {
     for (var key of Object.keys(options)) {
       combinedDataProperties[key] = options[key];
@@ -170,10 +188,8 @@ const MatchDataToComponent = (data) => {
 
     const checkMatch = containsRequiredProps(requiredProps, dataProps);
     var defaultVariant = component.variants.length === 0 ? "" : component.variants[0];
-    //const optionalMatches = checkOptionalProps(optionalProps, dataProps);
     if (checkMatch.match) {
       match = { component: component.name, variant: defaultVariant };
-      // match = component.name;
     }
 
   });

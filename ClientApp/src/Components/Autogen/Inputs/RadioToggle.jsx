@@ -1,5 +1,5 @@
 ﻿import React, { Component } from "react";
-import { ToggleButton, ToggleButtonGroup } from "react-bootstrap";
+import { ToggleButton, ToggleButtonGroup, Row, Col } from "react-bootstrap";
 
 
 export class Toggle extends Component {
@@ -46,6 +46,7 @@ export class Toggle extends Component {
   generateButton = (key, val) => {
     return (
       <ToggleButton
+        key={key}
         onClick={() => {
           this.setState({ currentValue: val });
           this.props.callback(this.generatePayload(val));
@@ -62,6 +63,11 @@ export class Toggle extends Component {
 
     return (
       <div className="autogen autogen-toggle">
+        <Row className="centered-row">
+          <Col sm={12} md={12} lg={12} className="autogen-control-name">
+            {this.props.view.name}
+          </Col>
+        </Row>
         <ToggleButtonGroup
           type="radio" name="options"
           value={this.state.currentValue}>

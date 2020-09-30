@@ -4,7 +4,8 @@ import { Button, Modal, ListGroup, Col, Form, Card } from "react-bootstrap";
 export class EnumerationCreator extends Component {
   constructor(props) {
     super(props);
-    this.enums = [];
+    //this.enums = [];
+    this.state = {enums:[]}
 
     this.editEnumByIndex = this.editEnumByIndex.bind(this);
     this.addNewEnum = this.addNewEnum.bind(this);
@@ -12,34 +13,40 @@ export class EnumerationCreator extends Component {
 
   componentDidMount() {
     if (this.props.enums) {
-      this.enums = this.props.enums;
+      //this.enums = this.props.enums;
+      this.setState({enums:this.props.enums});
     }
   }
 
   editEnumByIndex = (key,value,index) => {
-    this.enums[index] = { key: key, value: value };
+    //this.enums[index] = { key: key, value: value };
+    var enums = this.state.enums;
+    enums[index] = {key:key,value:value};
+    this.setState({enums:enums});
     this.triggerCallback();
     this.forceUpdate();
   }
 
   addNewEnum = (key, value) => {
-    this.enums.push({ key: key, value: value });
+    var enums = this.state.enums;
+    enums.push({ key: key, value: value });
+    this.setState({enums:enums});
     this.triggerCallback();
     this.forceUpdate();
   }
 
   triggerCallback = () => {
-    this.props.callback("enumerations",this.enums);
+    this.props.callback("enumerations",this.state.enums);
   }
 
 
   render() {
       return (
         <Card>
-          {this.enums.map((kv, index) => {
+          {this.state.enums.map((kv, index) => {
             return (
               <EnumForm
-                key={"k-" + this.props.name + "-v-" + this.props.value}
+                key={index}// this.props.name + "-v-" + this.props.value}
                 name={kv.key}
                 value={kv.value}
                 index={index}

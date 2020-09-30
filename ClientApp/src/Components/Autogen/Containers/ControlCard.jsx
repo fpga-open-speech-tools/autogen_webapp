@@ -110,14 +110,8 @@ var EditViewButton = (props) => {
   var options = null;
   var optionsIndex = null;
   if (props.view.optionsIndex !== undefined) {
-    console.log("View Contained View Index!");
-    console.log(JSON.stringify(props.view));
     options = props.options[props.view.optionsIndex];
     optionsIndex = props.view.optionsIndex;
-  }
-  else {
-    console.log("View Did not Contain a View Index!");
-    console.log(JSON.stringify(props.view));
   }
 
   if (props.editable) {
@@ -299,7 +293,7 @@ const EditPanel = (props) => {
   }
 }
 
-class InputComponent extends Component {
+export class InputComponent extends Component {
 
   mergeProps = (a, b) => {
     if (!b || !a || b === {}) {
@@ -340,7 +334,10 @@ class InputComponent extends Component {
         forwardOptions = this.props.options[this.props.view.optionsIndex];
         this.mergeProps(dataList[0], forwardOptions);
       }
-
+      else if(this.props.indexedOptions){
+        this.mergeProps(dataList[0],this.props.indexedOptions);
+        forwardOptions=this.props.indexedOptions;
+      }
       let Component = require('../Inputs/' + this.props.view.type.component).default;
       
       return (

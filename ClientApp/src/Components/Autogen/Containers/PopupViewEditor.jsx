@@ -86,16 +86,16 @@ export class PopupViewEditor extends Component {
     viewEdit.type.component = comp;
     viewEdit.type.variant = variant;
     console.log("Updating View Component!");
-    console.log(JSON.stringify(viewEdit));
+    //console.log(JSON.stringify(viewEdit));
   }
  
 
 
   render() {
     if (this.props.show) {
-      console.log("Popup View Editor State, Props: \n" + 
-        "State [Options]: " + JSON.stringify(this.state.o) + "\n" +
-        "Props [Options]: " + JSON.stringify(this.props.options) + "\n");
+      // console.log("Popup View Editor State, Props: \n" + 
+      //   "State [Options]: " + JSON.stringify(this.state.o) + "\n" +
+      //   "Props [Options]: " + JSON.stringify(this.props.options) + "\n");
       return (
         <>
           <Modal
@@ -178,6 +178,7 @@ export class PopupViewEditor extends Component {
                       view={this.props.view}
                       editing={true}
                       data={this.props.functionalData}
+                      indexedOptions={this.props.options}
                       callback={() => { }} />
                   </div></div></div>
               <Button

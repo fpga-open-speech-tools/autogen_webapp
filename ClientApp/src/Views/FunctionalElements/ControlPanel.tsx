@@ -7,7 +7,7 @@ import {
   Container, Row, Button, Jumbotron, Modal, Form
 } from "react-bootstrap";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
-import ControlCard from "../../Components/Autogen/Containers/ControlCard.jsx";
+import ControlCard  from "../../Components/Autogen/Containers/ControlCard.jsx";
 import { ModelDataClient } from '../../SignalR/ModelDataClient';
 import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
 import { PopupViewEditor } from "../../Components/Autogen/Containers/PopupViewEditor.jsx";
@@ -354,7 +354,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
       }
       else {
         console.log("adding new options set to view.");
-        console.log("Options: " + JSON.stringify(options));
         var optionsIndex = (autogen.options.push(options) - 1) as number;
         autogen.views[viewIndex].optionsIndex = optionsIndex;
       }

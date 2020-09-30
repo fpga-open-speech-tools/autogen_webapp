@@ -7,7 +7,7 @@ import EnumerationCreator from "./EnumerationCreator";
 export class OptionsEditor extends Component{
   constructor(props) {
     super(props);
-    this.keys = ["min", "max", "step", "units", "enumerations"];
+    this.keys = ["min", "max", "step", "units"];
     this.types = ["float", "float", "float", "string", "kvp"];
     this.state = {
       options: null,
@@ -36,11 +36,9 @@ export class OptionsEditor extends Component{
       var optionUpdate = this.props.options;
       optionUpdate[newOptionKey] = newOptionValue;
       this.setState({ options: optionUpdate });
-      console.log("Modifying");
       this.props.modifyOptionCallback(optionUpdate, this.props.viewOptionsIndex);
     }
     else {
-      console.log("Adding");
       var optionUpdate = {};
       optionUpdate[newOptionKey] = newOptionValue;
       this.setState({ options: optionUpdate });;
@@ -62,8 +60,6 @@ export class OptionsEditor extends Component{
 
 
   render = () => {
-    console.log("Options Editor Rendering");
-    console.log(JSON.stringify(this.props.options));
     return (
       <div className="option-editor">
         <Form>
@@ -77,12 +73,72 @@ export class OptionsEditor extends Component{
           options={this.props.options}
         />
         </Form>
+        <EnumerationPopulator 
+          key={this.props.viewIndex + "-enums"}
+          callback={this.handleUpdateOption} 
+          options={this.props.options}
+        />
       </div>
     );
   }
 }
 
+class EnumerationPopulator extends Component {
+  constructor(props){
+    super(props);
+    this.state = {enums:[], renderAddButton:true};
+  }
 
+  componentDidUpdate(){
+    if(this.props.options){
+      if(this.props.options.enumerations){
+        if(this.state.renderAddButton){
+          this.setState({renderAddButton:false});
+        }
+        if(this.state.enums !== this.props.options.enumerations){
+          this.setState({
+            enums:this.props.options.enumerations,
+            renderAddButton: false
+          });
+
+        }
+      }
+    }
+    else{
+      if(!this.state.renderAddButton){
+        this.setState({renderAddButton:true});
+      }
+    }
+  }
+
+  render(){
+    if(this.state.renderAddButton){
+      return(
+        <div>
+          <Button
+            variant="primary"
+            className="btn-simple btn-icon"
+            onClick={() => {
+              this.props.callback("enumerations", [{key:"",value:""}]);
+              this.setState({enums:[{key:"",value:""}]});
+            }}
+          >
+            <i className="fas fa-plus large-icon" />
+
+          </Button>
+            Add Enumerations
+        </div>
+      );
+    }
+    else{
+      return(
+      <EnumerationCreator 
+        enums={this.state.enums} 
+        callback={this.props.callback}
+      />);
+    }
+  }
+}
 
 class OptionField extends Component {
 
@@ -111,10 +167,7 @@ class OptionField extends Component {
       if (this.props.options[this.props.option] !== undefined) {
         if (this.props.option === "enumerations") {
           return (
-            <EnumerationCreator
-              callback={this.props.handleUpdate}
-              enums={this.props.options[this.props.option]}
-            />
+            <></>
             );
         }
         else {
@@ -192,7 +245,7 @@ class PopulateOptions extends Component{
       this.props.keys.map((key,index) => {
         return (
           <OptionField
-            key={key}//"k-"+key+"-vi-"+this.props.viewIndex}
+            key={key}
             type={this.props.types[index]}
             option={key}
             viewIndex={this.props.viewIndex}
