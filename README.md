@@ -6,17 +6,17 @@ Web Application  (Server + Client) In ASP.net | Server Code-> C# | Client -> Typ
 ```
 $ dotnet publish -c Debug -r linux-arm
 ```
-- Copy debug build directory, <Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publish to device. 
+- Copy debug build directory (<Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publish) to device. 
   
-- Add executable permissions to program.
+- Add executable permissions to program on the device.
   
 ```
- $ chmod +x <Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publish/OpenSpeechTools 
+ $ chmod +x <location-of-webapp>/OpenSpeechTools 
 ```
 
 - Change Directory to Executable location, Run.
 ```
-$ cd client-webapp
+$ cd <location-of-webapp>
 $ ./OpenSpeechTools
 ```
 **Note:** The web application uses relative pathing, so the program must be run from the directory it's located in to properly serve the web application.
