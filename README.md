@@ -7,6 +7,12 @@ Web Application  (Server + Client) In ASP.net | Server Code-> C# | Client -> Typ
 $ dotnet publish -c Debug -r linux-arm
 ```
 - Copy debug build directory, <Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publish to device. 
+  
+- Add executable permissions to program.
+  
+```
+ $ chmod +x <Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publishOpenSpeechTools 
+```
 
 - Change Directory to Executable location, Run.
 ```
