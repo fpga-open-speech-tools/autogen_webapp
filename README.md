@@ -11,7 +11,7 @@ $ dotnet publish -c Debug -r linux-arm
 - Add executable permissions to program.
   
 ```
- $ chmod +x <Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publishOpenSpeechTools 
+ $ chmod +x <Project-Folder>/bin/Debug/netcoreapp3.1/linux-arm/publish/OpenSpeechTools 
 ```
 
 - Change Directory to Executable location, Run.
