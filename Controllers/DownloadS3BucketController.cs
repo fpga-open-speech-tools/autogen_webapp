@@ -85,6 +85,7 @@ namespace Autogen.Controllers
       }
       catch(Exception e)
       {
+        System.Diagnostics.Debug.WriteLine(e);
         result = new AutogenConfig.Configuration()
         {
           name = "Demo Upload Failed"

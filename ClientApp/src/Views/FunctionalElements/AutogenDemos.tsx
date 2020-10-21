@@ -1,16 +1,16 @@
-
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../../Store/OpenSpeechToolsData';
 import { ApplicationState } from '../..';
 import {
-  Container, Row, Col, InputGroup,
+  Container, Row, Form, Col, InputGroup,
   FormControl, Button, Spinner,
   Card, Jumbotron, Modal
 } from "react-bootstrap";
 import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
+import {getDemos} from "../GetDemos.js";
 
 
 // At runtime, Redux will merge together...
@@ -22,7 +22,8 @@ type OpenSpeechProps =
 export interface AutoGenState {
   downloadStatus: DownloadStatus,
   autogen: Autogen,
-  notification: Notification
+  notification: Notification,
+  form: S3Form
 }
 
 interface DownloadStatus {
@@ -37,6 +38,10 @@ interface Autogen {
 interface Notification {
   text: string,
   level: string
+}
+
+interface S3Form {
+  s3_bucket : string
 }
 
 export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenState>{
@@ -57,6 +62,10 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
 
       autogen: {
         name: ""
+      },
+
+      form: {
+        s3_bucket: "nih-demos"
       }
 
     };
@@ -90,7 +99,20 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
     });
   }
 
+  handleChange(event:any) {
+    let fieldName = event.target.name;
+    let fleldVal = event.target.value;
+    this.setState({form: {...this.state.form, [fieldName]: fleldVal}})
+  }
+
+  
+
   render() {
+
+    function handleDemos(array:any){
+      console.log(array as any);
+    }
+    getDemos(this.state.form.s3_bucket, handleDemos);
 
       function animateDownloadStatus(state: AutoGenState, props:OpenSpeechProps, projectID: string) {
       if (props.isDeviceDownloading === true) {
@@ -157,6 +179,13 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
                 <Modal.Title>Available Demos</Modal.Title>
               </Modal.Header>
               <Modal.Body>
+              <FormControl 
+                type='text'
+                name='s3_bucket' 
+                placeholder='enter' 
+                defaultValue={this.state.form.s3_bucket}
+                onChange={this.handleChange.bind(this)}
+              />
                 <Row className="autogen-pages">
             {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
               <React.Fragment key = { d.name }>
