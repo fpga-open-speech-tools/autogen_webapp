@@ -49,19 +49,27 @@ const checkOptionalProps = (optionalProps, dataProps) => {
 export function getViewsFromData(modelDataArray, options) {
   var views = modelDataArray.map((modelData, index) => {
     var optionsIndex;
-    if (options && options !== {}) {
-      options.forEach((option) => {
-        if (option.data) {
-          option.data.forEach((dataIndex) => {
-            if (dataIndex === index) {
-              console.log("Has Options!");
-              optionsIndex = dataIndex;
-            }
-          });
-        }
-      });
+    if(options){
+      if (options && options !== {}) {
+        options.forEach((option) => {
+          if (option.data) {
+            option.data.forEach((dataIndex) => {
+              if (dataIndex === index) {
+                console.log("Has Options!");
+                optionsIndex = dataIndex;
+              }
+            });
+          }
+        });
+      }
+   }
+    var combinedProps;
+    if(options){
+       combinedProps = combineDataAndOptions(modelData,options,index);
     }
-    const combinedProps = combineDataAndOptions(modelData,options,index);
+    else{
+       combinedProps = modelData;
+    }
     const component = MatchDataToComponent(combinedProps);
     const view = {
       name: modelData.name,

@@ -122,7 +122,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   shouldComponentUpdate(nextProps: OpenSpeechProps, nextState: AutoGenState) {
     if (nextProps.autogen.data && nextProps.autogen.data.length > 0) {
-      
       return true;
     }
     else if (nextProps.deviceAddress !== this.props.deviceAddress) {
@@ -150,6 +149,11 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         this.updateModelFromProps();
       }
       this.setState({ autogen: this.props.autogen });
+      if(this.props.autogen.views.length === 0 && this.props.autogen.containers.length === 0){
+        if(this.props.autogen.data.length !== 0){
+          this.fixEdit();
+        }
+      }
     }
   }
 
@@ -526,7 +530,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         <Container fluid>
           <Row>
             <Modal.Dialog>
-              <Modal.Header><Modal.Title className="float-left">Controls</Modal.Title>
+              <Modal.Header><Modal.Title className="float-left">22Controls22</Modal.Title>
                 {this.controlEditable()}
                 <div className="float-right">
                 <Button

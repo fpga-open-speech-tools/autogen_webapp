@@ -3,15 +3,12 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../../Store/OpenSpeechToolsData';
 import { ApplicationState } from '../..';
-import {
-  Container, Row, Form, Col, InputGroup,
-  FormControl, Button, Spinner,
-  Card, Jumbotron, Modal
+import 
+{
+  Container, Row, Form, Spinner, Modal, Tab, Nav, Col
 } from "react-bootstrap";
 import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
-import {getDemos} from "../GetDemos.js";
-
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -19,11 +16,13 @@ type OpenSpeechProps =
   & typeof OpenSpeechDataStore.openSpeechDataActionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
-export interface AutoGenState {
+export interface AvailableDemosState {
   downloadStatus: DownloadStatus,
   autogen: Autogen,
   notification: Notification,
-  form: S3Form
+  form: S3Form,
+  currentDevice:string,
+  loadingDemos : boolean,
 }
 
 interface DownloadStatus {
@@ -44,7 +43,7 @@ interface S3Form {
   s3_bucket : string
 }
 
-export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenState>{
+export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AvailableDemosState>{
 
   constructor(props: OpenSpeechProps) {
     super(props);
@@ -66,21 +65,34 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
 
       form: {
         s3_bucket: "nih-demos"
-      }
+      },
+      currentDevice:"",
+      loadingDemos:false,
 
     };
 
 
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
     this.setNotification = this.setNotification.bind(this);
+    this.setCurrentDevice = this.setCurrentDevice.bind(this);
   }
 
 
   componentDidMount() {
-    this.props.requestOpenSpeechS3Demos();
+    this.props.requestOpenSpeechS3Demos('nih-demos');
+    this.setState({loadingDemos:true});
   }
  
-
+  componentDidUpdate(){
+    if(this.props.availableDemos.length > 0 && this.state.currentDevice == ""){
+      this.setState({loadingDemos:false});
+      if(this.props.availableDemos[0].name){
+        if(this.props.availableDemos[0].name != this.state.currentDevice){
+          this.setState({currentDevice:this.props.availableDemos[0].name});
+        }
+      }
+    }
+  }
 
 
   handleDownloadDemo(device:string,project:string) {
@@ -99,6 +111,10 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
     });
   }
 
+  setCurrentDevice(device_name:string){
+    this.setState({currentDevice:device_name});
+  }
+
   handleChange(event:any) {
     let fieldName = event.target.name;
     let fleldVal = event.target.value;
@@ -108,13 +124,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
   
 
   render() {
-
-    function handleDemos(array:any){
-      console.log(array as any);
-    }
-    getDemos(this.state.form.s3_bucket, handleDemos);
-
-      function animateDownloadStatus(state: AutoGenState, props:OpenSpeechProps, projectID: string) {
+      function animateDownloadStatus(state: AvailableDemosState, props:OpenSpeechProps, projectID: string) {
       if (props.isDeviceDownloading === true) {
         if (state.autogen.name === projectID) {
           return (
@@ -142,7 +152,7 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
 
     //Would like to rewrite this to better consider properties of selection. 
     //Currently, takes into account ui return, selected projectID and object, as well as determines if downloading.
-     function highlightIfDownloaded(state: AutoGenState, props: OpenSpeechProps, projectID: string) {
+     function highlightIfDownloaded(state: AvailableDemosState, props: OpenSpeechProps, projectID: string) {
       if (!props.isDeviceDownloading) {
         if (props.currentDemo === projectID) {
           if (props.autogen) {
@@ -164,6 +174,60 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
       }//[End] Device IS downloading
     }//[end]highlightIfDownloaded
 
+    function ProjectCards(cl:AvailableDemos,d:any){
+      return(
+        d.projects.map((proj:any)=>
+        <React.Fragment key = {proj.name}>
+          <OpenSpeechDemoCard
+            isSelected={highlightIfDownloaded(cl.state,cl.props,proj.name)}
+            isDownloading={animateDownloadStatus(cl.state,cl.props,proj.name)}
+            downloadDevice={d.name}
+            downloadProject={proj.name}
+            headerTitle={proj.name}
+            callback={cl.handleDownloadDemo}
+            statsValue={(proj.size/1000000).toFixed(2) + "MB"}
+            statsIcon={<i className="fa fa-folder-o" />}
+            statsIconText={d.name + "/" + proj.name}
+          />
+        </React.Fragment>
+      ));
+    }
+
+
+    function tabMapNav(cl:AvailableDemos){
+      
+      function checkClassName(key_name:string, cl:AvailableDemos){
+        if(cl.state.currentDevice===key_name){
+          return("text-white");
+        }
+        else{
+          return("text-primary");
+        }
+      }
+
+      return(
+        cl.props.availableDemos.map((d: OpenSpeechDataStore.DemoDevice) => 
+            <Nav.Item key={d.name}>
+              <Nav.Link className={checkClassName(d.name,cl)} eventKey={d.name}><p>{d.name}</p></Nav.Link>
+            </Nav.Item>
+        ));
+    }
+
+    function tabMapContent(cl:AvailableDemos){
+      return(
+        cl.props.availableDemos.map((d: OpenSpeechDataStore.DemoDevice) => 
+            <Tab.Pane
+              key={d.name}
+              eventKey={d.name}
+              title={d.name}
+            >
+              <Row>
+                {ProjectCards(cl,d)}
+              </Row>
+            </Tab.Pane>
+        ));
+    }
+
 
 
     return (
@@ -176,33 +240,26 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
           <Row>
           <Modal.Dialog>
               <Modal.Header>
-                <Modal.Title>Available Demos</Modal.Title>
+                <Modal.Title>
+                    Available Demos
+                </Modal.Title>
               </Modal.Header>
-              <Modal.Body>
-              <FormControl 
-                type='text'
-                name='s3_bucket' 
-                placeholder='enter' 
-                defaultValue={this.state.form.s3_bucket}
-                onChange={this.handleChange.bind(this)}
-              />
-                <Row className="autogen-pages">
-            {this.props.availableDemos.map((d: OpenSpeechDataStore.Demo) => 
-              <React.Fragment key = { d.name }>
-                <OpenSpeechDemoCard
-                  isSelected={highlightIfDownloaded(this.state,this.props,d.name)}
-                  isDownloading={animateDownloadStatus(this.state,this.props,d.name)}
-                  downloadDevice={d.downloadurl.devicename}
-                  downloadProject={d.downloadurl.projectname}
-                  headerTitle={d.name}
-                  callback={this.handleDownloadDemo}
-                  statsValue={(d.filesize/1000000).toFixed(2) + "MB"}
-                  statsIcon={<i className="fa fa-folder-o" />}
-                  statsIconText={d.downloadurl.devicename + "/" + d.downloadurl.projectname}
-                />
-              </React.Fragment>
-            )} 
-          </Row>
+              <Modal.Body className="mw-1080-px">
+                <Form.Group>
+                  <Form.Label>S3 Bucket</Form.Label>
+                  <Form.Control 
+                    className="autogen-form-control float-left border-bottom mb-4"
+                    type='text'
+                    name='s3_bucket' 
+                    placeholder='s3-bucket' 
+                    defaultValue={this.state.form.s3_bucket}
+                    onChange={this.handleChange.bind(this)}
+                  />
+                  
+                </Form.Group>
+                <div className="autogen-pages">
+                  {DeviceTabs(this,tabMapNav,tabMapContent)}
+                </div>
                 </Modal.Body>
             </Modal.Dialog>
           </Row>
@@ -210,7 +267,34 @@ export class AvailableDemos extends React.PureComponent<OpenSpeechProps,AutoGenS
       </div>
     );
   }
-  
+}
+
+function DeviceTabs(cl:AvailableDemos, tabMapNav:Function, tabMapContent:Function){
+  if(cl.state.loadingDemos){
+    return(
+      <div className="col justify-content-center">
+          <Spinner animation="border" variant="primary" className="open-speech-loading-anim"/>
+      </div>
+    );
+  }
+  return (
+    <Tab.Container
+      id="controlled-tab-device"
+      activeKey={cl.state.currentDevice}
+      onSelect={(k: any) => cl.setCurrentDevice(k)}
+      transition={false}
+    >
+      <label className="form-label">Device</label>
+      <Nav variant="pills">
+        {tabMapNav(cl)}
+      </Nav>
+      <hr className="mt-0 pt-0 bg-primary"></hr>
+      <Tab.Content>
+        {tabMapContent(cl)}
+      </Tab.Content>
+
+    </Tab.Container>
+  );
 }
 
 export default connect(

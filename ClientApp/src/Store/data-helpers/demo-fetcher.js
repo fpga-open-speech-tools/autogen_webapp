@@ -2,32 +2,30 @@ var convert = require('xml-js');
 //var url = "https://nih-demos.s3.us-west-2.amazonaws.com/";
 var devices = [];
 
-export function getDemos(bucket_name, callback){
+
+export function getBucketURL(bucket_name){
     var url = "https://"+bucket_name+".s3.us-west-2.amazonaws.com/";
-    var myXML = ""
-    var request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.onreadystatechange = function(){
-        if (request.readyState == 4) {
-            if (request.status == 200 || request.status == 0) {
-                try{
-                    myXML = request.responseXML;
-                    var myJSON = convert.xml2json(new XMLSerializer().serializeToString(myXML.documentElement), {compact:true, spaces:4});
-                    updateDevicesList(JSON.parse(myJSON));
-                    callback(devices);
-                }
-                catch(e){
-                   //console.log(e);
-                }
-            }
-        }
-    }
-    request.send();
+    return url;
 }
 
-function updateDevicesList(json){
+export function JSONFromXMLDocumentObject(xml_object){
+   return convert.xml2json(new XMLSerializer().serializeToString(xml_object.documentElement), {compact:true, spaces:4});
+}
+export function JSONFromXMLString(xml_string){
+    return convert.xml2json(xml_string);
+}
+
+export function updateDevicesList(json){
     devices = [];
-    json.ListBucketResult.Contents.forEach((content,index)=>{
+
+    if(!json.ListBucketResult){
+        return [];
+    }
+    if(!json.ListBucketResult.Contents){
+        return [];
+    }
+
+    json.ListBucketResult.Contents.forEach((content)=>{
         var segment = splitContent(content);
         var nest_level = segment.path.length;
         if(nest_level > 0){
@@ -50,7 +48,9 @@ function updateDevicesList(json){
             }
         }
     });
+    return devices;
 }
+
 
 function deviceExists(device_name){
     var output = false;
@@ -133,7 +133,7 @@ function updateProjectSize(device, project, size){
         if(dev.name===device){
             dev.projects.forEach((proj)=>{
                 if(proj.name===project){
-                    size+=size;
+                    proj.size+=size;
                     return;
                 }
             }); 
