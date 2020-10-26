@@ -318,7 +318,7 @@ export const openSpeechDataActionCreators = {
       .then(response => response.json() as Promise<Autogen>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',autogen:data, isDeviceDownloading: false,currentDemo:projectname
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',autogen:data, isDeviceDownloading: false, currentDemo:projectname
         });
       });
       dispatch({
@@ -327,6 +327,7 @@ export const openSpeechDataActionCreators = {
         deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo:projectname
       });
     },
+
   setDeviceAddress: (address: DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
       dispatch({
         type: 'SET_DEVICE_ADDRESS',

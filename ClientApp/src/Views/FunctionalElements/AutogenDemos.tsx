@@ -2,6 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
 import * as OpenSpeechDataStore from "../../Store/OpenSpeechToolsData";
+import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
 import { ApplicationState } from "../..";
 import {
   Container,
@@ -82,6 +83,7 @@ export class AvailableDemos extends React.PureComponent<
     this.handleDownloadDemo = this.handleDownloadDemo.bind(this);
     this.setNotification = this.setNotification.bind(this);
     this.setCurrentDevice = this.setCurrentDevice.bind(this);
+    this.requestUI = this.requestUI.bind(this);
   }
 
   componentDidMount() {
@@ -101,6 +103,24 @@ export class AvailableDemos extends React.PureComponent<
         }
       }
     }
+    if(this.props.autogen.views && this.props.autogen.containers){
+      if(this.props.autogen.views.length === 0 && this.props.autogen.containers.length === 0){
+        if(this.props.autogen.data){
+          if(this.props.autogen.data.length !== 0){
+            console.log("Fixing Edit");
+            this.props.requestSendAutogenConfiguration(
+              this.props.deviceAddress, 
+              GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.options, this.props.autogen.name), 
+              this.requestUI
+            );
+          }
+        }
+      }
+    }
+  }
+
+  requestUI(){
+    this.props.requestAutogenConfiguration(this.props.deviceAddress)
   }
 
   handleDownloadDemo(device: string, project: string) {
@@ -130,8 +150,9 @@ export class AvailableDemos extends React.PureComponent<
 
   handleChange(event: any) {
     let fieldName = event.target.name;
-    let fleldVal = event.target.value;
-    this.setState({ form: { ...this.state.form, [fieldName]: fleldVal } });
+    let fieldVal = event.target.value;
+    this.setState({ form: { ...this.state.form, [fieldName]: fieldVal } });
+    this.props.requestOpenSpeechS3Demos(fieldVal);
   }
 
   render() {

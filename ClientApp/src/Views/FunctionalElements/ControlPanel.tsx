@@ -153,7 +153,8 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         if(this.props.autogen.views.length === 0 && this.props.autogen.containers.length === 0){
           if(this.props.autogen.data){
             if(this.props.autogen.data.length !== 0){
-              this.fixEdit();
+              console.log("Fixing Edit");
+              this.props.requestSendAutogenConfiguration(this.props.deviceAddress, GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.options, this.props.autogen.name), this.handleRequestUI);
             }
           }
         }
