@@ -273,7 +273,6 @@ export const openSpeechDataActionCreators = {
         });
       });
     dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
-
   },
 
   requestAutogenConfiguration: (address: DeviceAddress):
@@ -313,9 +312,9 @@ export const openSpeechDataActionCreators = {
       });
     },
 
-  requestDownloadS3Demo: (address: DeviceAddress, devicename: string, projectname: string):
+  requestDownloadS3Demo: (address: DeviceAddress, bucketName:string, devicename: string, projectname: string):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
-    fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${devicename}/${projectname}`)
+    fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${bucketName}/${devicename}/${projectname}`)
       .then(response => response.json() as Promise<Autogen>)
       .then(data => {
         dispatch({
@@ -346,7 +345,7 @@ const emptyAutogen = {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
-  deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '1', ip4: '161' }, port: '3355' },
+  deviceAddress: { ipAddress: { ip1: '127', ip2: '0', ip3: '0', ip4: '1' }, port: '3355' },
   autogen: emptyAutogen,
   newAutogen: false,
   availableDemos: [],

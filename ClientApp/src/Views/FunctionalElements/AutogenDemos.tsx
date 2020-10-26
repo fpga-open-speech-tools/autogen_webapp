@@ -108,6 +108,7 @@ export class AvailableDemos extends React.PureComponent<
       this.setState({ downloadTarget: project });
       this.props.requestDownloadS3Demo(
         this.props.deviceAddress,
+        this.state.form.s3_bucket,
         device,
         project
       );

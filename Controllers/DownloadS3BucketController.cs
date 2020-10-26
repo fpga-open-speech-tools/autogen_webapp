@@ -57,9 +57,9 @@ namespace Autogen.Controllers
     /// <param name="devicename">Name of deviceFammily. ex, "DE-10"</param>
     /// <param name="projectname">Name of Project. ex, "passthrough"</param>
     /// <returns>Returns the Response (from CFG server response) to the Client</returns>
-    [HttpGet("{ip1}/{ip2}/{ip3}/{ip4}/{devicePort}/{devicename}/{projectname}")]
+    [HttpGet("{ip1}/{ip2}/{ip3}/{ip4}/{devicePort}/{bucketname}/{devicename}/{projectname}")]
     public AutogenConfig.Configuration
-      Get(string ip1,string ip2, string ip3, string ip4, string devicePort, string devicename, string projectname)
+      Get(string ip1,string ip2, string ip3, string ip4, string devicePort, string bucketname, string devicename, string projectname)
     {
       var deviceIP = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
       System.Diagnostics.Debug.WriteLine
@@ -72,6 +72,7 @@ namespace Autogen.Controllers
       string command =
         "{" +
         "\"downloadurl\":\"" + devicename + "/" + projectname + "\"," +
+        "\"bucketname\":\"" + bucketname + "\"," +
         "\"devicename\":\"" + devicename + "\"," +
         "\"projectname\":\"" + projectname + "\"" +
         "}";
