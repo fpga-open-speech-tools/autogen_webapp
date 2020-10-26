@@ -149,9 +149,13 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         this.updateModelFromProps();
       }
       this.setState({ autogen: this.props.autogen });
-      if(this.props.autogen.views.length === 0 && this.props.autogen.containers.length === 0){
-        if(this.props.autogen.data.length !== 0){
-          this.fixEdit();
+      if(this.props.autogen.views && this.props.autogen.containers){
+        if(this.props.autogen.views.length === 0 && this.props.autogen.containers.length === 0){
+          if(this.props.autogen.data){
+            if(this.props.autogen.data.length !== 0){
+              this.fixEdit();
+            }
+          }
         }
       }
     }
@@ -530,7 +534,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         <Container fluid>
           <Row>
             <Modal.Dialog>
-              <Modal.Header><Modal.Title className="float-left">22Controls22</Modal.Title>
+              <Modal.Header><Modal.Title className="float-left">Controls</Modal.Title>
                 {this.controlEditable()}
                 <div className="float-right">
                 <Button
@@ -600,20 +604,22 @@ async function process
 function createDataSubsets
   (autogen: OpenSpeechDataStore.Autogen, modelData: OpenSpeechDataStore.ModelData[]) {
   var map = [] as dataSubset[];
-  autogen.containers.forEach((container) => {
-    const subset = {indices: [], views: [] } as dataSubset; //assign a data subset for each container.
-    container.views.forEach((viewIndex) => {
-      const viewData = { indices: [], data:[] } as viewData; //Assign empty data array for each view.
-      autogen.views[viewIndex].references.forEach((dataIndex) => {
-        const currentData = { index: dataIndex, packet: modelData[dataIndex] };
-        viewData.data.push(currentData);
-        viewData.indices.push(dataIndex);
-        subset.indices.push(dataIndex);
+  if(autogen.containers){
+    autogen.containers.forEach((container) => {
+      const subset = {indices: [], views: [] } as dataSubset; //assign a data subset for each container.
+      container.views.forEach((viewIndex) => {
+        const viewData = { indices: [], data:[] } as viewData; //Assign empty data array for each view.
+        autogen.views[viewIndex].references.forEach((dataIndex) => {
+          const currentData = { index: dataIndex, packet: modelData[dataIndex] };
+          viewData.data.push(currentData);
+          viewData.indices.push(dataIndex);
+          subset.indices.push(dataIndex);
+        });
+        subset.views.push(viewData);
       });
-      subset.views.push(viewData);
+      map.push(subset);
     });
-    map.push(subset);
-  });
+  }
   return map;
 }
 
