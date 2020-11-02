@@ -13,6 +13,7 @@ import {
   Tab,
   Nav,
   Col,
+  Button
 } from "react-bootstrap";
 import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
@@ -152,7 +153,7 @@ export class AvailableDemos extends React.PureComponent<
     let fieldName = event.target.name;
     let fieldVal = event.target.value;
     this.setState({ form: { ...this.state.form, [fieldName]: fieldVal } });
-    this.props.requestOpenSpeechS3Demos(fieldVal);
+    //this.props.requestOpenSpeechS3Demos(fieldVal);
   }
 
   render() {
@@ -196,7 +197,7 @@ export class AvailableDemos extends React.PureComponent<
           <Row>
             <Modal.Dialog>
               <Modal.Header>
-                <Modal.Title>Available Demos</Modal.Title>
+                <Modal.Title>Available Projects</Modal.Title>
               </Modal.Header>
               <Modal.Body className="mw-1080-px">
                 <Form.Group>
@@ -209,6 +210,13 @@ export class AvailableDemos extends React.PureComponent<
                     defaultValue={this.state.form.s3_bucket}
                     onChange={this.handleChange.bind(this)}
                   />
+                  <Button
+                    variant="primary"
+                    className="btn-simple btn-icon"
+                    onClick={()=> {this.props.requestOpenSpeechS3Demos(this.state.form.s3_bucket)}}
+                  >
+                    Update
+                  </Button>
                 </Form.Group>
                 <div className="autogen-pages">
                   {DeviceTabs(this, tabMapNav, tabMapContent)}

@@ -15,16 +15,23 @@ import NotificationWrapper from "../../Components/Notifications/NotificationWrap
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
   OpenSpeechDataStore.OpenSpeechToolsState // ... state we've requested from the Redux store
+  & AddressState
   & typeof OpenSpeechDataStore.openSpeechDataActionCreators // ... plus action creators we've requested
   & RouteComponentProps<{}>; // ... plus incoming routing parameters
 
 export interface AutoGenState {
-  notification: Notification
+  notification: Notification,
+  className:string
 }
 
 interface Notification {
   text: string,
   level: string
+}
+
+
+export interface AddressState {
+  className?:string
 }
 
 export class AddressManager extends React.PureComponent<OpenSpeechProps,AutoGenState>{
@@ -36,7 +43,8 @@ export class AddressManager extends React.PureComponent<OpenSpeechProps,AutoGenS
       notification: {
         text: "",
         level: ""
-      }
+      },
+      className: "content"
     };
 
     this.handleDeviceAddressChange = this.handleDeviceAddressChange.bind(this);
@@ -51,8 +59,13 @@ export class AddressManager extends React.PureComponent<OpenSpeechProps,AutoGenS
 
 
   componentDidMount() {
+    if(this.props.className){
+      this.setState({className:"content " + this.props.className});
+    }
   }
+
   componentDidUpdate() {
+
   }
 
   handleChangeIP1(e: React.ChangeEvent<HTMLInputElement>){
@@ -112,7 +125,8 @@ export class AddressManager extends React.PureComponent<OpenSpeechProps,AutoGenS
 
   render() {
     return (
-      <div className="content">
+      <div className={this.state.className}
+      >
         <NotificationWrapper
           pushText={this.state.notification.text}
           level={this.state.notification.level}

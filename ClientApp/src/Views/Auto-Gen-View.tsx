@@ -26,13 +26,12 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   render() {
     return (
       <div>
-        <AddressManager {...this.props} />
+        <AddressManager {...this.props} className="d-none"/>
         <AvailableDemos {...this.props} />
         <ControlPanel  {...this.props} />
       </div>
       );
   }
-
 }
 
 export default connect(
