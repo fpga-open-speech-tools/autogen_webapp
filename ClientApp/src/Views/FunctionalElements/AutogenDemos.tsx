@@ -74,7 +74,7 @@ export class AvailableDemos extends React.PureComponent<
       },
 
       form: {
-        s3_bucket: "nih-demos",
+        s3_bucket: "frost-projects",
       },
       currentDevice: "",
       downloadTarget: "",
@@ -88,7 +88,7 @@ export class AvailableDemos extends React.PureComponent<
   }
 
   componentDidMount() {
-    this.props.requestOpenSpeechS3Demos("nih-demos");
+    this.props.requestOpenSpeechS3Demos("frost-projects");
     this.setState({ loadingDemos: true });
   }
 
