@@ -15,15 +15,22 @@ import {
   Col,
   Button
 } from "react-bootstrap";
-import { OpenSpeechDemoCard } from "../../Components/OpenSpeechDemos/OpenSpeechDemoCard.jsx";
+import { OpenSpeechProjectCard } from "../../Components/OpenSpeechElements/OpenSpeechProjectCard.jsx";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps = OpenSpeechDataStore.OpenSpeechToolsState & // ... state we've requested from the Redux store
+  ProjectsProps &
   typeof OpenSpeechDataStore.openSpeechDataActionCreators & // ... plus action creators we've requested
   RouteComponentProps<{}>; // ... plus incoming routing parameters
 
-export interface AvailableDemosState {
+export interface ProjectsProps{
+  defaultBucket?: string;
+  className?: string;
+}
+
+export interface S3ProjectsState {
+  className: string;
   downloadStatus: DownloadStatus;
   autogen: Autogen;
   notification: Notification;
@@ -51,14 +58,15 @@ interface S3Form {
   s3_bucket: string;
 }
 
-export class AvailableDemos extends React.PureComponent<
+export class S3ProjectsContainer extends React.PureComponent<
   OpenSpeechProps,
-  AvailableDemosState
+  S3ProjectsState
 > {
   constructor(props: OpenSpeechProps) {
     super(props);
 
     this.state = {
+      className: "",
       downloadStatus: {
         lastDownloadProgressRequestTime: 0,
         lastDownloadProgress: 0,
@@ -74,7 +82,7 @@ export class AvailableDemos extends React.PureComponent<
       },
 
       form: {
-        s3_bucket: "frost-projects",
+        s3_bucket: "",
       },
       currentDevice: "",
       downloadTarget: "",
@@ -88,8 +96,13 @@ export class AvailableDemos extends React.PureComponent<
   }
 
   componentDidMount() {
-    this.props.requestOpenSpeechS3Demos("frost-projects");
-    this.setState({ loadingDemos: true });
+    if(this.props.defaultBucket){
+      this.props.requestOpenSpeechS3Demos(this.props.defaultBucket);
+      this.setState({ loadingDemos: true, form:{s3_bucket:this.props.defaultBucket} });
+    }
+    if(this.props.className){
+      this.setState({className:this.props.className});
+    }
   }
 
   componentDidUpdate() {
@@ -157,8 +170,8 @@ export class AvailableDemos extends React.PureComponent<
   }
 
   render() {
-    function tabMapNav(cl: AvailableDemos) {
-      function checkClassName(key_name: string, cl: AvailableDemos) {
+    function tabMapNav(cl: S3ProjectsContainer) {
+      function checkClassName(key_name: string, cl: S3ProjectsContainer) {
         if (cl.state.currentDevice === key_name) {
           return "text-white";
         } else {
@@ -177,7 +190,7 @@ export class AvailableDemos extends React.PureComponent<
       );
     }
 
-    function tabMapContent(cl: AvailableDemos) {
+    function tabMapContent(cl: S3ProjectsContainer) {
       return cl.props.availableDemos.map(
         (d: OpenSpeechDataStore.DemoDevice) => (
           <Tab.Pane key={d.name} eventKey={d.name} title={d.name}>
@@ -188,7 +201,7 @@ export class AvailableDemos extends React.PureComponent<
     }
 
     return (
-      <div className="content">
+      <div className={"content " + this.state.className}>
         <NotificationWrapper
           pushText={this.state.notification.text}
           level={this.state.notification.level}
@@ -230,11 +243,11 @@ export class AvailableDemos extends React.PureComponent<
   }
 }
 
-function ProjectCards(cl: AvailableDemos, d: any) {
+function ProjectCards(cl: S3ProjectsContainer, d: any) {
   //Would like to rewrite this to better consider properties of selection.
   //Currently, takes into account ui return, selected projectID and object, as well as determines if downloading.
   function highlightIfDownloaded(
-    state: AvailableDemosState,
+    state: S3ProjectsState,
     props: OpenSpeechProps,
     projectID: string
   ) {
@@ -262,7 +275,7 @@ function ProjectCards(cl: AvailableDemos, d: any) {
   } //[end]highlightIfDownloaded
 
   function animateDownloadStatus(
-    state: AvailableDemosState,
+    state: S3ProjectsState,
     props: OpenSpeechProps,
     projectID: string
   ) {
@@ -295,7 +308,7 @@ function ProjectCards(cl: AvailableDemos, d: any) {
 
   return d.projects.map((proj: any) => (
     <React.Fragment key={proj.name}>
-      <OpenSpeechDemoCard
+      <OpenSpeechProjectCard
         isSelected={highlightIfDownloaded(cl.state, cl.props, proj.name)}
         isDownloading={animateDownloadStatus(cl.state, cl.props, proj.name)}
         downloadDevice={d.name}
@@ -311,7 +324,7 @@ function ProjectCards(cl: AvailableDemos, d: any) {
 }
 
 function DeviceTabs(
-  cl: AvailableDemos,
+  cl: S3ProjectsContainer,
   tabMapNav: Function,
   tabMapContent: Function
 ) {
@@ -344,4 +357,4 @@ function DeviceTabs(
 export default connect(
   (state: ApplicationState) => state.openSpeechData,
   OpenSpeechDataStore.openSpeechDataActionCreators
-)(AvailableDemos as any);
+)(S3ProjectsContainer as any);
