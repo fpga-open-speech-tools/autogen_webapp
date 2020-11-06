@@ -20,6 +20,8 @@
     "skipLibCheck": false
   },
   "include": [
-    "src"
+    "src",
+   "src/Views",
+   "src/Views/FunctionalElements",
   ]
 }

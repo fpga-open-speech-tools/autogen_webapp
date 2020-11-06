@@ -17,9 +17,12 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
             r[k] = a[j];
     return r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var redux_1 = require("redux");
-var redux_thunk_1 = require("redux-thunk");
+var redux_thunk_1 = __importDefault(require("redux-thunk"));
 var connected_react_router_1 = require("connected-react-router");
 var __1 = require("../");
 function configureStore(history, initialState) {
@@ -36,4 +39,3 @@ function configureStore(history, initialState) {
     return redux_1.createStore(rootReducer, initialState, redux_1.compose.apply(void 0, __spreadArrays([redux_1.applyMiddleware.apply(void 0, middleware)], enhancers)));
 }
 exports.default = configureStore;
-//# sourceMappingURL=configureStore.js.map

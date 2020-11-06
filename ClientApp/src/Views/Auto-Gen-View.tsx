@@ -6,7 +6,7 @@ import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
 import { ApplicationState } from '..';
 
 import { ControlPanel } from './FunctionalElements/ControlPanel';
-import { AvailableDemos } from './FunctionalElements/AutogenDemos';
+import { S3ProjectsContainer } from './FunctionalElements/S3ProjectsContainer';
 import { AddressManager } from './FunctionalElements/AutoGenDeviceAddress';
 
 // At runtime, Redux will merge together...
@@ -26,13 +26,12 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   render() {
     return (
       <div>
-        <AddressManager {...this.props} />
-        <AvailableDemos {...this.props} />
+        <AddressManager {...this.props} className="d-none"/>
+        <S3ProjectsContainer {...this.props} defaultBucket="frost-projects"/>
         <ControlPanel  {...this.props} />
       </div>
       );
   }
-
 }
 
 export default connect(

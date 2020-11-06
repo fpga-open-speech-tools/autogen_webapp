@@ -1,5 +1,6 @@
 import { Action, Reducer } from 'redux';
 import { AppThunkAction } from '../';
+import * as DemoFetcher from './data-helpers/demo-fetcher.js';
 
 // -----------------
 // STATE - This defines the type of data maintained in the Redux store.
@@ -12,7 +13,7 @@ export interface OpenSpeechToolsState {
   autogen: Autogen;
   newAutogen: boolean;
   //Interface for Demos Array[]
-  availableDemos: Demo[];
+  availableDemos: DemoDevice[];
 
   //S3Bucket Download info
   deviceFamily?: string;
@@ -35,12 +36,20 @@ export interface DeviceAddress {
   port: string;
 }
 
-export interface Demo {
-  name: string;
-  downloadurl: s3bucketurl;
-  imageurl: string;
-  videourl: string;
-  filesize: number;
+export interface DemoDevice {
+  name:string;
+  projects:DemoProject[];
+}
+
+export interface DemoProject {
+  name:string;
+  files:DemoFile[];
+  size:number;
+}
+
+export interface DemoFile {
+  name:string;
+  size:number;
 }
 
 //S3 bucket takes the api form "{devicename}/{projectname}"
@@ -131,7 +140,7 @@ interface RequestOpenSpeechS3DemosAction {
 
 interface ReceiveOpenSpeechS3DemosAction {
   type: 'RECEIVE_OPENSPEECH_DEMOS';
-  availableDemos: Demo[];
+  availableDemos: DemoDevice[];
 }
 
 interface RequestOpenSpeechS3DownloadAction {
@@ -250,13 +259,17 @@ export const openSpeechDataActionCreators = {
       dispatch({ type: 'REQUEST_RTC_ENABLE', rtcEnabled:false });
     },
 
-  requestOpenSpeechS3Demos: ():
+  requestOpenSpeechS3Demos: (bucket_name:string):
     AppThunkAction<KnownAction> => (dispatch) => {
-    fetch(`demos`)
-      .then(response => response.json() as Promise<Demo[]>)
+      var url = DemoFetcher.getBucketURL(bucket_name);
+      fetch(url)
+      .then(response => response.text())
+      .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))
       .then(data => {
+        var bucket_data = DemoFetcher.JSONFromXMLDocumentObject(data);
+        var demos_array = DemoFetcher.updateDevicesList(JSON.parse(bucket_data));
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_DEMOS', availableDemos: data
+          type: 'RECEIVE_OPENSPEECH_DEMOS', availableDemos: demos_array
         });
       });
     dispatch({ type: 'REQUEST_OPENSPEECH_DEMOS' });
@@ -299,13 +312,13 @@ export const openSpeechDataActionCreators = {
       });
     },
 
-  requestDownloadS3Demo: (address: DeviceAddress, devicename: string, projectname: string):
+  requestDownloadS3Demo: (address: DeviceAddress, bucketName:string, devicename: string, projectname: string):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
-    fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${devicename}/${projectname}`)
+    fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${bucketName}/${devicename}/${projectname}`)
       .then(response => response.json() as Promise<Autogen>)
       .then(data => {
         dispatch({
-          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',autogen:data, isDeviceDownloading: false,currentDemo:projectname
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',autogen:data, isDeviceDownloading: false, currentDemo:projectname
         });
       });
       dispatch({
@@ -314,6 +327,7 @@ export const openSpeechDataActionCreators = {
         deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo:projectname
       });
     },
+
   setDeviceAddress: (address: DeviceAddress): AppThunkAction<KnownAction> => (dispatch, getState) => {
       dispatch({
         type: 'SET_DEVICE_ADDRESS',
@@ -332,7 +346,7 @@ const emptyAutogen = {
 // REDUCER - For a given state and action, returns the new state. To support time travel, this must not mutate the old state.
 
 const unloadedState: OpenSpeechToolsState = {
-  deviceAddress: { ipAddress: { ip1: '192', ip2: '168', ip3: '1', ip4: '161' }, port: '3355' },
+  deviceAddress: { ipAddress: { ip1: '127', ip2: '0', ip3: '0', ip4: '1' }, port: '3355' },
   autogen: emptyAutogen,
   newAutogen: false,
   availableDemos: [],

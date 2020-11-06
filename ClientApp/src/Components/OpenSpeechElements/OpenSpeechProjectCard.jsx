@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Row, Col, Button} from "react-bootstrap";
 
-export class OpenSpeechDemoCard extends Component {
+export class OpenSpeechProjectCard extends Component {
   render() {
 
     const removeUnderscore = (title) => {
@@ -56,4 +56,4 @@ export class OpenSpeechDemoCard extends Component {
   }
 }
 
-export default OpenSpeechDemoCard;
+export default OpenSpeechProjectCard;
