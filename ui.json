@@ -1,0 +1,170 @@
+{
+	"name": "Test",
+	"containers": [
+		{
+			"name": "Band1",
+			"views": [
+				0,
+				1,
+				2,
+				3,
+				4
+			]
+		}
+	],
+	"views": [
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				0,
+				1
+			],
+			"optionsIndex": 1
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				2
+			]
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				3
+			]
+		},
+		{
+			"name": "Processing",
+			"type": {
+				"component": "ProcessingButton",
+				"variant": "standard"
+			},
+			"references": [
+				4,
+				0,
+				1
+			],
+			"optionsIndex": 0
+		},
+		{
+            "name":"Processing Output",
+            "type":{
+                "component":"Text",
+                "variant":"standard"
+            },
+            "references": [
+                4
+            ]
+		}
+	],
+	"data": [
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 100,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 100,
+			"properties": {
+				"min": 0,
+				"max": 100,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 20,
+			"properties": {
+				"min": 0,
+				"max": 1000,
+				"step": 1,
+				"units": "milliseconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 100,
+			"properties": {
+				"min": 0,
+				"max": 1000,
+				"step": 1,
+				"units": "milliseconds"
+			}
+		},
+		{
+			"name": "Processing",
+			"type": "dpr",
+			"device": "Band1",
+			"value": "",
+			"properties": {}
+		}
+	],
+	"options": [
+		{
+			"data": [
+				4
+			],
+			"processing": {
+				"functions": [
+					"out1=a+b",
+					"out2=b-a+c"
+				],
+				"inputs": [
+					{
+						"name": "a",
+						"type": "pointer",
+						"value": 0
+					},
+					{
+						"name": "b",
+						"type": "pointer",
+						"value": 1
+					},
+					{
+						"name": "c",
+						"type": "constant",
+						"value": 6
+					}
+				],
+				"output": "%a, %b, %c, %out1, %out2"
+			}
+		},
+		{
+			"data": [
+				0
+			],
+			"union": 1
+		},
+		{
+			"data": [
+				1
+			],
+			"noDisplay": true
+		}
+	]
+}
