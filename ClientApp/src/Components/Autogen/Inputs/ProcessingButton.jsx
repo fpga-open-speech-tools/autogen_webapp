@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Button, Row, Col } from "react-bootstrap";
-import { evaluate } from "mathjs";
+import { evaluate,parser } from "mathjs";
 
 export class ProcessingButton extends Component {
 
@@ -8,8 +8,8 @@ export class ProcessingButton extends Component {
     super(props);
     this.state = {
       currentValue: 0,
-      variables: {},
-      data:[]
+      data:[],
+      parser: parser()
     };
     this.variables = {};
     this.generatePayload = this.generatePayload.bind(this);
@@ -39,17 +39,20 @@ export class ProcessingButton extends Component {
   }
 
   updateVariables = () => {
-    let variables  = this.variables;
+    this.state.parser.clear();
     this.props.data[0].properties.processing.inputs.forEach((input,index)=>{
       if(input.type === "pointer"){
         const dataReference = index + 1;
-        variables[input.name] = this.props.data[dataReference].value;
+        this.state.parser.set(input.name,this.props.data[dataReference].value);
       }
-      else{
-        variables[input.name] = input.value;
+      else if(input.type === "constant"){
+        this.state.parser.set(input.name,input.value);
+      }
+      else if(input.type === "function"){
+        let user_function = new Function(input.value.parameters,input.value.output);
+        this.state.parser.set(input.name, user_function);
       }
     });
-    this.variables = variables;
   }
 
   generatePayload = (value) => {
@@ -59,15 +62,16 @@ export class ProcessingButton extends Component {
   }
 
   processCustomMath(){
-    let variables = this.variables;
-    this.props.data[0].properties.processing.functions.forEach((func) => {
-      evaluate(func, variables);
-    });
 
+    let value = "";
+    let scope = {};
+    this.props.data[0].properties.processing.functions.forEach((func) => {
+      scope[func.output_name] = this.state.parser.evaluate(func.function);
+      this.state.parser.set(func.output_name,scope[func.output_name]);
+    });
     //Note figure out way to get user to define the output form and variables.
     //Ex.  Processing-> Function a, b.  Variables a,b,c.   Function a-> out_a = a+b  function b-> out_b = b+c output-> a + "," + b
 
-    let value="";
 
     //props -> options -> processing -> | functions, variables, inputs, output |
     //output -> format, variables
@@ -81,13 +85,15 @@ export class ProcessingButton extends Component {
     //  output is parsed, and the corect variables are injected into each relevant location.
     //  For showing "a,b,out1,out2\n7,10,17,3"
     //  Output -> Format: "a,b,out1,out2\n%a,%b,%out1,%out2"
-    value = this.processFormat(this.props.data[0].properties.processing.output, variables);
+    value = this.processFormat(this.props.data[0].properties.processing.output,scope);
     return value;
   }
 
   processFormat(formatString, scope){
     let output = formatString;
-    Object.keys(scope).forEach( (key) => {
+    var keys = Object.keys(scope);
+    keys.sort(function(a,b){return b.length - a.length;});
+    keys.forEach( (key) => {
       let fmt = output;
       let identifier = "%" + key;
     	output = fmt.replaceAll(identifier,scope[key]);
@@ -127,3 +133,4 @@ export class ProcessingButton extends Component {
 }
 
 export default ProcessingButton;
+
