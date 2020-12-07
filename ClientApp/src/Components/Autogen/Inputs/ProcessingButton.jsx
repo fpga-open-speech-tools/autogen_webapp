@@ -40,19 +40,25 @@ export class ProcessingButton extends Component {
 
   updateVariables = () => {
     this.state.parser.clear();
-    this.props.data[0].properties.processing.inputs.forEach((input,index)=>{
-      if(input.type === "pointer"){
-        const dataReference = index + 1;
-        this.state.parser.set(input.name,this.props.data[dataReference].value);
+    if(this.props.data){
+      if(this.props.data[0].properties.processing){
+        if(this.props.data[0].properties.processing.inputs){
+          this.props.data[0].properties.processing.inputs.forEach((input,index)=>{
+            if(input.type === "pointer"){
+              const dataReference = index + 1;
+              this.state.parser.set(input.name,this.props.data[dataReference].value);
+            }
+            else if(input.type === "constant"){
+              this.state.parser.set(input.name,input.value);
+            }
+            else if(input.type === "function"){
+              let user_function = new Function(input.value.parameters,input.value.output);
+              this.state.parser.set(input.name, user_function);
+            }
+          });
+        }
       }
-      else if(input.type === "constant"){
-        this.state.parser.set(input.name,input.value);
-      }
-      else if(input.type === "function"){
-        let user_function = new Function(input.value.parameters,input.value.output);
-        this.state.parser.set(input.name, user_function);
-      }
-    });
+    }
   }
 
   generatePayload = (value) => {

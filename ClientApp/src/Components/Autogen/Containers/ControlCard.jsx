@@ -329,6 +329,10 @@ export class InputComponent extends Component {
         return(JSON.parse(JSON.stringify(data.packet)));
       });
 
+      let noDisplay = false;
+      if(this.props.view.noDisplay){
+        noDisplay = true;
+      }
       var forwardOptions;
       if (this.props.options) {
         forwardOptions = this.props.options[this.props.view.optionsIndex];
@@ -339,7 +343,20 @@ export class InputComponent extends Component {
         forwardOptions=this.props.indexedOptions;
       }
       let Component = require('../Inputs/' + this.props.view.type.component).default;
-      
+
+      if(noDisplay){
+        return (
+          <div className = "d-none">
+            <Component
+            view={this.props.view}
+            data={dataList}
+            callback={this.props.callback}
+            options={forwardOptions}
+          />
+          </div>
+          );
+      }
+      else{
       return (
         <Component
           view={this.props.view}
@@ -348,6 +365,7 @@ export class InputComponent extends Component {
           options={forwardOptions}
         />
       );
+      }
     }
     catch{
       return (<div>Component Not Recognized!</div>);

@@ -48,6 +48,7 @@ const checkOptionalProps = (optionalProps, dataProps) => {
 
 export function getViewsFromData(modelDataArray, options) {
 
+  let unified = [];
   var views = modelDataArray.map((modelData, index) => {
 
     var optionsIndex;
@@ -78,9 +79,11 @@ export function getViewsFromData(modelDataArray, options) {
       type: component,
       references: [index],
       optionsIndex: optionsIndex,
+      id: "w-"+index
     };
     if(combinedProps.properties.union){
       view.references.push(combinedProps.properties.union);
+      unified.push(combinedProps.properties.union);
     }
     if(combinedProps.properties.processing){
       combinedProps.properties.processing.inputs.forEach((input)=>{
@@ -89,7 +92,7 @@ export function getViewsFromData(modelDataArray, options) {
         }  
       });
     }
-    if(combinedProps.properties.noDisplay){
+    if(unified.includes(index)){
       view.noDisplay = true;
     }
     return view;
