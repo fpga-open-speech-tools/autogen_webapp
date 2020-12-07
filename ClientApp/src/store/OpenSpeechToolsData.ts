@@ -65,6 +65,7 @@ export interface Autogen {
   data: ModelData[];
   containers: AutogenContainer[];
   options?: Options[];
+  description?: string;
   //properties: ViewProperties;
 }
 

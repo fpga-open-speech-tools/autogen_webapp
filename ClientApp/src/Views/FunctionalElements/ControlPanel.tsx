@@ -477,11 +477,12 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
       mappedModelData = createDataSubsets(this.props.autogen, this.props.autogen.data);
     }
     
-    var effectName = this.props.autogen.name ? this.props.autogen.name : "";
-    effectName = (effectName === "ERROR") ? "" : effectName;
+    var effectDescription = this.props.autogen.description ? this.props.autogen.description : "";
+    effectDescription = (effectDescription === "ERROR") ? "" : effectDescription;
+    var effectTitle = this.props.autogen.name ? this.props.autogen.name : "";
     return (
       <div className="autogen autogen-effectContainer modal-body">
-        {this.controlPanelHeaderTitleControl(effectName)}
+        {this.controlPanelHeaderTitleControl(effectDescription)}
         <Row className="autogen-pages row">
           {this.props.autogen.containers.map((container,index) =>
             <React.Fragment key={"container-" + index}>
@@ -535,7 +536,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         <Container fluid>
           <Row>
             <Modal.Dialog>
-              <Modal.Header><Modal.Title className="float-left">Controls</Modal.Title>
+              <Modal.Header><Modal.Title className="float-left">{this.props.autogen.name} Controls</Modal.Title>
                 {this.controlEditable()}
                 <div className="float-right">
                 <Button
