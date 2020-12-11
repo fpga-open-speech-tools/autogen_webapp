@@ -42,11 +42,12 @@ export class ProcessingButton extends Component {
     this.state.parser.clear();
     if(this.props.data){
       if(this.props.data[0].properties.processing){
-        if(this.props.data[0].properties.processing.inputs){
+        if (this.props.data[0].properties.processing.inputs) {
+          console.log(this.props.data)
           this.props.data[0].properties.processing.inputs.forEach((input,index)=>{
             if(input.type === "pointer"){
-              const dataReference = index + 1;
-              this.state.parser.set(input.name,this.props.data[dataReference].value);
+              const dataReference = input.value;
+              this.state.parser.set(input.name, this.props.data[dataReference].value);
             }
             else if(input.type === "constant"){
               this.state.parser.set(input.name,input.value);
