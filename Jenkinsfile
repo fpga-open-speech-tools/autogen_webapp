@@ -15,7 +15,7 @@ pipeline
         {
             steps
             {
-                sh label: '', script: 'powershell Compress-Archive -Path ./bin/Debug/netcoreapp3.1/linux-arm/publish -DestinationPath ./frost_web_app.zip'
+                sh label: '', script: 'ubuntu.exe run zip -r frost_web_app.zip bin/Debug/netcoreapp3.1/linux-arm/publish'
             }
         }
         stage('Archive')
