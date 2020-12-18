@@ -15,14 +15,21 @@ pipeline
         {
             steps
             {
-                bat label: '', script: 'ubuntu.exe run zip -r frost_web_app.zip bin/Debug/netcoreapp3.1/linux-arm/publish'
+                dir("bin/Debug/netcoreapp3.1/linux-arm/")
+                {
+                    bat label: '', script: 'ubuntu.exe run zip -r frost_web_app.zip publish'
+                }
+
             }
         }
         stage('Archive')
         {
             steps
             {
-                archiveArtifacts artifacts: 'frost_web_app.zip', fingerprint: true
+                dir("bin/Debug/netcoreapp3.1/linux-arm/")
+                {
+                    archiveArtifacts artifacts: 'frost_web_app.zip', fingerprint: true
+                }
             }
         }
         stage('Cleanup Workspace')
