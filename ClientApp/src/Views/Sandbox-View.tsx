@@ -10,6 +10,7 @@ import {TwoHandleSlider} from "../Components/Autogen/Inputs/TwoHandleSlider.jsx"
 import {Slider} from "../Components/Autogen/Inputs/Slider.jsx";
 import {ProcessingButton} from "../Components/Autogen/Inputs/ProcessingButton.jsx";
 import {Text} from "../Components/Autogen/Inputs/Text.jsx";
+import {Graph} from "../Components/Autogen/Inputs/Graph.jsx";
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
@@ -36,8 +37,18 @@ groups.forEach((group)=>{
     });
   });
 
-export class SandboxView extends React.Component<OpenSpeechProps> {
+  var graphData = [{
+    value: 0,
+    properties: { maxValues:10}
+  }];
+  var graphView ={
+    type: {
+      variant: "BAR",
+      feed: "time"
+    }
+  };
 
+export class SandboxView extends React.Component<OpenSpeechProps, any> {
   constructor(props: OpenSpeechProps) {
     super(props);
     this.state = {
@@ -46,7 +57,6 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
       view: {
 
       },
-
       customMathTestData:[
 
         {
@@ -134,7 +144,7 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
   }//End Constructor
 
 
-  force(state:SandboxView){
+  force(state:SandboxView, ){
    function goForIt(){
     ran = Math.random();
 
@@ -157,9 +167,10 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
     });
     state.setState({randomNumber:ran, data:data});
    }
+   graphData[0].value = 100*ran*(0.005 + 0.005) - 0.005;
 
    //Repeat Map.
-   //setTimeout(goForIt,10);
+   setTimeout(goForIt,10);
 
   }
 
@@ -172,7 +183,7 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
   }
 
   twoHandleSliderCallback(min:any,max:any){
-    console.log("Updating Sliders to: " + min + "," + max);
+    //console.log("Updating Sliders to: " + min + "," + max);
     let data = [
       {
         value:min,
@@ -267,10 +278,10 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
 	createFakeProcessing(state:any,obj:any){
     let newOpts = state.customMathProcessingOptions;
     newOpts.processing.variables = {};
-    console.log(JSON.stringify(newOpts));
+    //console.log(JSON.stringify(newOpts));
     if(newOpts.processing){
       newOpts.processing.inputs.forEach((input:any) => {
-        console.log(JSON.stringify(input));
+        //console.log(JSON.stringify(input));
         if(input.type == "pointer"){
           newOpts.processing.variables[input.name]=state.customMathTestData[input.value].value;
         }
@@ -280,7 +291,7 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
       });
     }
 
-    console.log(JSON.stringify(newOpts));
+    //console.log(JSON.stringify(newOpts));
 
     function processingCallback(value:any){
       obj.setState({
@@ -348,6 +359,8 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
     );
  }
 
+
+
   controlCard(state:any){
     return(
       <div className={"autogen + autogen-panel card"}>
@@ -389,6 +402,13 @@ export class SandboxView extends React.Component<OpenSpeechProps> {
         <Container fluid>
 					{this.createFakeProcessing(this.state,this)}
 					{this.createMockup(this.state)}
+          <div className = "autogen autogen-control">
+            <Graph
+              id="graph-1"
+              data = {graphData}
+              view = {graphView}
+            />
+          </div>
         </Container>
       </div>
     );

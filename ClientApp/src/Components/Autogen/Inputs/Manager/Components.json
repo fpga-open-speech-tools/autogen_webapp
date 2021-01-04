@@ -81,6 +81,17 @@
           "type": "string"
         }
       }
+    },
+    {
+      "name": "Graph",
+      "variants": [ "bar", "line" ],
+      "properties": {
+        "data": {
+          "required": [],
+          "optional": ["config"],
+          "type": "any"
+        }
+      }
     }
   ]
 }

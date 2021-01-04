@@ -43,7 +43,7 @@ export class ProcessingButton extends Component {
     if(this.props.data){
       if(this.props.data[0].properties.processing){
         if (this.props.data[0].properties.processing.inputs) {
-          console.log(this.props.data)
+          //console.log(this.props.data)
           this.props.data[0].properties.processing.inputs.forEach((input,index)=>{
             if(input.type === "pointer"){
               const dataReference = input.value;

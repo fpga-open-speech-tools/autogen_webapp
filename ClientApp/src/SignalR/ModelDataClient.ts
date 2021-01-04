@@ -44,11 +44,11 @@ export class ModelDataClient{
 
   public startSession() {
 
-      connection.on("Connected", (message) => {
-        var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        this.state.connected = true;
-        this.callbacks.incomingMessageListener(msg);
-      });
+    connection.on("Connected", (message) => {
+      var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      this.state.connected = true;
+      this.callbacks.incomingMessageListener(msg);
+    });
 
     connection.on("ModelUpdated", (obj) => {
      //this.callbacks.incomingDataListener(obj);
