@@ -65,7 +65,6 @@ export function getViewsFromData(modelDataArray, options) {
         });
       }
    }
-
     var combinedProps;
     if(options){
        combinedProps = combineDataAndOptions(modelData,options,index);
