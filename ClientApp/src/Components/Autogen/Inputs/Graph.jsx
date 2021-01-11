@@ -160,7 +160,6 @@ export class Graph extends React.Component {
           </Col>
         </Row>
         <GenericGraph
-          ref = {(reference) => this.chartReference = reference}
           data={{labels:g_labels, datasets:g_datasets}}
           options={ this.state.graphOptions }
         />
