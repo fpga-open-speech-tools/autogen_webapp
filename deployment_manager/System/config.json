@@ -1,0 +1,84 @@
+{
+	"name": "OpenMHA Graphing Feed Test",
+	"description": "Graph Test",
+	"data": [
+		{
+			"name": "passthrough",
+			"type": "register",
+			"device": "open_mha",
+			"value": 0,
+			"properties": {
+				"enumeration": [
+					"Disable",
+					"Enable"
+				]
+			}
+		},
+		{
+			"name": "gain_data",
+			"type": "register",
+			"device": "open_mha",
+			"value": 1,
+			"properties": {
+				"min": 0,
+				"max": 16777215.99609375,
+				"step": 0.00390625
+			}
+		}
+	],
+	"containers": [
+		{
+			"name": "Graphing",
+			"views": [
+				0,
+				1,
+				2
+			]
+		}
+	],
+	"views": [
+		{
+			"name": "passthrough",
+			"type": {
+				"component": "Toggle",
+				"variant": "standard"
+			},
+			"references": [
+				0
+			],
+			"optionsIndex": []
+		},
+		{
+			"name": "Slider Data",
+			"type": {
+				"component": "Slider",
+				"variant": "standard"
+			},
+			"references": [
+				1
+			],
+			"optionsIndex": []
+		},
+		{
+            "name":"graph",
+            "type": {
+                "component":"Graph",
+                "variant": "line"
+            },
+            "references": [
+                1
+            ],
+            "optionsIndex": [0]
+		}
+	],
+	"options": [
+        {
+            "config":
+                {
+                    "feed":"time",
+                    "maxValues":50
+                }
+        }
+        
+	]
+}

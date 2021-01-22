@@ -1,4 +1,3 @@
-"use strict";
 // In production, we register a service worker to serve assets from local cache.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unregister = void 0;
