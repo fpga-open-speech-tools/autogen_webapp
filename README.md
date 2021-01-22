@@ -1,14 +1,31 @@
-# Getting Started with Create React App
+# Getting Started with FRoST Tools
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Copy Project to Embedded Device (DE-10)
 
-```
-npm install -g nodemon concurrent serve
-```
+`$ scp /path/to/OpenSpeechTools root@addressOfDE10:/var/lib/frost/webapp`
+`$ ssh root@addressOfDE10`
+`$ cd /var/lib/frost/webapp`
+
+## Install Project Dependencies
+`npm install -g nodemon concurrent kserve`
+`npm install --legacy-peer-deps`
+
 
 ## Available Scripts
 
 In the project directory, you can run:
+
+### `npm run dev`
+
+Runs the front-end (ClientApp) and back-end (Deployment Management Server) through port 3000, proxied to port 5000 for backend api.
+
+### `npm run server`
+
+Runs the backend server on port 5000, websocket on 5050.
+
+### `npm run client`
+
+Runs the front-end ClientApp on port 3000.
 
 ### `npm start`
 

@@ -1,18 +1,18 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./assets/css/input-moment.min.css";
-import "./assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0";
-import "./assets/css/pe-icon-7-stroke.css";
+import "./front_end/assets/css/input-moment.min.css";
+import "./front_end/assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0";
+import "./front_end/assets/css/pe-icon-7-stroke.css";
 
 import { Provider } from 'react-redux';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import { createBrowserHistory } from 'history';
-import configureStore from './Store/configureStore';
-import registerServiceWorker from './registerServiceWorker';
-import AdminLayout from "./Layouts/Tools.jsx";
-import AutoGen from './Views/Auto-Gen-View';
-import * as OpenSpeechData from './Store/OpenSpeechToolsData';
+import configureStore from './front_end/Store/configureStore';
+import registerServiceWorker from './front_end/registerServiceWorker';
+import AdminLayout from "./front_end/Layouts/Tools.jsx";
+import AutoGen from './front_end/Views/Auto-Gen-View';
+import * as OpenSpeechData from './front_end/Store/OpenSpeechToolsData';
 import 'bootstrap';
 import 'react-bootstrap';
 

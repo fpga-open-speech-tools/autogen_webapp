@@ -21,7 +21,11 @@
   },
   "include": [
     "src",
-   "src/Views",
-   "src/Views/FunctionalElements",
+    "src/front_end",
+    "src/front_end/Views",
+    "src/front_end/Views/FunctionalElements",
+    "src/front_end/Components/FileManagement",
+    "src/front_end/Store",
+    "src/front_end/Hub"
   ]
 }

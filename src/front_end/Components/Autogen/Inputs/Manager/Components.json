@@ -1,0 +1,97 @@
+{
+  "components": [
+    {
+      "name":"Text",
+      "variants":["standard"],
+      "properties": {
+        "data":{
+          "required": [],
+          "optional": [],
+          "type":"string"
+        }
+      }
+    },
+    {
+      "name": "Slider",
+      "variants": ["horizontal", "vertical"],
+      "properties": {
+        "data": {
+          "required": [ "min", "max", "step" ],
+          "optional": ["units"],
+          "type": "number"
+        }
+      }
+    },
+
+    {
+      "name": "Toggle",
+      "variants": [ "standard" ],
+      "properties": {
+        "data": {
+          "required": [ "enumeration" ],
+          "optional": [],
+          "type": "number"
+        }
+      }
+    },
+
+    {
+      "name": "RadioToggle",
+      "variants": [ "standard" ],
+      "properties": {
+        "data": {
+          "required": [ "enumerations" ],
+          "optional": [],
+          "type": "number"
+        }
+      }
+    },
+
+    {
+      "name": "ProcessingButton",
+      "variants": [ "standard" ],
+      "properties": {
+        "data": {
+          "required": [ "processing" ],
+          "optional": [],
+          "type": "string"
+        }
+      }
+    },
+
+    {
+      "name": "TwoHandleSlider",
+      "variants": [ "standard" ],
+      "properties": {
+        "data": {
+          "required": [ "min","max","step","union" ],
+          "optional": ["units"],
+          "type": "number"
+        }
+      }
+    },
+
+    {
+      "name": "Spectrogram",
+      "variants": [ "standard" ],
+      "properties": {
+        "data": {
+          "required": [ "spectrogramdata" ],
+          "optional": [],
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "Graph",
+      "variants": [ "bar", "line" ],
+      "properties": {
+        "data": {
+          "required": [],
+          "optional": ["config"],
+          "type": "any"
+        }
+      }
+    }
+  ]
+}
