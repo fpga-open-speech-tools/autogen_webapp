@@ -2,8 +2,8 @@ var convert = require("xml-js");
 //var url = "https://nih-demos.s3.us-west-2.amazonaws.com/";
 var devices = [];
 
-export function getBucketURL(bucket_name) {
-  var url = "https://" + bucket_name + ".s3.us-west-2.amazonaws.com/";
+export function getBucketURL(bucket_name, bucket_region) {
+  var url = "https://" + bucket_name + ".s3." + bucket_region + ".amazonaws.com/";
   return url;
 }
 

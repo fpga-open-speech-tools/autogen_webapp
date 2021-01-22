@@ -24,7 +24,7 @@ class AutogenView extends React.PureComponent<OpenSpeechProps> {
   render() {
     return (
       <div>
-        <S3ProjectsContainer {...this.props} defaultBucket="frost-projects"/>
+        <S3ProjectsContainer {...this.props} defaultBucket="frost-projects" defaultRegion="us-west-2"/>
         <ControlPanel  {...this.props} />
       </div>
       );

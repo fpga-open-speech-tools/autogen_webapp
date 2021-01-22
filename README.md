@@ -3,13 +3,22 @@
 ## Copy Project to Embedded Device (DE-10)
 
 `$ scp /path/to/OpenSpeechTools root@addressOfDE10:/var/lib/frost/webapp`
-`$ ssh root@addressOfDE10`
-`$ cd /var/lib/frost/webapp`
 
 ## Install Project Dependencies
-`npm install -g nodemon concurrent kserve typescript`
-`npm install --legacy-peer-deps`
-`npm install --force`
+
+Connect to device
+
+`$ ssh root@addressOfDE10`
+
+Install global node dependencies.
+
+`$ npm install -g nodemon concurrent kserve typescript`
+
+Install project node dependencies (from source directory)
+
+`$ cd /var/lib/frost/webapp`
+
+`$ npm install --force`
 
 
 ## Available Scripts
