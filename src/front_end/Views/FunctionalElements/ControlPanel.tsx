@@ -150,7 +150,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         if(this.props.autogen.views.length === 0 && this.props.autogen.containers.length === 0){
           if(this.props.autogen.data){
             if(this.props.autogen.data.length !== 0){
-              console.log("Fixing Edit");
               this.props.requestSendAutogenConfiguration(GetAutogenObjectFromData(this.props.autogen.data, this.props.autogen.options, this.props.autogen.name), this.handleRequestUI);
             }
           }
@@ -239,7 +238,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   saveEdit = () => {
     this.setState({ editable: false });
-    console.log("saving edit: " + this.props.autogen.description);
     this.props.requestSendAutogenConfiguration(this.props.autogen, this.handleRequestUI);
   }
 
@@ -299,7 +297,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   updateControlPanelDescription = (description: string) => {
     var autogen = this.props.autogen;
-    console.log("Attempting to change " +  autogen.description + " to " + description);
     autogen.description = description;
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
@@ -361,27 +358,20 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     var autogen = this.props.autogen;
     if (autogen.options) {
       if (autogen.views[viewIndex].optionsIndex) {
-        console.log("Editing view's existing options");
         this.modifyOption(options, autogen.views[viewIndex].optionsIndex as number);
       }
       else {
-        console.log("adding new options set to view.");
         var optionsIndex = (autogen.options.push(options) - 1) as number;
         autogen.views[viewIndex].optionsIndex = optionsIndex;
       }
     }
     else {
-      console.log("no options detected. Creating object!");
       autogen.options = [options];
       autogen.views[viewIndex].optionsIndex = 0;
     }
 
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
-    if (autogen.views[viewIndex].optionsIndex) {
-      if (autogen.options[autogen.views[viewIndex].optionsIndex as number])
-        console.log(JSON.stringify(autogen.options[autogen.views[viewIndex].optionsIndex as number]));
-    }
   }
 
   modifyContainer = (index: number, container: OpenSpeechDataStore.AutogenContainer)=>{
@@ -425,7 +415,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
             value={name}
             onChange={
               (x: React.ChangeEvent<HTMLInputElement>) => { 
-                console.log(x.currentTarget.value);
                 this.updateControlPanelDescription(x.currentTarget.value); 
               }
             }
@@ -453,10 +442,6 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
         optionsIndex:optionsIndex
       }
     });
-    console.log("Starting View Editor. ");
-    if (this.state.viewEditor.optionsIndex) {
-      console.log("Options Attached to Current View. View[" + index +"] -> options["+optionsIndex +"] -> " + JSON.stringify(options));
-    }
   }
 
   closeViewEditor = () => {
