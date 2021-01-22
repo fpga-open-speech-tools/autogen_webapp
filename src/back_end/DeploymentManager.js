@@ -4,7 +4,8 @@ var networkInterfaces = os.networkInterfaces( );
 
 console.log( networkInterfaces );
 
-const ip = networkInterfaces.lo0[0].address;
+
+const ip = networkInterfaces.lo ? networkInterfaces.lo[0].address : networkInterfaces.lo0[0].address;
 const port = 5000;
 
 const server = require('./Server/Controller.js');
