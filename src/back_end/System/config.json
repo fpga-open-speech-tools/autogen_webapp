@@ -1,6 +1,6 @@
 {
-	"name": "OpenMHA Graphing Feed Test",
-	"description": "Graph Test",
+	"name": "Graph Test ",
+	"description": "Description Text",
 	"data": [
 		{
 			"name": "passthrough",
@@ -28,7 +28,7 @@
 	],
 	"containers": [
 		{
-			"name": "Graphing",
+			"name": "Control Card",
 			"views": [
 				0,
 				1,
@@ -60,25 +60,25 @@
 			"optionsIndex": []
 		},
 		{
-            "name":"graph",
-            "type": {
-                "component":"Graph",
-                "variant": "line"
-            },
-            "references": [
-                1
-            ],
-            "optionsIndex": [0]
+			"name": "graph",
+			"type": {
+				"component": "Graph",
+				"variant": "line"
+			},
+			"references": [
+				1
+			],
+			"optionsIndex": [
+				0
+			]
 		}
 	],
 	"options": [
-        {
-            "config":
-                {
-                    "feed":"time",
-                    "maxValues":50
-                }
-        }
-        
+		{
+			"config": {
+				"feed": "time",
+				"maxValues": 50
+			}
+		}
 	]
 }

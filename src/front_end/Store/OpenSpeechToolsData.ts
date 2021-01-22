@@ -197,7 +197,7 @@ export const openSpeechDataActionCreators = {
     AppThunkAction<KnownAction> => (dispatch, getState) => {
 
       fetch(`configuration`, { method: "POST", body: JSON.stringify(input) })
-        .then(response => response.json() as Promise<any>)
+        .then(response => response.json() as Promise<Autogen>)
         .then(data => {
           dispatch({
             type: 'RECEIVE_OPENSPEECH_AUTOGEN', autogen: data

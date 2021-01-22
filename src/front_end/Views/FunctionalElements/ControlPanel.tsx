@@ -104,6 +104,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
     this.moveContainer = this.moveContainer.bind(this);
     this.deleteContainer = this.deleteContainer.bind(this);
     this.updateControlCardName = this.updateControlCardName.bind(this);
+    this.updateControlPanelDescription = this.updateControlPanelDescription.bind(this);
     this.updateControlPanelName = this.updateControlPanelName.bind(this);
 
     this.modifyContainer = this.modifyContainer.bind(this);
@@ -238,6 +239,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
 
   saveEdit = () => {
     this.setState({ editable: false });
+    console.log("saving edit: " + this.props.autogen.description);
     this.props.requestSendAutogenConfiguration(this.props.autogen, this.handleRequestUI);
   }
 
@@ -291,6 +293,14 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
   updateControlCardName = (title: string, index: number) => {
     var autogen = this.props.autogen;
     autogen.containers[index].name = title;
+    this.props.updateAutogenProps(autogen);
+    this.forceUpdate();
+  }
+
+  updateControlPanelDescription = (description: string) => {
+    var autogen = this.props.autogen;
+    console.log("Attempting to change " +  autogen.description + " to " + description);
+    autogen.description = description;
     this.props.updateAutogenProps(autogen);
     this.forceUpdate();
   }
@@ -413,8 +423,12 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
           <Form.Control
             size="lg" type="text"
             value={name}
-            onChange={(x: React.ChangeEvent<HTMLInputElement>) =>
-            { this.updateControlPanelName(x.currentTarget.value); }}
+            onChange={
+              (x: React.ChangeEvent<HTMLInputElement>) => { 
+                console.log(x.currentTarget.value);
+                this.updateControlPanelDescription(x.currentTarget.value); 
+              }
+            }
             />
         </Form>
         );

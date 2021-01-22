@@ -23,6 +23,12 @@ exports.setConfiguration = function (newConfig) {
     modelConfig.views=newConfig.views;
     modelConfig.containers=newConfig.containers;
     modelConfig.name = newConfig.name;
+    if(newConfig.description){
+        modelConfig.description = newConfig.description;
+    }
+    if(newConfig.options){
+        modelConfig.options = newConfig.options;
+    }
     //modelConfig = merge(modelConfig, newConfig, {arrayMerge : combineMerge});
     // console.log(config);
     util.saveJsonFile(CONFIG_FILE, modelConfig);

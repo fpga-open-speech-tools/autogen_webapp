@@ -87,7 +87,7 @@
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "client": "react-scripts start",
-    "server": "nodemon ./src/back_end/DeploymentManager.js",
+    "server": "nodemon ./src/back_end/DeploymentManager.js --ignore ./src/back_end/System/config.json",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "eject": "react-scripts eject",
     "lint": "eslint ./src/**/*.ts ./src/**/*.tsx",
