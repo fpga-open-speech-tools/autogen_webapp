@@ -1,12 +1,8 @@
-
-//React Imports
 import React, { Component } from "react";
 import { Route, Switch } from "react-router-dom";
 
-//Custom JS Imports
 import OpenSpeechNavbar from "../Components/Navbars/OpenSpeechNavbar.jsx";
 import routes from "../routes.js";
-
 
 class Tools extends Component {
 

@@ -7,10 +7,10 @@ import {
   Container, Row, Button, Jumbotron, Modal, Form
 } from "react-bootstrap";
 import NotificationWrapper from "../../Components/Notifications/NotificationWrapper.jsx";
-import ControlCard  from "../../Components/Autogen/Autogen/Containers/ControlCard.jsx";
+import ControlCard  from "../../Components/Autogen/Containers/ControlCard.jsx";
 import { ModelDataClient } from '../../Hub/ModelDataClient';
-import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Autogen/Inputs/Manager/MapifyComponents.jsx';
-import { PopupViewEditor } from "../../Components/Autogen/Autogen/Containers/PopupViewEditor.jsx";
+import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
+import { PopupViewEditor } from "../../Components/Autogen/Containers/PopupViewEditor.jsx";
 
 
 // At runtime, Redux will merge together...
@@ -413,7 +413,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
           <Form.Control
             size="lg" type="text"
             value={name}
-            onChange={(x: React.FormEvent<HTMLInputElement>) =>
+            onChange={(x: React.ChangeEvent<HTMLInputElement>) =>
             { this.updateControlPanelName(x.currentTarget.value); }}
             />
         </Form>

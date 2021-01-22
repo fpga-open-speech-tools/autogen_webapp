@@ -7,8 +7,9 @@
 `$ cd /var/lib/frost/webapp`
 
 ## Install Project Dependencies
-`npm install -g nodemon concurrent kserve`
+`npm install -g nodemon concurrent kserve typescript`
 `npm install --legacy-peer-deps`
+`npm install --force`
 
 
 ## Available Scripts

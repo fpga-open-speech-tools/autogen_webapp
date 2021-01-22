@@ -1,8 +1,5 @@
-
-
 import React, { Component } from "react";
 import NotificationSystem from "react-notification-system";
-
 
 class NotificationWrapper extends Component {
 

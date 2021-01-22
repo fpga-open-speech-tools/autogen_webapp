@@ -1,6 +1,4 @@
-﻿//import * as signalR from "@microsoft/signalr";
-
-import { HubClient } from "./HubClient";
+﻿import { HubClient } from "./HubClient";
 
 interface ModelDataState {
   connected: boolean;

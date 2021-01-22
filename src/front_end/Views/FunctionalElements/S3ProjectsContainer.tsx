@@ -2,7 +2,7 @@ import * as React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router";
 import * as OpenSpeechDataStore from "../../Store/OpenSpeechToolsData";
-import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Autogen/Inputs/Manager/MapifyComponents.jsx';
+import { GetAutogenObjectFromData, Components } from '../../Components/Autogen/Inputs/Manager/MapifyComponents.jsx';
 import { ApplicationState } from "../../..";
 import {
   Container,

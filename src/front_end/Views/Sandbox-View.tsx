@@ -5,7 +5,7 @@ import { RouteComponentProps } from 'react-router';
 import * as OpenSpeechDataStore from '../Store/OpenSpeechToolsData';
 import { ApplicationState } from '../..';
 import {Container, Row, Modal} from "react-bootstrap";
-import ComponentLibary from "../Components/Autogen/Autogen/Inputs/Manager/MapifyComponents.jsx";
+import ComponentLibary from "../Components/Autogen/Inputs/Manager/MapifyComponents.jsx";
 
 // At runtime, Redux will merge together...
 type OpenSpeechProps =
