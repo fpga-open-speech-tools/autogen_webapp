@@ -209,7 +209,7 @@ export class S3ProjectsContainer extends React.PureComponent<
       return cl.props.availableDemos.map(
         (d: OpenSpeechDataStore.DemoDevice) => (
           <Tab.Pane key={d.name} eventKey={d.name} title={d.name}>
-            <Row>{ProjectCards(cl, d)}</Row>
+            <Row style={{justifyContent: "center"}}>{ProjectCards(cl, d)}</Row>
           </Tab.Pane>
         )
       );
@@ -228,17 +228,10 @@ export class S3ProjectsContainer extends React.PureComponent<
                 <Modal.Title>Available Projects</Modal.Title>
               </Modal.Header>
               <Modal.Body className="mw-1080-px">
-                <Form.Group>
-                <Col lg={12}md={12}sm={12}>
-                    <Button
-                      variant="primary"
-                      className="btn-simple btn-icon float-left ml-0 pl-0"
-                      onClick={()=> {this.props.requestOpenSpeechS3Demos(this.state.form.s3_bucket, this.state.form.s3_region)}}
-                    >
-                      Update
-                    </Button>
-                  </Col>
-                  <Col lg={6} md={6} sm={12}>
+                
+              <Row>
+                <Form.Group className="w-100">
+                  <Col lg={5} md={5} sm={12}>
                     <Form.Label>S3 Bucket</Form.Label>
                     <Form.Control
                       className="autogen-form-control float-left border-bottom mb-4"
@@ -249,7 +242,7 @@ export class S3ProjectsContainer extends React.PureComponent<
                       onChange={this.handleChange.bind(this)}
                     />
                   </Col>
-                  <Col lg={6} md={6} sm={12}>
+                  <Col lg={5} md={5} sm={12}>
                     <Form.Label>S3 Region</Form.Label>
                     <Form.Control
                       className="autogen-form-control float-left border-bottom mb-4"
@@ -260,10 +253,24 @@ export class S3ProjectsContainer extends React.PureComponent<
                       onChange={this.handleChange.bind(this)}
                     />
                   </Col>
+                  <Col lg={2}md={2}sm={12}>
+                    <Button
+                      variant="primary"
+                      className="btn-block mr-1 mt-1 btn-lg"
+                      onClick={()=> {this.props.requestOpenSpeechS3Demos(this.state.form.s3_bucket, this.state.form.s3_region)}}
+                    >
+                      Update
+                    </Button>
+                  </Col>
                 </Form.Group>
-                <div className="autogen-pages">
-                  {DeviceTabs(this, tabMapNav, tabMapContent)}
-                </div>
+                </Row>
+
+                <Row>
+                  <div className="autogen-pages">
+                    {DeviceTabs(this, tabMapNav, tabMapContent)}
+                  </div>
+                </Row>
+                
               </Modal.Body>
             </Modal.Dialog>
           </Row>
