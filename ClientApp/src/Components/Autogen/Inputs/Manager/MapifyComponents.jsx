@@ -47,16 +47,18 @@ const checkOptionalProps = (optionalProps, dataProps) => {
 }
 
 export function getViewsFromData(modelDataArray, options) {
+
+  let unified = [];
   var views = modelDataArray.map((modelData, index) => {
+
     var optionsIndex;
     if(options){
       if (options && options !== {}) {
-        options.forEach((option) => {
+        options.forEach((option,optionIndex) => {
           if (option.data) {
             option.data.forEach((dataIndex) => {
               if (dataIndex === index) {
-                console.log("Has Options!");
-                optionsIndex = dataIndex;
+                optionsIndex = optionIndex;
               }
             });
           }
@@ -76,8 +78,23 @@ export function getViewsFromData(modelDataArray, options) {
       type: component,
       references: [index],
       optionsIndex: optionsIndex,
+      id: "w-"+index
     };
-    return (view);
+    if(combinedProps.properties.union){
+      view.references.push(combinedProps.properties.union);
+      unified.push(combinedProps.properties.union);
+    }
+    if(combinedProps.properties.processing){
+      combinedProps.properties.processing.inputs.forEach((input)=>{
+        if(input.type === "pointer"){
+          view.references.push(input.value);
+        }  
+      });
+    }
+    if(unified.includes(index)){
+      view.noDisplay = true;
+    }
+    return view;
   });
   return views;
 }
@@ -183,7 +200,6 @@ const GetAllValidViewsFromDataProps = (dataProperties) => {
       matches.push({ component: component.name, variant: defaultVariant });
     }
   });
-
   return matches;
 }
 

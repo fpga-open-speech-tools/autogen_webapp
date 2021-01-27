@@ -1,0 +1,1413 @@
+{
+	"name": "Test",
+	"containers": [
+		{
+			"name": "Band1",
+			"views": [
+				0,
+				1,
+				2,
+				3
+			]
+		},
+		{
+			"name": "Band2",
+			"views": [
+				4,
+				5,
+				6,
+				7
+			]
+		},
+		{
+			"name": "Band3",
+			"views": [
+				8,
+				9,
+				10,
+				11
+			]
+		},
+		{
+			"name": "Band4",
+			"views": [
+				12,
+				13,
+				14,
+				15
+			]
+		},
+		{
+			"name": "Band5",
+			"views": [
+				16,
+				17,
+				18,
+				19
+			]
+		},
+		{
+			"name": "Band6",
+			"views": [
+				20,
+				21,
+				22,
+				23
+			]
+		},
+		{
+			"name": "Band7",
+			"views": [
+				24,
+				25,
+				26,
+				27
+			]
+		},
+		{
+			"name": "Band8",
+			"views": [
+				28,
+				29,
+				30,
+				31
+			]
+		},
+		{
+			"name": "Processing",
+			"views": [
+				32,
+				33,
+				34,
+				35
+			]
+		}
+	],
+	"views": [
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				0,
+				1
+			],
+			"optionsIndex": 0,
+			"viewIndex": 0
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				1
+			],
+			"viewIndex": 1,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				2
+			],
+			"viewIndex": 2
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				3
+			],
+			"viewIndex": 3
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				4,
+				5
+			],
+			"optionsIndex": 1,
+			"viewIndex": 4
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				5
+			],
+			"viewIndex": 5,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				6
+			],
+			"viewIndex": 6
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				7
+			],
+			"viewIndex": 7
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				8,
+				9
+			],
+			"optionsIndex": 2,
+			"viewIndex": 8
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				9
+			],
+			"viewIndex": 9,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				10
+			],
+			"viewIndex": 10
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				11
+			],
+			"viewIndex": 11
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				12,
+				13
+			],
+			"optionsIndex": 3,
+			"viewIndex": 12
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				13
+			],
+			"viewIndex": 13,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				14
+			],
+			"viewIndex": 14
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				15
+			],
+			"viewIndex": 15
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				16,
+				17
+			],
+			"optionsIndex": 4,
+			"viewIndex": 16
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				17
+			],
+			"viewIndex": 17,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				18
+			],
+			"viewIndex": 18
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				19
+			],
+			"viewIndex": 19
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				20,
+				21
+			],
+			"optionsIndex": 5,
+			"viewIndex": 20
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				21
+			],
+			"viewIndex": 21,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				22
+			],
+			"viewIndex": 22
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				23
+			],
+			"viewIndex": 23
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				24,
+				25
+			],
+			"optionsIndex": 6,
+			"viewIndex": 24
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				25
+			],
+			"viewIndex": 25,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				26
+			],
+			"viewIndex": 26
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				27
+			],
+			"viewIndex": 27
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "TwoHandleSlider",
+				"variant": "standard"
+			},
+			"references": [
+				28,
+				29
+			],
+			"optionsIndex": 7,
+			"viewIndex": 28
+		},
+		{
+			"name": "Compression",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				29
+			],
+			"viewIndex": 29,
+			"noDisplay": true
+		},
+		{
+			"name": "Attack",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				30
+			],
+			"viewIndex": 30
+		},
+		{
+			"name": "Decay",
+			"type": {
+				"component": "Slider",
+				"variant": "horizontal"
+			},
+			"references": [
+				31
+			],
+			"viewIndex": 31
+		},
+		{
+			"name": "Process Gains",
+			"type": {
+				"component": "ProcessingButton",
+				"variant": "standard"
+			},
+			"references": [
+				32,
+				0,
+				1,
+				4,
+				5,
+				8,
+				9,
+				12,
+				13,
+				16,
+				17,
+				20,
+				21,
+				24,
+				25,
+				28,
+				29
+			],
+			"optionsIndex": 8,
+			"viewIndex": 32
+		},
+		{
+			"name": "ProcessingAD",
+			"type": {
+				"component": "ProcessingButton",
+				"variant": "standard"
+			},
+			"references": [
+				33,
+				2,
+				3,
+				6,
+				7,
+				10,
+				11,
+				14,
+				15,
+				18,
+				19,
+				22,
+				23,
+				26,
+				27,
+				30,
+				31
+			],
+			"optionsIndex": 9,
+			"viewIndex": 33
+		},
+        {
+			"name": "Processing Output",
+			"type": {
+				"component": "Text",
+				"variant": "standard"
+			},
+			"references": [32]
+		},
+        {
+			"name": "Processing Output Attack + Decay",
+			"type": {
+				"component": "Text",
+				"variant": "standard"
+			},
+			"references": [33]
+		}
+	],
+	"data": [
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band1",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band2",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band2",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band2",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band2",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band3",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band3",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band3",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band3",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band4",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band4",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band4",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band4",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band5",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band5",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band5",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band5",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band6",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band6",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band6",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band6",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band7",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band7",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band7",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band7",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band8",
+			"value": 50,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Compression",
+			"type": "user-only",
+			"device": "Band8",
+			"value": 96,
+			"properties": {
+				"min": 0,
+				"max": 96,
+				"step": 1
+			}
+		},
+		{
+			"name": "Attack",
+			"type": "user-only",
+			"device": "Band8",
+			"value": 0.02,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Decay",
+			"type": "user-only",
+			"device": "Band8",
+			"value": 0.1,
+			"properties": {
+				"min": 0,
+				"max": 1,
+				"step": 0.01,
+				"units": "seconds"
+			}
+		},
+		{
+			"name": "Process Gains",
+			"type": "dpr",
+			"device": "Processing",
+			"value": "",
+			"properties": {}
+		},
+		{
+			"name": "ProcessingAD",
+			"type": "dpr",
+			"device": "Processing",
+			"value": "",
+			"properties": {}
+		}
+	],
+	"options": [
+		{
+			"data": [
+				0
+			],
+			"union": 1
+		},
+		{
+			"data": [
+				4
+			],
+			"union": 5
+		},
+		{
+			"data": [
+				8
+			],
+			"union": 9
+		},
+		{
+			"data": [
+				12
+			],
+			"union": 13
+		},
+		{
+			"data": [
+				16
+			],
+			"union": 17
+		},
+		{
+			"data": [
+				20
+			],
+			"union": 21
+		},
+		{
+			"data": [
+				24
+			],
+			"union": 25
+		},
+		{
+			"data": [
+				28
+			],
+			"union": 29
+		},
+		{
+			"data": [
+				32
+			],
+			"processing": {
+				"functions": [
+					{
+						"output_name": "table_1",
+						"function": "create_gain_table(gain_table_size,gain_table_spacing)"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_1_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_1_max)"
+					},
+					{
+						"output_name": "table_1_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_1_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_1_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_2_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_2_max)"
+					},
+					{
+						"output_name": "table_2_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_2_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_2_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_3_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_3_max)"
+					},
+					{
+						"output_name": "table_3_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_3_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_3_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_4_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_4_max)"
+					},
+					{
+						"output_name": "table_4_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_4_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_4_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_5_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_5_max)"
+					},
+					{
+						"output_name": "table_5_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_5_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_5_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_6_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_2_max)"
+					},
+					{
+						"output_name": "table_6_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_6_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_6_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_7_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_7_max)"
+					},
+					{
+						"output_name": "table_7_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_7_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_7_gains,10)))"
+					},
+					{
+						"output_name": "table_min_adjust",
+						"function": "set_table_min(table_1,band_8_min + minimum_boost_value)"
+					},
+					{
+						"output_name": "table_max_adjust",
+						"function": "set_table_max(table_min_adjust,band_8_max)"
+					},
+					{
+						"output_name": "table_8_gains",
+						"function": "get_table_gains(table_max_adjust,table_1)"
+					},
+					{
+						"output_name": "table_8_gains_scaled",
+						"function": "print_table(dotPow(10,dotDivide(table_8_gains,10)))"
+					}
+				],
+				"inputs": [
+					{
+						"name": "band_1_min",
+						"type": "pointer",
+						"value": 0
+					},
+					{
+						"name": "band_1_max",
+						"type": "pointer",
+						"value": 1
+					},
+					{
+						"name": "band_2_min",
+						"type": "pointer",
+						"value": 4
+					},
+					{
+						"name": "band_2_max",
+						"type": "pointer",
+						"value": 5
+					},
+					{
+						"name": "band_3_min",
+						"type": "pointer",
+						"value": 8
+					},
+					{
+						"name": "band_3_max",
+						"type": "pointer",
+						"value": 9
+					},
+					{
+						"name": "band_4_min",
+						"type": "pointer",
+						"value": 12
+					},
+					{
+						"name": "band_4_max",
+						"type": "pointer",
+						"value": 13
+					},
+					{
+						"name": "band_5_min",
+						"type": "pointer",
+						"value": 16
+					},
+					{
+						"name": "band_5_max",
+						"type": "pointer",
+						"value": 17
+					},
+					{
+						"name": "band_6_min",
+						"type": "pointer",
+						"value": 20
+					},
+					{
+						"name": "band_6_max",
+						"type": "pointer",
+						"value": 21
+					},
+					{
+						"name": "band_7_min",
+						"type": "pointer",
+						"value": 24
+					},
+					{
+						"name": "band_7_max",
+						"type": "pointer",
+						"value": 25
+					},
+					{
+						"name": "band_8_min",
+						"type": "pointer",
+						"value": 28
+					},
+					{
+						"name": "band_8_max",
+						"type": "pointer",
+						"value": 29
+					},
+					{
+						"name": "fs",
+						"type": "constant",
+						"value": 48000
+					},
+					{
+						"name": "minimum_boost_value",
+						"type": "constant",
+						"value": 6
+					},
+					{
+						"name": "gain_table_size",
+						"type": "constant",
+						"value": 32
+					},
+					{
+						"name": "gain_table_spacing",
+						"type": "constant",
+						"value": 3
+					},
+					{
+						"name": "create_gain_table",
+						"type": "function",
+						"value": {
+							"parameters": [
+								"size",
+								"spacing"
+							],
+							"type": "javascript",
+							"output": "let output = []; for(var i=0; i<size;i++){output[i]=i*spacing;} return output;"
+						}
+					},
+					{
+						"name": "print_table",
+						"type": "function",
+						"value": {
+							"parameters": [
+								"table"
+							],
+							"type": "javascript",
+							"output": "let output = ''; table.forEach((val) => {output += val + ' ';}); return output;"
+						}
+					},
+					{
+						"name": "set_table_min",
+						"type": "function",
+						"value": {
+							"parameters": [
+								"table",
+								"min"
+							],
+							"type": "javascript",
+							"output": "let newTable = []; table.forEach((val)=>{newTable.push(val);}); newTable.forEach((value,index)=>{if(newTable[index]<=min){newTable[index]=min;}});return newTable;"
+						}
+					},
+					{
+						"name": "set_table_max",
+						"type": "function",
+						"value": {
+							"parameters": [
+								"table",
+								"max"
+							],
+							"type": "javascript",
+							"output": "let newTable = []; table.forEach((val)=>{newTable.push(val);}); newTable.forEach((value,index)=>{if(newTable[index]>=max){newTable[index]=max;}});return newTable;"
+						}
+					},
+					{
+						"name": "get_table_gains",
+						"type": "function",
+						"value": {
+							"parameters": [
+								"updated",
+								"original"
+							],
+							"type": "javascript",
+							"output": "let newTable = []; updated.forEach((value,index)=>{newTable[index]=updated[index]-original[index];});return newTable;"
+						}
+					}
+				],
+				"output": "%table_1_gains_scaled%table_2_gains_scaled%table_3_gains_scaled%table_4_gains_scaled%table_5_gains_scaled%table_6_gains_scaled%table_7_gains_scaled%table_8_gains_scaled"
+			}
+		},
+		{
+			"data": [
+				33
+			],
+			"processing": {
+				"functions": [
+					{
+						"output_name": "table_1_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_1)),exp(-1/(fs*tau_r_1))])"
+					},
+					{
+						"output_name": "table_2_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_2)),exp(-1/(fs*tau_r_2))])"
+					},
+					{
+						"output_name": "table_3_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_3)),exp(-1/(fs*tau_r_3))])"
+					},
+					{
+						"output_name": "table_4_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_4)),exp(-1/(fs*tau_r_4))])"
+					},
+					{
+						"output_name": "table_5_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_5)),exp(-1/(fs*tau_r_5))])"
+					},
+					{
+						"output_name": "table_6_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_6)),exp(-1/(fs*tau_r_6))])"
+					},
+					{
+						"output_name": "table_7_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_7)),exp(-1/(fs*tau_r_7))])"
+					},
+					{
+						"output_name": "table_8_attack_decay",
+						"function": "print_table([exp(-1/(fs*tau_a_8)),exp(-1/(fs*tau_r_8))])"
+					}
+				],
+				"inputs": [
+					{
+						"name": "tau_a_1",
+						"type": "pointer",
+						"value": 2
+					},
+					{
+						"name": "tau_r_1",
+						"type": "pointer",
+						"value": 3
+					},
+					{
+						"name": "tau_a_2",
+						"type": "pointer",
+						"value": 6
+					},
+					{
+						"name": "tau_r_2",
+						"type": "pointer",
+						"value": 7
+					},
+					{
+						"name": "tau_a_3",
+						"type": "pointer",
+						"value": 10
+					},
+					{
+						"name": "tau_r_3",
+						"type": "pointer",
+						"value": 11
+					},
+					{
+						"name": "tau_a_4",
+						"type": "pointer",
+						"value": 14
+					},
+					{
+						"name": "tau_r_4",
+						"type": "pointer",
+						"value": 15
+					},
+					{
+						"name": "tau_a_5",
+						"type": "pointer",
+						"value": 18
+					},
+					{
+						"name": "tau_r_5",
+						"type": "pointer",
+						"value": 19
+					},
+					{
+						"name": "tau_a_6",
+						"type": "pointer",
+						"value": 22
+					},
+					{
+						"name": "tau_r_6",
+						"type": "pointer",
+						"value": 23
+					},
+					{
+						"name": "tau_a_7",
+						"type": "pointer",
+						"value": 26
+					},
+					{
+						"name": "tau_r_7",
+						"type": "pointer",
+						"value": 27
+					},
+					{
+						"name": "tau_a_8",
+						"type": "pointer",
+						"value": 30
+					},
+					{
+						"name": "tau_r_8",
+						"type": "pointer",
+						"value": 31
+					},
+					{
+						"name": "fs",
+						"type": "constant",
+						"value": 48000
+					},
+					{
+						"name": "print_table",
+						"type": "function",
+						"value": {
+							"parameters": [
+								"table"
+							],
+							"type": "javascript",
+							"output": "let output = ''; table.forEach((val) => {output += val + ' ';}); return output;"
+						}
+					}
+				],
+				"output": "%table_1_attack_decay%table_2_attack_decay%table_3_attack_decay%table_4_attack_decay%table_5_attack_decay%table_6_attack_decay%table_7_attack_decay%table_8_attack_decay"
+			}
+		}
+	]
+}
