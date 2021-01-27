@@ -1,5 +1,5 @@
 import { Action, Reducer } from 'redux';
-import { AppThunkAction } from '../';
+import { AppThunkAction } from '..';
 import * as DemoFetcher from './data-helpers/demo-fetcher.js';
 
 // -----------------
@@ -260,9 +260,9 @@ export const openSpeechDataActionCreators = {
       dispatch({ type: 'REQUEST_RTC_ENABLE', rtcEnabled:false });
     },
 
-  requestOpenSpeechS3Demos: (bucket_name:string):
+  requestOpenSpeechS3Demos: (bucket_name:string, bucket_region:string):
     AppThunkAction<KnownAction> => (dispatch) => {
-      var url = DemoFetcher.getBucketURL(bucket_name);
+      var url = DemoFetcher.getBucketURL(bucket_name, bucket_region);
       fetch(url)
       .then(response => response.text())
       .then(str => (new window.DOMParser()).parseFromString(str, "text/xml"))

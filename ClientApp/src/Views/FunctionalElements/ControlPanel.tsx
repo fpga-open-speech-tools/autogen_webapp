@@ -484,7 +484,7 @@ export class ControlPanel extends React.Component<OpenSpeechProps, AutoGenState>
       <div className="autogen autogen-effectContainer modal-body">
         {this.controlPanelHeaderTitleControl(effectDescription)}
         <Row className="autogen-pages row">
-          {this.props.autogen.containers.map((container,index) =>
+          {this.props.autogen.containers.map((container:any,index:any) =>
             <React.Fragment key={"container-" + index}>
               <ControlCard
                 indexTrigger={this.state.dataIndexTrigger}
@@ -607,11 +607,11 @@ function createDataSubsets
   (autogen: OpenSpeechDataStore.Autogen, modelData: OpenSpeechDataStore.ModelData[]) {
   var map = [] as dataSubset[];
   if(autogen.containers){
-    autogen.containers.forEach((container) => {
+    autogen.containers.forEach((container:any) => {
       const subset = {indices: [], views: [] } as dataSubset; //assign a data subset for each container.
-      container.views.forEach((viewIndex) => {
+      container.views.forEach((viewIndex:any) => {
         const viewData = { indices: [], data:[] } as viewData; //Assign empty data array for each view.
-        autogen.views[viewIndex].references.forEach((dataIndex) => {
+        autogen.views[viewIndex].references.forEach((dataIndex:any) => {
           const currentData = { index: dataIndex, packet: modelData[dataIndex] };
           viewData.data.push(currentData);
           viewData.indices.push(dataIndex);

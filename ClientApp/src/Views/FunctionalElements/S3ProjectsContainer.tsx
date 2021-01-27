@@ -26,6 +26,7 @@ type OpenSpeechProps = OpenSpeechDataStore.OpenSpeechToolsState & // ... state w
 
 export interface ProjectsProps{
   defaultBucket?: string;
+  defaultRegion?: string;
   className?: string;
 }
 
@@ -56,6 +57,7 @@ interface Notification {
 
 interface S3Form {
   s3_bucket: string;
+  s3_region: string;
 }
 
 export class S3ProjectsContainer extends React.PureComponent<
@@ -83,6 +85,7 @@ export class S3ProjectsContainer extends React.PureComponent<
 
       form: {
         s3_bucket: "",
+        s3_region: ""
       },
       currentDevice: "",
       downloadTarget: "",
@@ -97,11 +100,23 @@ export class S3ProjectsContainer extends React.PureComponent<
 
   componentDidMount() {
     if(this.props.defaultBucket){
-      this.props.requestOpenSpeechS3Demos(this.props.defaultBucket);
-      this.setState({ loadingDemos: true, form:{s3_bucket:this.props.defaultBucket} });
+      this.props.requestOpenSpeechS3Demos(this.props.defaultBucket, this.props.defaultRegion as string);
+      this.setState({ 
+        loadingDemos: true, 
+        form:{
+          s3_bucket:this.props.defaultBucket as string, 
+          s3_region:this.props.defaultRegion as string
+        } 
+      });
     }
     if(this.props.className){
-      this.setState({className:this.props.className});
+      this.setState({
+        className:this.props.className,
+        form:{
+          s3_bucket:this.props.defaultBucket as string,
+          s3_region:this.props.defaultRegion as string
+        }
+      });
     }
   }
 
@@ -214,22 +229,37 @@ export class S3ProjectsContainer extends React.PureComponent<
               </Modal.Header>
               <Modal.Body className="mw-1080-px">
                 <Form.Group>
-                  <Form.Label>S3 Bucket</Form.Label>
-                  <Form.Control
-                    className="autogen-form-control float-left border-bottom mb-4"
-                    type="text"
-                    name="s3_bucket"
-                    placeholder="s3-bucket"
-                    defaultValue={this.state.form.s3_bucket}
-                    onChange={this.handleChange.bind(this)}
-                  />
-                  <Button
-                    variant="primary"
-                    className="btn-simple btn-icon"
-                    onClick={()=> {this.props.requestOpenSpeechS3Demos(this.state.form.s3_bucket)}}
-                  >
-                    Update
-                  </Button>
+                <Col lg={12}md={12}sm={12}>
+                    <Button
+                      variant="primary"
+                      className="btn-simple btn-icon float-left ml-0 pl-0"
+                      onClick={()=> {this.props.requestOpenSpeechS3Demos(this.state.form.s3_bucket, this.state.form.s3_region)}}
+                    >
+                      Update
+                    </Button>
+                  </Col>
+                  <Col lg={6} md={6} sm={12}>
+                    <Form.Label>S3 Bucket</Form.Label>
+                    <Form.Control
+                      className="autogen-form-control float-left border-bottom mb-4"
+                      type="text"
+                      name="s3_bucket"
+                      placeholder="s3-bucket"
+                      defaultValue={this.state.form.s3_bucket}
+                      onChange={this.handleChange.bind(this)}
+                    />
+                  </Col>
+                  <Col lg={6} md={6} sm={12}>
+                    <Form.Label>S3 Region</Form.Label>
+                    <Form.Control
+                      className="autogen-form-control float-left border-bottom mb-4"
+                      type="text"
+                      name="s3_region"
+                      placeholder="s3-region"
+                      defaultValue={this.state.form.s3_region}
+                      onChange={this.handleChange.bind(this)}
+                    />
+                  </Col>
                 </Form.Group>
                 <div className="autogen-pages">
                   {DeviceTabs(this, tabMapNav, tabMapContent)}
