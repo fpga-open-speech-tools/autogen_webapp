@@ -135,7 +135,6 @@ interface RequestOpenSpeechS3DownloadAction {
 
 interface ReceiveOpenSpeechS3DownloadAction {
   type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO';
-  autogen: Autogen;
   currentDemo: string;
   isDeviceDownloading: boolean;
 }
@@ -243,18 +242,26 @@ export const openSpeechDataActionCreators = {
 
   requestDownloadS3Demo: (bucketName:string, devicename: string, projectname: string):
     AppThunkAction<KnownAction> => (dispatch, getState) => {
-    // fetch(`downloads3bucket/${address.ipAddress.ip1}/${address.ipAddress.ip2}/${address.ipAddress.ip3}/${address.ipAddress.ip4}/${address.port}/${bucketName}/${devicename}/${projectname}`)
-    //   .then(response => response.json() as Promise<Autogen>)
-    //   .then(data => {
-    //     dispatch({
-    //       type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO',autogen:data, isDeviceDownloading: false, currentDemo:projectname
-    //     });
-    //   });
-    //   dispatch({
-    //     type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO',
-    //     deviceAddress:address,
-    //     deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo:projectname
-    //   });
+    var downloadObject = {
+      bucketname: bucketName,
+      downloadurl: devicename + "/" + projectname,
+      devicename: devicename,
+      projectname: projectname
+    }
+    fetch(`download`, {method: "PUT", body:JSON.stringify(downloadObject)})
+      .then(response => response.json() as Promise<Autogen>)
+      .then(data => {
+        dispatch({
+          type: 'RECEIVE_OPENSPEECH_DOWNLOAD_DEMO', isDeviceDownloading: false, currentDemo:projectname
+        });
+      })
+      .then(() => {
+        
+      });
+      dispatch({
+        type: 'REQUEST_OPENSPEECH_DOWNLOAD_DEMO',
+        deviceFamily: devicename, projectName: projectname, isDeviceDownloading: true, currentDemo:projectname
+      });
     },
 };
 
@@ -357,8 +364,8 @@ export const reducer: Reducer<OpenSpeechToolsState> = (state: OpenSpeechToolsSta
       return {
         availableDemos: state.availableDemos,
         currentDemo: action.currentDemo,
-        autogen: action.autogen,
         isDeviceDownloading: false,
+        autogen: state.autogen,
         newAutogen: false,
         isLoading: false
       };
