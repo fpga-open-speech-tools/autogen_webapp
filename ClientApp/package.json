@@ -37,7 +37,7 @@
     "react-draggable": "^4.4.3",
     "react-input-moment": "^1.7.13",
     "react-leaflet": "^2.6.3",
-    "react-lineto": "^3.2.0",
+    "react-lineto": "^3.3.0",
     "react-notification-system": "^0.3.0",
     "react-pin-input": "^0.9.3",
     "react-redux": "^7.1.1",
