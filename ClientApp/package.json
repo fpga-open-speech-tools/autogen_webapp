@@ -13,7 +13,7 @@
     "@types/react-leaflet": "^2.5.1",
     "@types/signalr": "^2.2.36",
     "amazon-s3-uri": "^0.1.0",
-    "aws-sdk": "^2.775.0",
+    "aws-sdk": "^2.814.0",
     "bootstrap": "^4.4.1",
     "chartist": "^0.11.4",
     "connected-react-router": "^6.5.2",
